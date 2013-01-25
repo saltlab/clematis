@@ -1,0 +1,129 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.metis</groupId>
+	<artifactId>metis</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Metis</name>
+	<description>Monitoring, logging, and understanding JavaScript events.</description>
+
+	<prerequisites>
+		<maven>3.0.3</maven>
+	</prerequisites>
+
+	<inceptionYear>2012</inceptionYear>
+
+	<properties>
+		<maven.compiler.source>1.6</maven.compiler.source>
+		<maven.compiler.target>1.6</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<selenium.version>2.27.0</selenium.version>
+	</properties>
+
+	<developers>
+		<developer>
+			<id>sequeirashel</id>
+			<name>Sheldon Sequeira</name>
+			<email>sheldon@ece.ubc.ca</email>
+			<organization>SALTLab, UBC</organization>
+			<organizationUrl>http://salt.ece.ubc.ca</organizationUrl>
+			<timezone>-8</timezone>
+		</developer>
+	</developers>
+
+	<dependencies>
+
+<dependency>
+	<groupId>org.mozilla</groupId>
+	<artifactId>rhino</artifactId>
+	<version>1.7R4</version>
+</dependency>
+
+		<dependency>
+			<groupId>com.crawljax.plugins</groupId>
+			<artifactId>webscarabwrapper</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+<!--		<dependency>
+			<groupId>com.crawljax.plugins</groupId>
+			<artifactId>proxy-plugin</artifactId>
+			<version>1.4-SNAPSHOT</version>
+		</dependency>
+		 <dependency> <groupId>com.crawljax.plugins</groupId> <artifactId>jsmodify</artifactId> 
+			<version>1.1-SNAPSHOT</version> </dependency> -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-firefox-driver</artifactId>
+			<version>[${selenium.version},)</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-chrome-driver</artifactId>
+			<version>[${selenium.version},)</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-htmlunit-driver</artifactId>
+			<version>[${selenium.version},)</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-ie-driver</artifactId>
+			<version>[${selenium.version},)</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-support</artifactId>
+			<version>[${selenium.version},)</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-iphone-driver</artifactId>
+			<version>[${selenium.version},)</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-remote-driver</artifactId>
+			<version>[${selenium.version},)</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-android-driver</artifactId>
+			<version>[${selenium.version},)</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>*.txt</exclude>
+				</excludes>
+			</resource>
+			<!-- <resource> <directory>src/main/java</directory> </resource> -->
+		</resources>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>crawljax.mvn.repo</id>
+			<url>https://github.com/crawljax/crawljax-mvn-repo/raw/master</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+
+</project>
