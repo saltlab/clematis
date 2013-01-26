@@ -13,8 +13,8 @@ import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.Scope;
 import org.mozilla.javascript.ast.Symbol;
 
+import com.metis.jsmodify.JSASTModifier;
 import com.metis.util.Helper;
-
 
 /**
  * This class is used to visit all JS nodes. When a node matches a certain condition, this class
@@ -22,7 +22,6 @@ import com.metis.util.Helper;
  * 
  */
 public abstract class AstInstrumenter extends JSASTModifier {
-
 
 	/**
 	 * List with regular expressions that should not be instrumented.
@@ -37,10 +36,9 @@ public abstract class AstInstrumenter extends JSASTModifier {
 	 */
 	public AstInstrumenter(String jsFileNameToAttach) {
 		super();
-		//this.jsFileNameToAttach=jsFileNameToAttach;
 		excludeVariableNamesList = new ArrayList<String>();
 	}
-	
+
 	public AstInstrumenter() {
 		super();
 		excludeVariableNamesList = new ArrayList<String>();
@@ -58,10 +56,9 @@ public abstract class AstInstrumenter extends JSASTModifier {
 	}
 
 	public void setFileNameToAttach(String fileName) {
-		
 		this.jsFileNameToAttach = fileName;
 	}
-	
+
 	/**
 	 * Return an AST of the variable logging functions.
 	 * 
@@ -74,15 +71,14 @@ public abstract class AstInstrumenter extends JSASTModifier {
 		code = Helper.getContent(js);
 		return parse(code);
 	}
-	
+
 	protected AstRoot rhinoCreateNode(String code) {
-		
 		return (AstRoot) parse(code);
 	}
 
 	@Override
 	public abstract AstNode createNodeInFunction(FunctionNode function, int lineNo);
-	
+
 	@Override
 	public abstract AstNode createNode(FunctionNode function, String postfix, int lineNo);
 
@@ -105,7 +101,6 @@ public abstract class AstInstrumenter extends JSASTModifier {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -118,25 +113,21 @@ public abstract class AstInstrumenter extends JSASTModifier {
 	 */
 	protected String[] getVariablesNamesInScope(Scope scope) {
 		TreeSet<String> result = new TreeSet<String>();
-        
-
 
 		do {
 			/* get the symboltable for the current scope */
 			Map<String, Symbol> t = scope.getSymbolTable();
-		
+
 			if (t != null) {
 				for (String key : t.keySet()) {
 					/* read the symbol */
 					Symbol symbol = t.get(key);
 					/* only add variables and function parameters */
 					if (symbol.getDeclType() == Token.LP || symbol.getDeclType() == Token.VAR) {
-						result.add(symbol.getName());
-							
+						result.add(symbol.getName());					
 					}
 				}
 			}
-
 			/* get next scope (upwards) */
 			scope = scope.getEnclosingScope();
 		} while (scope != null);
@@ -162,11 +153,10 @@ public abstract class AstInstrumenter extends JSASTModifier {
 		return domModifications;
 	}
 
-	
 	public void instrumentDOMModifications() {
 		domModifications = true;
 	}
 
-	
+
 }
 

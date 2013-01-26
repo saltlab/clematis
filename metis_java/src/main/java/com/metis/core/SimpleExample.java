@@ -1,17 +1,18 @@
 package com.metis.core;
 
-import org.openqa.selenium.By;
+import java.io.File;
+
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 
-import com.metis.instrument.*;
+import org.owasp.webscarab.model.Preferences;
+import org.owasp.webscarab.plugin.Framework;
+import org.owasp.webscarab.plugin.proxy.Proxy;
 
-import com.crawljax.core.configuration.ProxyConfiguration;
-import com.crawljax.core.plugin.ProxyServerPlugin;
-import com.crawljax.plugins.jsmodify.JSModifyProxyPlugin;
-import com.crawljax.plugins.webscarabwrapper.WebScarabWrapper;
+import com.metis.core.configuration.ProxyConfiguration;
+import com.metis.instrument.*;
+import com.metis.jsmodify.JSModifyProxyPlugin;
 
 public class SimpleExample {
 
@@ -21,24 +22,38 @@ public class SimpleExample {
 		try {
 
 			// Create a new instance of the firefox driver
-			ProxyConfiguration prox = new ProxyConfiguration();
 			FirefoxProfile profile = new FirefoxProfile();
-			WebScarabWrapper web = new WebScarabWrapper();
-			
-			SamplePlugin s = new SamplePlugin();
+
+			// Instantiate proxy components
+			ProxyConfiguration prox = new ProxyConfiguration();
+			//WebScarabWrapper web = new WebScarabWrapper();
+
+			// Modifier responsible for parsing Ast tree
+			FunctionTrace s = new FunctionTrace();
 			s.setFileNameToAttach("/addvariable.js");
 			s.instrumentDOMModifications();
-			
-			// Proxy plugin
+
+			// Interface for Ast traversal
 			JSModifyProxyPlugin p = new JSModifyProxyPlugin(s);
 			p.excludeDefaults();
-			web.addPlugin(p);
+
+			Framework framework = new Framework();
+
+			/* set listening port before creating the object to avoid warnings */
+			Preferences.setPreference("Proxy.listeners", "127.0.0.1:" + prox.getPort());
+
+			Proxy proxy = new Proxy(framework);
+
+			/* add the plugins to the proxy */
+			proxy.addPlugin(p);
+
+			framework.setSession("FileSystem", new File("convo_model"), "");
+
 			
-			((ProxyServerPlugin) web).proxyServer(prox);
-			
-			
-		//	web.addPlugin(s);
-			
+			/* start the proxy */
+			proxy.run();
+
+
 			if (prox != null) {
 				profile.setPreference("network.proxy.http", prox.getHostname());
 				profile.setPreference("network.proxy.http_port", prox.getPort());
@@ -46,35 +61,15 @@ public class SimpleExample {
 				/* use proxy for everything, including localhost */
 				profile.setPreference("network.proxy.no_proxies_on", "");
 			}
-			
+
 			WebDriver driver = new FirefoxDriver(profile);
-			
-			// And now use this to visit Google
+
+			// Use WebDriver to visit specified URL
 			driver.get(URL);
 
-			// Find the text input element by its name
-			//WebElement element = driver.findElement(By.name("q"));
-
-			// Enter something to search for
-			//element.sendKeys("Cheese!");
-
-			// Now submit the form. WebDriver will find the form for us from the element
-			//element.submit();
-
-			// Check the title of the page
-			//System.out.println("Page title is: " + driver.getTitle());
-
-			/*	MetisConfiguration config = new MetisConfiguration();
-			config.setBrowser(BrowserType.firefox);
-
-			MetisController metis = new MetisController(config);
-			metis.run();*/
-			
-			// Close the driver/browser
-			//driver.close();
-			
+			// Wait until user is done session/story
 			driver.wait();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
