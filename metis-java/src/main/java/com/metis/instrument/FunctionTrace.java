@@ -18,31 +18,29 @@ import org.mozilla.javascript.ast.ReturnStatement;
 import org.mozilla.javascript.ast.Scope;
 import org.mozilla.javascript.ast.Symbol;
 
-import com.crawljax.plugins.jsmodify.executionTracer.AstInstrumenter;
-
-public class SamplePlugin extends AstInstrumenter {
+public class FunctionTrace extends AstInstrumenter {
 
 	/**
 	 * This is used by the JavaScript node creation functions that follow.
 	 */
 	private CompilerEnvirons compilerEnvirons = new CompilerEnvirons();
-	
+
 	/**
 	 * Contains the scopename of the AST we are visiting. Generally this will be the filename
 	 */
 	private String scopeName = null;
-	
+
 	/**
 	 * List with regular expressions of variables that should not be instrumented.
 	 */
 	private ArrayList<String> excludeList = new ArrayList<String>();
-	private ArrayList<Entry> functionTokens = new ArrayList<Entry>();
+	private ArrayList<PointOfInterest> functionTokens = new ArrayList<PointOfInterest>();
 	private String src = "";
 
 	/**
 	 * Construct without patterns.
 	 */
-	public SamplePlugin() {
+	public FunctionTrace() {
 		super();
 	}
 
@@ -52,11 +50,11 @@ public class SamplePlugin extends AstInstrumenter {
 	 * @param excludes
 	 *            List with variable patterns to exclude.
 	 */
-	public SamplePlugin(ArrayList<String> excludes) {
+	public FunctionTrace(ArrayList<String> excludes) {
 		super(excludes);
 		excludeList = excludes;
 	}
-	
+
 	/**
 	 * Parse some JavaScript to a simple AST.
 	 * 
@@ -69,7 +67,7 @@ public class SamplePlugin extends AstInstrumenter {
 		return p.parse(code, null, 0);
 
 	}
-	
+
 	/**
 	 * Find out the function name of a certain node and return "anonymous" if it's an anonymous
 	 * function.
@@ -95,15 +93,13 @@ public class SamplePlugin extends AstInstrumenter {
 	public void setScopeName(String scopeName) {
 		this.scopeName = scopeName;
 	}
-	
+
 	/**
 	 * @return the scopeName
 	 */
 	public String getScopeName() {
 		return scopeName;
 	}
-	
-	
 
 	@Override
 	public  boolean visit(AstNode node){
@@ -139,7 +135,7 @@ public class SamplePlugin extends AstInstrumenter {
 		/* TODO: this uses JSON.stringify which only works in Firefox? make browser indep. */
 		/* post to the proxy server */
 		code = "send(new Array('" + getScopeName() + "." + name + "', '" + postfix + "'));";
-		
+
 		return parse(code);
 	}
 
@@ -154,10 +150,10 @@ public class SamplePlugin extends AstInstrumenter {
 		// Adds necessary instrumentation to the root node src
 		String isc = addInstrumentationCode(src);
 		AstRoot iscNode = rhinoCreateNode(isc);
-	
+
 		// Add wrapper functions to top of JS node
 		iscNode.addChildToFront(jsLoggingFunctions());
-		
+
 		// Return new instrumented node/code
 		return iscNode;
 	}
@@ -188,7 +184,6 @@ public class SamplePlugin extends AstInstrumenter {
 					/* only add variables and function parameters */
 					if (symbol.getDeclType() == Token.LP || symbol.getDeclType() == Token.VAR) {
 						result.add(symbol.getName());
-
 					}
 				}
 			}
@@ -227,10 +222,10 @@ public class SamplePlugin extends AstInstrumenter {
 		return this.excludeList;
 	}
 
-	private Entry createEntry(String name, int type, int[] range, int lineNo, String body, int hashCode) {
-		Entry toke = null;
+	private PointOfInterest createEntry(String name, int type, int[] range, int lineNo, String body, int hashCode) {
+		PointOfInterest toke = null;
 		try {
-			toke = new Entry(new Object[]{name, type, range[0], range[1], lineNo, body, hashCode});
+			toke = new PointOfInterest(new Object[]{name, type, range[0], range[1], lineNo, body, hashCode});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -257,23 +252,22 @@ public class SamplePlugin extends AstInstrumenter {
 				name = src.substring(node.getParent().getAbsolutePosition(),node.getEncodedSourceStart());
 				name = name.substring(name.lastIndexOf(".")+1,name.indexOf("="));
 			}
-			Entry toke = createEntry(name, type, range, lineNo, body, hash);
+			PointOfInterest toke = createEntry(name, type, range, lineNo, body, hash);
 			if (toke != null) functionTokens.add(toke);
 		}
 		else if (node.getFunctionType() == FunctionNode.FUNCTION_STATEMENT) {
 			// Simple Case
-			Entry toke = createEntry(name, type, range, lineNo, body, hash);
+			PointOfInterest toke = createEntry(name, type, range, lineNo, body, hash);
 			if (toke != null) functionTokens.add(toke);
 		}
 		else if (node.getFunctionType() == FunctionNode.FUNCTION_EXPRESSION_STATEMENT) {
-			Entry toke = createEntry(name, type, range, lineNo, body, hash);
+			PointOfInterest toke = createEntry(name, type, range, lineNo, body, hash);
 			if (toke != null) functionTokens.add(toke);
 		}
 		else {
 			// unrecognized;
 			System.out.println("Unrecognized function name at " + lineNo);
 		}
-
 	}
 
 	private void handleFunctionCall(FunctionCall node) {
@@ -302,7 +296,7 @@ public class SamplePlugin extends AstInstrumenter {
 			targetBody = methods[methods.length-1];
 		} 
 
-		Entry toke = createEntry(targetBody, node.getType(), range, lineNo, body, hash);
+		PointOfInterest toke = createEntry(targetBody, node.getType(), range, lineNo, body, hash);
 		if (toke != null && !(targetBody.contains("function") && targetBody.contains("("))) { 
 			functionTokens.add(toke);
 		} else if (targetBody.contains("function")) {
@@ -344,14 +338,14 @@ public class SamplePlugin extends AstInstrumenter {
 		}
 		body = src.substring(range[0], range[1]);
 
-		Entry toke = createEntry(name, node.getType(), range, lineNo, body, hash);
+		PointOfInterest toke = createEntry(name, node.getType(), range, lineNo, body, hash);
 		if (toke != null) functionTokens.add(toke);
 	}
 
 
 	private String addInstrumentationCode (String javaScriptBody) {
 
-		ArrayList<Entry> pointsOfInstrumentation = new ArrayList<Entry>();
+		ArrayList<PointOfInterest> pointsOfInstrumentation = new ArrayList<PointOfInterest>();
 
 		for (int i = functionTokens.size()-1; i >= 0; i--) {
 			// Generate lines to add
@@ -360,7 +354,7 @@ public class SamplePlugin extends AstInstrumenter {
 			} else if (functionTokens.get(i).getType() == org.mozilla.javascript.Token.FUNCTION 
 					|| functionTokens.get(i).getType() == org.mozilla.javascript.Token.RETURN) {
 				// Add code at beginning of function declaration
-				pointsOfInstrumentation.add(new Entry(new Object[]{functionTokens.get(i).getName(),
+				pointsOfInstrumentation.add(new PointOfInterest(new Object[]{functionTokens.get(i).getName(),
 						functionTokens.get(i).getType(),
 						functionTokens.get(i).getRange()[0],
 						-1,
@@ -369,7 +363,7 @@ public class SamplePlugin extends AstInstrumenter {
 						functionTokens.get(i).hashCode()}));
 
 				// Add code before end of function declaration
-				pointsOfInstrumentation.add(new Entry(new Object[]{functionTokens.get(i).getName(),
+				pointsOfInstrumentation.add(new PointOfInterest(new Object[]{functionTokens.get(i).getName(),
 						functionTokens.get(i).getType(),
 						functionTokens.get(i).getRange()[1],
 						-2,
@@ -380,8 +374,8 @@ public class SamplePlugin extends AstInstrumenter {
 		}
 
 		// Sort list so we can begin instrumenting from bottom upwards
-		Collections.sort(pointsOfInstrumentation, new Comparator<Entry>(){
-			public int compare(Entry s1, Entry s2) {
+		Collections.sort(pointsOfInstrumentation, new Comparator<PointOfInterest>(){
+			public int compare(PointOfInterest s1, PointOfInterest s2) {
 				return s1.getBegin()-s2.getBegin();
 			}
 		});
@@ -389,7 +383,7 @@ public class SamplePlugin extends AstInstrumenter {
 		for (int i = pointsOfInstrumentation.size()-1; i >= 0; i--) {
 			// Insert instrumentation statements
 
-			Entry POI = pointsOfInstrumentation.get(i);
+			PointOfInterest POI = pointsOfInstrumentation.get(i);
 
 			if (POI.getType() == org.mozilla.javascript.Token.CALL) {
 				if (POI.getHash() == -2) {

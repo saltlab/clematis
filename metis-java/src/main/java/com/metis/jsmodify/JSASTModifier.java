@@ -1,4 +1,4 @@
-package com.metis.instrument;
+package com.metis.jsmodify;
 
 import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.Parser;
@@ -161,7 +161,7 @@ public abstract class JSASTModifier implements NodeVisitor {
 	 *            The node that is currently visited.
 	 * @return Whether to visit the children.
 	 */
-	//@Override
+	@Override
 	public abstract boolean visit(AstNode node);
 
 	/**

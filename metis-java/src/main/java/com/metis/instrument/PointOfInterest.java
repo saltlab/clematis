@@ -2,7 +2,7 @@ package com.metis.instrument;
 
 import org.mozilla.javascript.Context;
 
-public class Entry {
+public class PointOfInterest {
 
 	private String name = "";
 	private String body = "";
@@ -12,7 +12,7 @@ public class Entry {
     private int lineNo = -1;
 	
 	// The zero-argument constructor used by Rhino runtime to create instances
-	public Entry(Object[] args) { 
+	public PointOfInterest(Object[] args) { 
 		for (int i=0; i<args.length; i++) {
 			switch(i){
 			// Name

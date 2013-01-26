@@ -1,5 +1,12 @@
-package com.metis.core;
+package com.metis.core.configuration;
 
+/**
+ * Class for passing proxy settings to Crawljax' browser builder. It is returned by the
+ * ProxyServerPlugin interface.
+ * 
+ * @author dannyroest@gmail.com (Danny Roest)
+ * @version $Id$
+ */
 public class ProxyConfiguration {
 
 	/**
@@ -31,7 +38,7 @@ public class ProxyConfiguration {
 
 		/**
 		 * Converts the enum to an int (used by Firefox internally).
-		 *
+		 * 
 		 * @return The int representation of the enum value.
 		 */
 		public int toInt() {
@@ -90,4 +97,8 @@ public class ProxyConfiguration {
 		return type;
 	}
 
+	@Override
+	public String toString() {
+		return type.toString() + ':' + hostname + ':' + port;
+	}
 }
