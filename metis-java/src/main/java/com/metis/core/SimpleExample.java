@@ -1,15 +1,16 @@
 package com.metis.core;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
-
 import org.owasp.webscarab.model.Preferences;
 import org.owasp.webscarab.plugin.Framework;
 import org.owasp.webscarab.plugin.proxy.Proxy;
 
+import com.metis.util.Helper;
 import com.metis.core.configuration.ProxyConfiguration;
 import com.metis.instrument.*;
 import com.metis.jsmodify.JSModifyProxyPlugin;
@@ -17,16 +18,20 @@ import com.metis.jsmodify.JSModifyProxyPlugin;
 public class SimpleExample {
 
 	private static final String URL = "http://localhost:8080/same-game/same-game.html";
+	private static String outputFolder = "";
+	public static final String FUNCTIONTRACEDIRECTORY = "functiontrace/";
 
 	public static void main(String[] args) {
 		try {
 
+			outputFolder = Helper.addFolderSlashIfNeeded("metis-output");
+			preCrawling();
+			
 			// Create a new instance of the firefox driver
 			FirefoxProfile profile = new FirefoxProfile();
 
 			// Instantiate proxy components
 			ProxyConfiguration prox = new ProxyConfiguration();
-			//WebScarabWrapper web = new WebScarabWrapper();
 
 			// Modifier responsible for parsing Ast tree
 			FunctionTrace s = new FunctionTrace();
@@ -49,10 +54,8 @@ public class SimpleExample {
 
 			framework.setSession("FileSystem", new File("convo_model"), "");
 
-			
 			/* start the proxy */
 			proxy.run();
-
 
 			if (prox != null) {
 				profile.setPreference("network.proxy.http", prox.getHostname());
@@ -66,9 +69,13 @@ public class SimpleExample {
 
 			// Use WebDriver to visit specified URL
 			driver.get(URL);
+			String mwh=driver.getWindowHandle();
 
-			// Wait until user is done session/story
-			driver.wait();
+			while (foundWindow(driver, mwh) == false) {
+				// If window is open still, wait
+				// Probably not the best solution, 'sleeping' should be avoided
+				Thread.sleep(4000);
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -76,4 +83,27 @@ public class SimpleExample {
 		}
 	}
 
+	static boolean foundWindow(WebDriver wd, String name) {
+		// Function to check if window has been closed
+		try {
+			wd.switchTo().window(name);		
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	public static void preCrawling() {
+		try {
+			Helper.directoryCheck(getOutputFolder());
+			Helper.directoryCheck(getOutputFolder() + FUNCTIONTRACEDIRECTORY);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static String getOutputFolder() {
+		return Helper.addFolderSlashIfNeeded(outputFolder);
+	}
 }
