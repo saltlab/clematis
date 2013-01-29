@@ -40,6 +40,9 @@ public class SimpleExample {
 			// Modifier responsible for parsing Ast tree
 			FunctionTrace s = new FunctionTrace();
 			s.setFileNameToAttach("/addvariable.js");
+			s.setFileNameToAttach("/asyncLogger.js");
+			s.setFileNameToAttach("/applicationView.js");
+			s.setFileNameToAttach("/eventlistenersMirror.js");
 			s.instrumentDOMModifications();
 
 			// Interface for Ast traversal

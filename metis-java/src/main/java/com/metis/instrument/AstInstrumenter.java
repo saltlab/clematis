@@ -27,7 +27,7 @@ public abstract class AstInstrumenter extends JSASTModifier {
 	 * List with regular expressions that should not be instrumented.
 	 */
 	private List<String> excludeVariableNamesList = new ArrayList<String>();
-	String jsFileNameToAttach;
+	ArrayList<String> jsFileNameToAttach = new ArrayList<String>();
 
 	private boolean domModifications = false;
 
@@ -56,19 +56,22 @@ public abstract class AstInstrumenter extends JSASTModifier {
 	}
 
 	public void setFileNameToAttach(String fileName) {
-		this.jsFileNameToAttach = fileName;
+		this.jsFileNameToAttach.add(fileName);
 	}
 
 	/**
-	 * Return an AST of the variable logging functions.
+	 * Return an AST of the function logging functions.
 	 * 
 	 * @return The AstNode which contains functions.
 	 */
 	protected AstNode jsLoggingFunctions() {
-		String code;
-
-		File js = new File(this.getClass().getResource(jsFileNameToAttach).getFile());
-		code = Helper.getContent(js);
+		String code = "";
+		
+		for (int i = 0; i < jsFileNameToAttach.size(); i++) {
+			File js = new File(this.getClass().getResource(jsFileNameToAttach.get(i)).getFile());
+			code += Helper.getContent(js);
+		}
+	
 		return parse(code);
 	}
 
