@@ -52,10 +52,10 @@ public class PointOfInterest {
 		case org.mozilla.javascript.Token.FUNCTION: 
 			if (this.getEnd() == -1) {
 				// Function Beginning
-				return "console.log(" + "\"Executing function: " + getName() + "\");";
+				return "send(" + "\"Executing function: " + getName() + "endofline\");";
 			} else if (this.getEnd() == -2) {
 				// Function End
-				return ";console.log(" + "\"Exiting function: " + getName() + "\");";
+				return ";send(" + "\"Exiting function: " + getName() + "endofline\");";
 			} else {
 				// General Function
 				return "";

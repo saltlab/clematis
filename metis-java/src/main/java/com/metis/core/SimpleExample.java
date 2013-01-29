@@ -1,8 +1,8 @@
 package com.metis.core;
 
 import java.io.File;
-import java.io.IOException;
 
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
@@ -10,6 +10,7 @@ import org.owasp.webscarab.model.Preferences;
 import org.owasp.webscarab.plugin.Framework;
 import org.owasp.webscarab.plugin.proxy.Proxy;
 
+import com.metis.jsmodify.JSExecutionTracer;
 import com.metis.util.Helper;
 import com.metis.core.configuration.ProxyConfiguration;
 import com.metis.instrument.*;
@@ -19,13 +20,16 @@ public class SimpleExample {
 
 	private static final String URL = "http://localhost:8080/same-game/same-game.html";
 	private static String outputFolder = "";
-	public static final String FUNCTIONTRACEDIRECTORY = "functiontrace/";
-
+	
 	public static void main(String[] args) {
 		try {
 
 			outputFolder = Helper.addFolderSlashIfNeeded("metis-output");
-			preCrawling();
+			
+			JSExecutionTracer tracer = new JSExecutionTracer("function.trace");
+			tracer.setOutputFolder(outputFolder + "ftrace");
+			//config.addPlugin(tracer);
+			tracer.preCrawling();
 			
 			// Create a new instance of the firefox driver
 			FirefoxProfile profile = new FirefoxProfile();
@@ -76,6 +80,12 @@ public class SimpleExample {
 				// Probably not the best solution, 'sleeping' should be avoided
 				Thread.sleep(4000);
 			}
+			
+			if (driver instanceof JavascriptExecutor) {
+			    ((JavascriptExecutor) driver).executeScript("sendReally();");
+			}
+			
+			tracer.postCrawling();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -92,15 +102,6 @@ public class SimpleExample {
 			return false;
 		}
 		return true;
-	}
-	
-	public static void preCrawling() {
-		try {
-			Helper.directoryCheck(getOutputFolder());
-			Helper.directoryCheck(getOutputFolder() + FUNCTIONTRACEDIRECTORY);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public static String getOutputFolder() {

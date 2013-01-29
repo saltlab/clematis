@@ -17,6 +17,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+//import com.crawljax.plugins.aji.executiontracer.JSExecutionTracer;
 import com.metis.util.Helper;
 import com.metis.jsmodify.JSModifyProxyPlugin;
 
@@ -123,12 +124,12 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			ast.visit(modifier);
 
 			ast = modifier.finish(ast);
-			
+
 			/* clean up */
 			Context.exit();
 
 			System.out.println(ast.toSource());
-			
+
 			return ast.toSource();
 		} catch (RhinoException re) {
 			System.err.println(re.getMessage()
@@ -154,6 +155,16 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 */
 	private Response createResponse(Response response, Request request) {
 		String type = response.getHeader("Content-Type");
+
+		if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
+			System.out.println("Execution trace request " + request.getURL().toString());
+			String rawResponse = new String(request.getContent());
+			String[] splitResponse = rawResponse.split("endofline,");
+			for(int i = 0; i < splitResponse.length; i++) {
+				JSExecutionTracer.addPoint(splitResponse[i]);
+			}
+			return response;
+		}
 
 		if (type != null && type.contains("javascript")) {
 
