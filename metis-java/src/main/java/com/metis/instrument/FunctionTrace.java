@@ -312,7 +312,7 @@ public class FunctionTrace extends AstInstrumenter {
 		String name = node.toSource();
 		String body = "";
 		int[] range = {-1,-1};
-		int hash = node.hashCode();
+		int hash = 0;
 		int lineNo = node.getLineno();
 
 		// Get name of enclosing function
@@ -335,6 +335,7 @@ public class FunctionTrace extends AstInstrumenter {
 			// Return value is void
 			range[0] = node.getAbsolutePosition()+node.getLength()-1;
 			range[1] = node.getAbsolutePosition()+node.getLength()-1;
+			hash = -1;
 		}
 		body = src.substring(range[0], range[1]);
 
@@ -360,7 +361,7 @@ public class FunctionTrace extends AstInstrumenter {
 						-1,
 						functionTokens.get(i).getLineNo(),
 						functionTokens.get(i).getBody(),
-						functionTokens.get(i).hashCode()}));
+						functionTokens.get(i).getHash()}));
 
 				// Add code before end of function declaration
 				pointsOfInstrumentation.add(new PointOfInterest(new Object[]{functionTokens.get(i).getName(),
@@ -369,7 +370,7 @@ public class FunctionTrace extends AstInstrumenter {
 						-2,
 						functionTokens.get(i).getLineNo(),
 						functionTokens.get(i).getBody(),
-						functionTokens.get(i).hashCode()}));
+						functionTokens.get(i).getHash()}));
 			}
 		}
 

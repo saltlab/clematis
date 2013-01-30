@@ -185,8 +185,13 @@ public class JSExecutionTracer {
 	 *            The JSON-text to save.
 	 */
 	public static void addPoint(String string) {
+		if (string.contains("returnStatement")) {
+			string = string.replace('\n', ',');
+		} 
+			string = string.replace(">,<", ">\n<");
+		
 		points.put(string);
-		System.out.println("Adding point: " + string);
+		System.out.println("Adding point: \n" + string +"\n");
 	}
 
 }

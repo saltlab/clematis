@@ -3,12 +3,11 @@ window.buffer = new Array();
 
 // Function Call Wrapper
 function FCW() {
-	/*
     if ((arguments[0].name == "") || (arguments[0].name == undefined) || (arguments[0].name == null)) {
         send('Calling anonymous function from line ' +  arguments[1] + 'endofline');
     } else {
 	    send('Calling ' + arguments[0].name + 'from line ' +  arguments[1] + 'endofline');
-    }*/
+    }
 	return arguments[0];
 }
 
