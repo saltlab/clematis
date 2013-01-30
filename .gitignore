@@ -48,3 +48,8 @@ target/
 Icon?
 ehthumbs.db
 Thumbs.db
+
+# Project temporary files #
+.keystore
+convo_model
+metis_output
