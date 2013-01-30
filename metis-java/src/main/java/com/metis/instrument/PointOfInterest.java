@@ -9,8 +9,8 @@ public class PointOfInterest {
 	private int type = -1;
 	private int[] range = {0,0};
 	private int hashCode = -1;
-    private int lineNo = -1;
-	
+	private int lineNo = -1;
+
 	// The zero-argument constructor used by Rhino runtime to create instances
 	public PointOfInterest(Object[] args) { 
 		for (int i=0; i<args.length; i++) {
@@ -19,15 +19,15 @@ public class PointOfInterest {
 			case 0:
 				this.setName(Context.toString(args[i]));
 				break;
-			// Type
+				// Type
 			case 1:
 				this.setType(Integer.parseInt(Context.toString(args[i])));
 				break;
-			// Range
+				// Range
 			case 2:
 				this.setBegin(Integer.parseInt(Context.toString(args[i])));
 				break;
-			// 
+				// 
 			case 3:
 				this.setEnd(Integer.parseInt(Context.toString(args[i])));
 				break;	
@@ -74,11 +74,18 @@ public class PointOfInterest {
 				return " RSW(";
 			} else if (this.getEnd() == -2) {
 				// Function End
-				return ")";
+				if (getHash() == 0) {
+					// There are other return values, add comma
+					return ",arguments.callee.name)";
+				} else {
+					// Return value is void, no comma
+					return "arguments.callee.name)";
+				}
 			} else {
 				// General Function
 				return "";
-			}		default: 
+			}		
+		default: 
 			return "";
 		}
 
@@ -101,6 +108,7 @@ public class PointOfInterest {
 	}
 
 	public String getName() {
+		if(name == null) return "-";
 		return name;
 	}
 
@@ -123,12 +131,12 @@ public class PointOfInterest {
 	public int getLineNo() {
 		return lineNo;
 	}	
-	
+
 	public void setLineNo(int lineNumber) {
 		this.lineNo = lineNumber;
 	}
 
-	
+
 	public void setBegin(int begin) {
 		this.range[0] = begin;
 	}
@@ -140,7 +148,7 @@ public class PointOfInterest {
 	public int getBegin() {
 		return range[0];
 	}
-	
+
 	public int getEnd() {
 		return range[1];
 	}

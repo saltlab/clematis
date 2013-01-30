@@ -4,16 +4,34 @@ window.buffer = new Array();
 // Function Call Wrapper
 function FCW() {
     if ((arguments[0].name == "") || (arguments[0].name == undefined) || (arguments[0].name == null)) {
-        send('Calling anonymous function from line ' +  arguments[1] + 'endofline');
+        if (arguments[0].toString().indexOf("function") == -1) {
+            send('<functionCall name='+arguments[0].toString()+' line='+arguments[1]+'>');
+              send('<params>');
+              send('<param name=\'-\'></param>')
+              send('</params>');
+            send('</functionCall>'+ 'endofline');
+        } else {
+            send('<functionCall name=\'anonymous\' line='+arguments[1]+'>');
+              send('<params>');
+              send('<param name=\'-\'></param>')
+              send('</params>');
+            send('</functionCall>'+ 'endofline');
+        }
     } else {
-	    send('Calling ' + arguments[0].name + 'from line ' +  arguments[1] + 'endofline');
+        send('<functionCall name='+arguments[0].name+' line='+arguments[1]+'>');
+          send('<params>');
+          send('<param name=\'-\'></param>')
+          send('</params>');
+        send('</functionCall>'+ 'endofline');
     }
 	return arguments[0];
 }
 
 // Return Statement Wrapper
 function RSW() {
-	send('Returning value: ' + arguments[0] + 'endofline');
+    send('<returnStatement value='+arguments[0]+'>');
+      send('<function name='+arguments[2]+'>');
+    send('</returnStatement>'+ 'endofline');
 	return arguments[0];
 }
 
