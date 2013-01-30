@@ -1,6 +1,6 @@
 package com.metis.instrument;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +13,9 @@ import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.Scope;
 import org.mozilla.javascript.ast.Symbol;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import com.metis.jsmodify.JSASTModifier;
-import com.metis.util.Helper;
 
 /**
  * This class is used to visit all JS nodes. When a node matches a certain condition, this class
@@ -67,20 +68,19 @@ public abstract class AstInstrumenter extends JSASTModifier {
 	protected AstNode jsLoggingFunctions() {
 		String code = "";
 		
+		for (int i = 0; i < jsFileNameToAttach.size(); i ++) {
+			try {
+				code += Resources.toString(AstInstrumenter.class.getResource("/addvariable.js"), Charsets.UTF_8);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+/*		
 		for (int i = 0; i < jsFileNameToAttach.size(); i++) {
 			File js = new File(this.getClass().getResource(jsFileNameToAttach.get(i)).getFile());
 			code += Helper.getContent(js);
 		}
-/*		
-		File js = new File("/Users/Saba/Documents/UBC/SAP Project/metisRepo/metis-dev/metis-java/src/main/resources/addvariable.js");
-		code += Helper.getContent(js);
-		js = new File("/Users/Saba/Documents/UBC/SAP Project/metisRepo/metis-dev/metis-java/src/main/resources/asyncLogger.js");
-		code += Helper.getContent(js);
-		js = new File("/Users/Saba/Documents/UBC/SAP Project/metisRepo/metis-dev/metis-java/src/main/resources/applicationView.js");
-		code += Helper.getContent(js);
-		js = new File("/Users/Saba/Documents/UBC/SAP Project/metisRepo/metis-dev/metis-java/src/main/resources/eventlistenersMirror.js");
-		code += Helper.getContent(js);
-*/		
+*/				
 
 		return parse(code);
 	}

@@ -104,6 +104,12 @@
 			<artifactId>selenium-android-driver</artifactId>
 			<version>[${selenium.version},)</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>r05</version>
+		</dependency>
 	</dependencies>
 
 	<build>

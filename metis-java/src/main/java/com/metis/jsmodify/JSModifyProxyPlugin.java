@@ -157,7 +157,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	private Response createResponse(Response response, Request request) {
 		String type = response.getHeader("Content-Type");
 		
-		System.out.println("***************************");
+/*		System.out.println("***************************");
 		try {
 			System.out.println(new String(request.getContent(), "US-ASCII"));
 		} catch (UnsupportedEncodingException e1) {
@@ -165,7 +165,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			e1.printStackTrace();
 		}
 		System.out.println("***************************");
-
+*/
 		if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
 			System.out.println("Execution trace request " + request.getURL().toString());
 			String rawResponse = new String(request.getContent());
@@ -248,10 +248,10 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		@Override
 		public Response fetchResponse(Request request) throws IOException {
 			
-			System.out.println("++++++++++++++++++++++++++++++++++++++++++");
+/*			System.out.println("++++++++++++++++++++++++++++++++++++++++++");
 			System.out.println(new String(request.getContent()));
 			System.out.println("))))))))))))))))))))))))))))))))))))))))))");
-
+*/
 			
 			Response response = client.fetchResponse(request);
 

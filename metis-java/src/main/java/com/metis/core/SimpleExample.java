@@ -39,11 +39,7 @@ public class SimpleExample {
 
 			// Modifier responsible for parsing Ast tree
 			FunctionTrace s = new FunctionTrace();
-/*			s.setFileNameToAttach("/Users/Saba/Documents/UBC/SAP Project/metisRepo/metis-dev/metis-java/src/main/resources/addvariable.js");
-			s.setFileNameToAttach("/Users/Saba/Documents/UBC/SAP Project/metisRepo/metis-dev/metis-java/src/main/resources/asyncLogger.js");
-			s.setFileNameToAttach("/Users/Saba/Documents/UBC/SAP Project/metisRepo/metis-dev/metis-java/src/main/resources/applicationView.js");
-			s.setFileNameToAttach("/Users/Saba/Documents/UBC/SAP Project/metisRepo/metis-dev/metis-java/src/main/resources/eventlistenersMirror.js");
-	*/		
+
 			s.setFileNameToAttach("/addvariable.js");
 			s.setFileNameToAttach("/asyncLogger.js");
 			s.setFileNameToAttach("/applicationView.js");
