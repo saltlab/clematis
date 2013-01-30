@@ -1,6 +1,7 @@
 package com.metis.jsmodify;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -155,6 +156,15 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 */
 	private Response createResponse(Response response, Request request) {
 		String type = response.getHeader("Content-Type");
+		
+		System.out.println("***************************");
+		try {
+			System.out.println(new String(request.getContent(), "US-ASCII"));
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		System.out.println("***************************");
 
 		if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
 			System.out.println("Execution trace request " + request.getURL().toString());
@@ -237,6 +247,12 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 		@Override
 		public Response fetchResponse(Request request) throws IOException {
+			
+			System.out.println("++++++++++++++++++++++++++++++++++++++++++");
+			System.out.println(new String(request.getContent()));
+			System.out.println("))))))))))))))))))))))))))))))))))))))))))");
+
+			
 			Response response = client.fetchResponse(request);
 
 			return createResponse(response, request);

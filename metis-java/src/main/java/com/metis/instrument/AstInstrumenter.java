@@ -71,7 +71,17 @@ public abstract class AstInstrumenter extends JSASTModifier {
 			File js = new File(this.getClass().getResource(jsFileNameToAttach.get(i)).getFile());
 			code += Helper.getContent(js);
 		}
-	
+/*		
+		File js = new File("/Users/Saba/Documents/UBC/SAP Project/metisRepo/metis-dev/metis-java/src/main/resources/addvariable.js");
+		code += Helper.getContent(js);
+		js = new File("/Users/Saba/Documents/UBC/SAP Project/metisRepo/metis-dev/metis-java/src/main/resources/asyncLogger.js");
+		code += Helper.getContent(js);
+		js = new File("/Users/Saba/Documents/UBC/SAP Project/metisRepo/metis-dev/metis-java/src/main/resources/applicationView.js");
+		code += Helper.getContent(js);
+		js = new File("/Users/Saba/Documents/UBC/SAP Project/metisRepo/metis-dev/metis-java/src/main/resources/eventlistenersMirror.js");
+		code += Helper.getContent(js);
+*/		
+
 		return parse(code);
 	}
 
