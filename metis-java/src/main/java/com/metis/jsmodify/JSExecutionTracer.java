@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+
 import com.metis.util.Helper;
 
 
@@ -107,7 +109,7 @@ public class JSExecutionTracer {
 			Thread.sleep(ONE_SEC);
 
 			LOGGER.info("Saved execution trace as " + filename);
-
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -185,13 +187,17 @@ public class JSExecutionTracer {
 	 *            The JSON-text to save.
 	 */
 	public static void addPoint(String string) {
-		if (string.contains("returnStatement")) {
-			string = string.replace('\n', ',');
-		} 
-			string = string.replace(">,<", ">\n<");
-		
-		points.put(string);
-		System.out.println("Adding point: \n" + string +"\n");
-	}
+		JSONArray buffer = null;
+		try {
+			System.out.println("JSON String: " + string);
+			buffer = new JSONArray(string);
+			for (int i = 0; i < buffer.length(); i++) {
+				points.put(buffer.get(i));
+			}
 
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+	
 }
