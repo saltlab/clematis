@@ -70,7 +70,7 @@ public abstract class AstInstrumenter extends JSASTModifier {
 		
 		for (int i = 0; i < jsFileNameToAttach.size(); i ++) {
 			try {
-				code += Resources.toString(AstInstrumenter.class.getResource("/addvariable.js"), Charsets.UTF_8);
+				code += Resources.toString(AstInstrumenter.class.getResource(jsFileNameToAttach.get(i)), Charsets.UTF_8);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -28,6 +28,30 @@ var displayCountdown = false;
  */
 var logger = {}
 
+var MsgConstants = {
+	msgType_domEvent : 'DOM_EVENT',
+	msgType_timeoutSet : 'TIMEOUT_SET',
+	msgType_timeoutCallback : 'TIMEOUT_CALLBACK',
+	msgType_xhrOpen : 'XHR_OPEN',
+	msgType_xhrSend : 'XHR_SEND',
+	msgType_xhrResponse : 'XHR_RESPONSE',
+	url : 'URL',
+	year : 'YEAR',
+	month : 'MONTH',
+	day : 'DAY',
+	hour : 'HOUR',
+	minute : 'MINUTE',
+	second : 'SECOND',
+	millisecond : 'MILLISECOND',
+	eventType : 'EVENT_TYPE',
+	targetElement : 'TARGET_ELEMENT',
+	handlerFunction : 'HANDLER_FUNCTION',
+	id : 'ID',
+	callbackFunction : 'CALLBACK_FUNCTION',
+	delay : 'DELAY',
+	arguments : 'ARGUMENTS'
+}
+
 /**
  * Prints the information related to creation of a timeout to the console
  */
@@ -50,34 +74,22 @@ logger.logSetTimeout = function(func, delay) {
 	var args = func.toString().match(/function\s+\w*\s*\((.*?)\)/)[1]
 			.split(/\s*,\s*/);
 	console.log(" + Function args: ", args);
-
+	
+	var allArgs = '';
+	for (int i = 0; i < args.length; i ++)
+		allArgs = allArgs + '$' + args[i];
+	
 	console.log("Number of active timeouts: ", timeoutCounter);
-
-	/*
-	 * var xmlhttp = new XMLHttpRequest();
-	 * 
-	 * xmlhttp.onreadystatechange = function() { if (xmlhttp.readyState==4) {
-	 * //document.getElementById("xhrResponse").innerHTML = xmlhttp.responseText + "
-	 * (used method: GET)"; System.out.println("DOM EVENT LOG SENT TO SERVER"); } }
-	 * xmlhttp.open("POST","http://localhost:8080/same-game/same-game.html",true);
-	 * String msg = "";
-	 * 
-	 * msg += "<timeout_new>";
-	 * 
-	 * msg += "<time>"; msg += "<year>"; msg += "</year>"; msg += "<month>";
-	 * msg += "</month>"; msg += "<day>"; msg += "</day>"; msg += "<hour>";
-	 * msg += "</hour>"; msg += "<minute>"; msg += "</minute>"; msg += "<second>";
-	 * msg += "</second>"; msg += "<millisecond>"; msg += "</millisecond>";
-	 * msg += "</time>";
-	 * 
-	 * 
-	 * 
-	 * msg += "<>"; msg += "</>";
-	 * 
-	 * msg += "</timeout_new>";
-	 * 
-	 * xmlhttp.send("+++++++++++++++++++++++++");
-	 */
+/*
+	send(new Array(MsgConstants.msgType_domEvent, MsgConstants.url,
+			document.location.href, MsgConstants.year, date.getUTCFullYear(),
+			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
+					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
+			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
+			date.getUTCSeconds(), MsgConstants.millisecond, date
+					.getUTCMilliseconds(), MsgConstants.id,
+			func.id, MsgConstants.callbackFunction, func, MsgConstants.delay, delay, MsgConstants.arguments, allArgs));
+*/
 };
 
 /**
@@ -198,70 +210,16 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 	console.log(" + Target DOM element: ", arguments[1]);
 	console.log(" + Handler function: ", arguments[2]);
 
-	send("<timeout_new>");
-	send("<time>");
-	send("<year>");
-	send(date.getUTCFullYear());
-	send("</year>");
-	send("<month>");
-	send(date.getUTCMonth());
-	send("</month>");
-	send("<day>");
-	send(date.getUTCDate());
-	send("</day>");
-	send("<hour>");
-	send(date.getUTCHours());
-	send("</hour>");
-	send("<minute>");
-	send(date.getUTCMinutes());
-	send("</minute>");
-	send("<second>");
-	send(date.getUTCSeconds());
-	send("</second>");
-	send("<millisecond>");
-	send(date.getUTCMilliseconds());
-	send("</millisecond>");
-	send("</time>");
+	send(new Array(MsgConstants.msgType_domEvent, MsgConstants.url,
+			document.location.href, MsgConstants.year, date.getUTCFullYear(),
+			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
+					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
+			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
+			date.getUTCSeconds(), MsgConstants.millisecond, date
+					.getUTCMilliseconds(), MsgConstants.eventType,
+			arguments[0], MsgConstants.targetElement, arguments[1].toString(),
+			MsgConstants.handlerFunction, arguments[2]));
 
-	send("<event_type>");
-	send(arguments[0]);
-	send("</event_type>");
-	send("<target_element>");
-	send(arguments[1]);
-	send("</target_element>");
-	send("<handler>");
-	send(arguments[2]);
-	send("</arguments[2]>");
-
-	/*
-	 * var xmlhttp = new XMLHttpRequest();
-	 * 
-	 * xmlhttp.onreadystatechange = function() { if (xmlhttp.readyState==4) {
-	 * //document.getElementById("xhrResponse").innerHTML = xmlhttp.responseText + "
-	 * (used method: GET)"; System.out.println("DOM EVENT LOG SENT TO SERVER"); } }
-	 * xmlhttp.open("POST","http://localhost:8080/same-game/same-game.html",true);
-	 * 
-	 * String msg = "";
-	 * 
-	 * msg += "<timeout_new>";
-	 * 
-	 * msg += "<time>"; msg += "<year>"; msg += "</year>"; msg += "<month>";
-	 * msg += "</month>"; msg += "<day>"; msg += "</day>"; msg += "<hour>";
-	 * msg += "</hour>"; msg += "<minute>"; msg += "</minute>"; msg += "<second>";
-	 * msg += "</second>"; msg += "<millisecond>"; msg += "</millisecond>";
-	 * msg += "</time>";
-	 * 
-	 * 
-	 * 
-	 * msg += "<>"; msg += "</>";
-	 * 
-	 * msg += "</timeout_new>";
-	 * 
-	 * xmlhttp.send("--------------------------------------------------------------------------------");
-	 */
-	/*
-	 * send("TEST"); test();
-	 */
 };
 
 /*******************************************************************************
