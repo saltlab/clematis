@@ -49,14 +49,19 @@ var MsgConstants = {
 	id : 'ID',
 	callbackFunction : 'CALLBACK_FUNCTION',
 	delay : 'DELAY',
-	arguments : 'ARGUMENTS'
+	arguments : 'ARGUMENTS',
+	xhrMethod : 'XHR_METHOD',
+	xhrUrl : 'XHR_URL',
+	async : 'ASYNC',
+	xhrPostMsg : 'XHR_POST_MSG',
+	response : 'RESPONSE'
 }
 
 /**
  * Prints the information related to creation of a timeout to the console
  */
 logger.logSetTimeout = function(func, delay) {
-	
+
 	if (!recordStarted)
 		return;
 
@@ -75,11 +80,11 @@ logger.logSetTimeout = function(func, delay) {
 	var args = func.toString().match(/function\s+\w*\s*\((.*?)\)/)[1]
 			.split(/\s*,\s*/);
 	console.log(" + Function args: ", args);
-	
-/*	var allArgs = '';
-	for (int i = 0; i < args.length; i ++)
-		allArgs = allArgs + '$' + args[i];
-	*/
+
+	/*
+	 * var allArgs = ''; for (int i = 0; i < args.length; i ++) allArgs =
+	 * allArgs + '$' + args[i];
+	 */
 	console.log("Number of active timeouts: ", timeoutCounter);
 
 	send(new Array(MsgConstants.msgType_timeoutSet, MsgConstants.url,
@@ -88,8 +93,9 @@ logger.logSetTimeout = function(func, delay) {
 					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
 			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
 			date.getUTCSeconds(), MsgConstants.millisecond, date
-					.getUTCMilliseconds(), MsgConstants.id,
-			func.id, MsgConstants.callbackFunction, func, MsgConstants.delay, delay, MsgConstants.arguments, args.toString));
+					.getUTCMilliseconds(), MsgConstants.id, func.id,
+			MsgConstants.callbackFunction, func, MsgConstants.delay, delay,
+			MsgConstants.arguments, args.toString));
 
 };
 
@@ -124,9 +130,9 @@ logger.logTimeoutCallback = function(func) {
 					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
 			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
 			date.getUTCSeconds(), MsgConstants.millisecond, date
-					.getUTCMilliseconds(), MsgConstants.id,
-			func.id, MsgConstants.callbackFunction));
-	
+					.getUTCMilliseconds(), MsgConstants.id, func.id,
+			MsgConstants.callbackFunction, func));
+
 };
 
 /**
@@ -148,6 +154,16 @@ logger.logXHROpen = function(xhr, method, url, async) {
 	console.log(" + URL: ", url);
 	console.log(" + Async: ", async);
 
+	send(new Array(MsgConstants.msgType_xhrOpen, MsgConstants.url,
+			document.location.href, MsgConstants.year, date.getUTCFullYear(),
+			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
+					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
+			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
+			date.getUTCSeconds(), MsgConstants.millisecond, date
+					.getUTCMilliseconds(), MsgConstants.id, xhr.id,
+			MsgConstants.xhrMethod, method, MsgConstants.xhrUrl, url,
+			MsgConstants.async, async));
+
 };
 
 /**
@@ -161,6 +177,15 @@ logger.logXHRSend = function(xhr, str) {
 	console.log("XMLHTTPREQUEST: SEND");
 	console.log(" + XHR ID: ", xhr.id);
 	console.log(" + Message (POST):", str);
+
+	send(new Array(MsgConstants.msgType_xhrSend, MsgConstants.url,
+			document.location.href, MsgConstants.year, date.getUTCFullYear(),
+			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
+					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
+			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
+			date.getUTCSeconds(), MsgConstants.millisecond, date
+					.getUTCMilliseconds(), MsgConstants.id, xhr.id,
+			MsgConstants.xhrPostMsg, str));
 
 };
 
@@ -196,6 +221,16 @@ logger.logXHRResponse = function(xhr) {
 		// The execution of all registered XHRs is finished. Notify the
 		// responsible unit.
 	}
+
+	send(new Array(MsgConstants.msgType_xhrResponse, MsgConstants.url,
+			document.location.href, MsgConstants.year, date.getUTCFullYear(),
+			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
+					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
+			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
+			date.getUTCSeconds(), MsgConstants.millisecond, date
+					.getUTCMilliseconds(), MsgConstants.id, xhr.id,
+			MsgConstants.callbackFunction, xhr.onreadystatechange,
+			MsgConstants.response, xhr.response));
 
 };
 
