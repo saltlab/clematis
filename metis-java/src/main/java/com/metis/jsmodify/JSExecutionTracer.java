@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import com.metis.util.Helper;
+import com.crawljax.util.Helper;
 
 
 /**

@@ -10,8 +10,8 @@ import org.owasp.webscarab.model.Preferences;
 import org.owasp.webscarab.plugin.Framework;
 import org.owasp.webscarab.plugin.proxy.Proxy;
 
+import com.crawljax.util.Helper;
 import com.metis.jsmodify.JSExecutionTracer;
-import com.metis.util.Helper;
 import com.metis.core.configuration.ProxyConfiguration;
 import com.metis.instrument.*;
 import com.metis.jsmodify.JSModifyProxyPlugin;

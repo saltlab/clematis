@@ -17,8 +17,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-//import com.crawljax.plugins.aji.executiontracer.JSExecutionTracer;
-import com.metis.util.Helper;
+import com.crawljax.util.Helper;
 import com.metis.jsmodify.JSModifyProxyPlugin;
 
 
