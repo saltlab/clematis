@@ -3,8 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.metis</groupId>
 	<artifactId>metis</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>Metis</name>
+	<version>0.1-SNAPSHOT</version>
+	<name>Metis Dev</name>
 	<description>Monitoring, logging, and understanding JavaScript events.</description>
 
 	<prerequisites>
@@ -18,7 +18,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<selenium.version>2.27.0</selenium.version>
+		<selenium.version>2.29.1</selenium.version>
 	</properties>
 
 	<developers>
@@ -104,12 +104,13 @@
 			<artifactId>selenium-android-driver</artifactId>
 			<version>[${selenium.version},)</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>r05</version>
+			<version>13.0.1</version>
 		</dependency>
+		
 	</dependencies>
 
 	<build>
