@@ -12,7 +12,6 @@ function FCW() {
     } else {
             send(new Array('\'' + document.location.href + arguments[1] + '\'', '\''+arguments[0].name+'\''));
     }
-//    send(new Array('\'HELLO\'', '\'' + document.location.href + arguments[1] + '\''));
 	return arguments[0];
 }
 

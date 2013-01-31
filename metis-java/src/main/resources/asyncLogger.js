@@ -56,6 +56,7 @@ var MsgConstants = {
  * Prints the information related to creation of a timeout to the console
  */
 logger.logSetTimeout = function(func, delay) {
+	
 	if (!recordStarted)
 		return;
 
@@ -75,21 +76,21 @@ logger.logSetTimeout = function(func, delay) {
 			.split(/\s*,\s*/);
 	console.log(" + Function args: ", args);
 	
-	var allArgs = '';
+/*	var allArgs = '';
 	for (int i = 0; i < args.length; i ++)
 		allArgs = allArgs + '$' + args[i];
-	
+	*/
 	console.log("Number of active timeouts: ", timeoutCounter);
-/*
-	send(new Array(MsgConstants.msgType_domEvent, MsgConstants.url,
+
+	send(new Array(MsgConstants.msgType_timeoutSet, MsgConstants.url,
 			document.location.href, MsgConstants.year, date.getUTCFullYear(),
 			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
 					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
 			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
 			date.getUTCSeconds(), MsgConstants.millisecond, date
 					.getUTCMilliseconds(), MsgConstants.id,
-			func.id, MsgConstants.callbackFunction, func, MsgConstants.delay, delay, MsgConstants.arguments, allArgs));
-*/
+			func.id, MsgConstants.callbackFunction, func, MsgConstants.delay, delay, MsgConstants.arguments, args.toString));
+
 };
 
 /**
@@ -117,10 +118,15 @@ logger.logTimeoutCallback = function(func) {
 		// responsible unit.
 	}
 
-	send("TEST");
-
-	test();
-
+	send(new Array(MsgConstants.msgType_timeoutCallback, MsgConstants.url,
+			document.location.href, MsgConstants.year, date.getUTCFullYear(),
+			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
+					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
+			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
+			date.getUTCSeconds(), MsgConstants.millisecond, date
+					.getUTCMilliseconds(), MsgConstants.id,
+			func.id, MsgConstants.callbackFunction));
+	
 };
 
 /**

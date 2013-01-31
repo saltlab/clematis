@@ -67,7 +67,7 @@ public abstract class AstInstrumenter extends JSASTModifier {
 	 */
 	protected AstNode jsLoggingFunctions() {
 		String code = "";
-		
+	
 		for (int i = 0; i < jsFileNameToAttach.size(); i ++) {
 			try {
 				code += Resources.toString(AstInstrumenter.class.getResource(jsFileNameToAttach.get(i)), Charsets.UTF_8);
@@ -75,12 +75,6 @@ public abstract class AstInstrumenter extends JSASTModifier {
 				e.printStackTrace();
 			}
 		}
-/*		
-		for (int i = 0; i < jsFileNameToAttach.size(); i++) {
-			File js = new File(this.getClass().getResource(jsFileNameToAttach.get(i)).getFile());
-			code += Helper.getContent(js);
-		}
-*/				
 
 		return parse(code);
 	}
