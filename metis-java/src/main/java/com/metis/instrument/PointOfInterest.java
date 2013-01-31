@@ -52,10 +52,15 @@ public class PointOfInterest {
 		case org.mozilla.javascript.Token.FUNCTION: 
 			if (this.getEnd() == -1) {
 				// Function Beginning
-				return "send(" + "\"Executing function: " + getName() + "endofline\");";
+				//return "send(new Array(document.location.href, \"Function execution\", \"name\",\""+ getName()+"\", \"lineno\", "+getLineNo()+"));";
+				
+				return "send(new Array(document.location.href, \":::FUNCTION_ENTER\", '"+getName()+"', "+getLineNo()+"));";
+				
+				
 			} else if (this.getEnd() == -2) {
 				// Function End
-				return ";send(" + "\"Exiting function: " + getName() + "endofline\");";
+				//return ";send(new Array(document.location.href, \"Function exit\", \"name\",\""+ getName()+"\", \"lineno\", "+getLineNo()+"));";
+				return ";send(new Array(document.location.href, \":::FUNCTION_EXIT\", '"+getName()+"', "+getLineNo()+"));";
 			} else {
 				// General Function
 				return "";
@@ -76,10 +81,10 @@ public class PointOfInterest {
 				// Function End
 				if (getHash() == 0) {
 					// There are other return values, add comma
-					return ",arguments.callee.name)";
+					return ",'"+getBody()+"',"+getLineNo()+")";
 				} else {
 					// Return value is void, no comma
-					return "arguments.callee.name)";
+					return getLineNo()+")";
 				}
 			} else {
 				// General Function

@@ -338,7 +338,7 @@ public class FunctionTrace extends AstInstrumenter {
 			hash = -1;
 		}
 		body = src.substring(range[0], range[1]);
-
+System.out.println("ASD " +  name + " " + body);
 		PointOfInterest toke = createEntry(name, node.getType(), range, lineNo, body, hash);
 		if (toke != null) functionTokens.add(toke);
 	}
@@ -401,7 +401,7 @@ public class FunctionTrace extends AstInstrumenter {
 					// Regular function call, POI.getHash() == -1
 					try {
 						javaScriptBody = javaScriptBody.substring(0, POI.getRange()[0]) +
-								javaScriptBody.substring(POI.getRange()[0], POI.getRange()[1]).replaceFirst(POI.getName(), "FCW("+POI.getName()+","+POI.getLineNo()+")") +
+								javaScriptBody.substring(POI.getRange()[0], POI.getRange()[1]).replaceFirst(POI.getName(), "FCW("+POI.getName()+",'"+POI.getName()+"',"+POI.getLineNo()+")") +
 								javaScriptBody.substring(POI.getRange()[1]);
 					} catch (Exception e) {
 						e.printStackTrace();
