@@ -63,6 +63,11 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		excludeFilenamePatterns.add(".*scriptaculous.*.js?.*");
 		excludeFilenamePatterns.add(".*mootools.js?.*");
 		excludeFilenamePatterns.add(".*dojo.xd.js?.*");
+
+		excludeFilenamePatterns.add(".*tabcontent.js?.*");
+
+
+
 	}
 
 
@@ -153,12 +158,25 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 * @return The modified response.
 	 */
 	private Response createResponse(Response response, Request request) {
+		if (response == null)  System.out.println("RESPONSE IS NULL");
+
 		String type = response.getHeader("Content-Type");
 
+		System.out.println("REQUEST:");
+		System.out.println(request.getURL().toString());
+		System.out.println("=======================");
+		
 		if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
 			System.out.println("Execution trace request " + request.getURL().toString());
 			String rawResponse = new String(request.getContent());
 			JSExecutionTracer.addPoint(rawResponse);
+			return response;
+		}
+		
+		
+		if (request.getURL().toString().contains("?sendtester")) {
+			String rawResponse = new String(request.getContent());
+			System.out.println("Send was used: " + rawResponse);
 			return response;
 		}
 
@@ -233,8 +251,8 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 		@Override
 		public Response fetchResponse(Request request) throws IOException {
-			Response response = client.fetchResponse(request);
 
+			Response response = client.fetchResponse(request);
 			return createResponse(response, request);
 		}
 	}

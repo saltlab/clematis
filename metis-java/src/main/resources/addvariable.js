@@ -8,19 +8,6 @@ function FCW() {
     } else {
         send(new Array(document.location.href, ":::FUNCTION_CALL", arguments[1], arguments[2]));
     }
-
-
-
-/*
-    if ((arguments[0].name == "") || (arguments[0].name == undefined) || (arguments[0].name == null)) {
-        if (arguments[0].toString().indexOf("function") == -1) {
-            send(new Array(document.location.href, ":::FUNCTION_CALL", arguments[0].toString(), arguments[1]));
-        } else {
-            send(new Array(document.location.href, ":::FUNCTION_CALL", "anonymous", arguments[1]));
-        }
-    } else {
-            send(new Array(document.location.href, ":::FUNCTION_CALL", arguments[0].name, arguments[1]));
-    }*/
 	return arguments[0];
 }
 
@@ -38,14 +25,13 @@ function RSW() {
 
 function send(value) {
 	window.buffer.push(value);
-	if(window.buffer.length == 200) {
+	if(window.buffer.length >= 50) {
 		sendReally();	
 	}
 }
 
 function sendReally() {
 	window.xhr.open('POST', document.location.href + '?thisisafunctiontracingcall', false);
-	//window.xhr.send(window.buffer.toString());
 	window.xhr.send(JSON.stringify(window.buffer));
 	window.buffer = new Array();
 }

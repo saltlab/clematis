@@ -338,7 +338,6 @@ public class FunctionTrace extends AstInstrumenter {
 			hash = -1;
 		}
 		body = src.substring(range[0], range[1]);
-System.out.println("ASD " +  name + " " + body);
 		PointOfInterest toke = createEntry(name, node.getType(), range, lineNo, body, hash);
 		if (toke != null) functionTokens.add(toke);
 	}

@@ -18,7 +18,9 @@ import com.metis.jsmodify.JSModifyProxyPlugin;
 
 public class SimpleExample {
 
-	private static final String URL = "http://localhost:8080/same-game/same-game.html";
+	//private static final String URL = "http://localhost:8080/same-game/same-game.html";
+	private static final String URL = "http://localhost:8080/example_webapplication/index.html";
+	
 	private static String outputFolder = "";
 	
 	public static void main(String[] args) {
@@ -89,7 +91,7 @@ public class SimpleExample {
 			    ((JavascriptExecutor) driver).executeScript("sendReally();");
 			}
 			
-			tracer.postCrawling();
+			//tracer.postCrawling();
 
 		} catch (Exception e) {
 			e.printStackTrace();

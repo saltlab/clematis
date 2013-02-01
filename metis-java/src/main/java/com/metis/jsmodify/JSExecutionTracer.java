@@ -21,6 +21,7 @@
 package com.metis.jsmodify;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.DateFormat;
@@ -167,11 +168,11 @@ public class JSExecutionTracer {
 	/**
 	 * @return Name of the file.
 	 */
-	public String getFilename() {
+	public static String getFilename() {
 		return traceFilename;
 	}
 
-	public String getOutputFolder() {
+	public static String getOutputFolder() {
 		return Helper.addFolderSlashIfNeeded(outputFolder);
 	}
 
@@ -195,8 +196,30 @@ public class JSExecutionTracer {
 				points.put(buffer.get(i));
 			}
 
+			PrintStream output = new PrintStream(getOutputFolder() + getFilename());
+
+			/* save the current System.out for later usage */
+			PrintStream oldOut = System.out;
+			/* redirect it to the file */
+			System.setOut(output);
+
+			//List<String> arguments = allTraceFiles();
+
+			for (int j = 0; j < points.length(); j++) {
+				System.out.println(points.get(j).toString());
+			}
+
+			/* Restore the old system.out */
+			System.setOut(oldOut);
+
+			/* close the output file */
+			output.close();
+			
+			
 		} catch (JSONException e) {
 			e.printStackTrace();
+		} catch (FileNotFoundException fnfe) {
+			fnfe.printStackTrace();
 		}
 	}
 	
