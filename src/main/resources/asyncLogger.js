@@ -87,15 +87,7 @@ logger.logSetTimeout = function(func, delay) {
 	 */
 	console.log("Number of active timeouts: ", timeoutCounter);
 
-	send(new Array(MsgConstants.msgType_timeoutSet, MsgConstants.url,
-			document.location.href, MsgConstants.year, date.getUTCFullYear(),
-			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
-					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
-			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
-			date.getUTCSeconds(), MsgConstants.millisecond, date
-					.getUTCMilliseconds(), MsgConstants.id, func.id,
-			MsgConstants.callbackFunction, func, MsgConstants.delay, delay,
-			MsgConstants.arguments, args.toString));
+    send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: getTimeStamp(date), ID: func.id, callbackFunction: func, delayTime: delay, argus: args}));
 
 };
 
@@ -124,15 +116,7 @@ logger.logTimeoutCallback = function(func) {
 		// responsible unit.
 	}
 
-	send(new Array(MsgConstants.msgType_timeoutCallback, MsgConstants.url,
-			document.location.href, MsgConstants.year, date.getUTCFullYear(),
-			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
-					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
-			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
-			date.getUTCSeconds(), MsgConstants.millisecond, date
-					.getUTCMilliseconds(), MsgConstants.id, func.id,
-			MsgConstants.callbackFunction, func));
-
+    send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: getTimeStamp(date), ID: func.id, callbackFunction: func}));
 };
 
 /**
@@ -154,16 +138,7 @@ logger.logXHROpen = function(xhr, method, url, async) {
 	console.log(" + URL: ", url);
 	console.log(" + Async: ", async);
 
-	send(new Array(MsgConstants.msgType_xhrOpen, MsgConstants.url,
-			document.location.href, MsgConstants.year, date.getUTCFullYear(),
-			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
-					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
-			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
-			date.getUTCSeconds(), MsgConstants.millisecond, date
-					.getUTCMilliseconds(), MsgConstants.id, xhr.id,
-			MsgConstants.xhrMethod, method, MsgConstants.xhrUrl, url,
-			MsgConstants.async, async));
-
+    send(JSON.stringify({messageType: "XHR_OPEN", timeStamp: getTimeStamp(date), ID: xhr.id, methodType: method, serverURL: url, async1: async}));
 };
 
 /**
@@ -178,15 +153,7 @@ logger.logXHRSend = function(xhr, str) {
 	console.log(" + XHR ID: ", xhr.id);
 	console.log(" + Message (POST):", str);
 
-	send(new Array(MsgConstants.msgType_xhrSend, MsgConstants.url,
-			document.location.href, MsgConstants.year, date.getUTCFullYear(),
-			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
-					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
-			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
-			date.getUTCSeconds(), MsgConstants.millisecond, date
-					.getUTCMilliseconds(), MsgConstants.id, xhr.id,
-			MsgConstants.xhrPostMsg, str));
-
+    send(JSON.stringify({messageType: "XHR_SEND", timeStamp: getTimeStamp(date), ID: xhr.id, message: str}));
 };
 
 /**
@@ -222,15 +189,7 @@ logger.logXHRResponse = function(xhr) {
 		// responsible unit.
 	}
 
-	send(new Array(MsgConstants.msgType_xhrResponse, MsgConstants.url,
-			document.location.href, MsgConstants.year, date.getUTCFullYear(),
-			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
-					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
-			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
-			date.getUTCSeconds(), MsgConstants.millisecond, date
-					.getUTCMilliseconds(), MsgConstants.id, xhr.id,
-			MsgConstants.callbackFunction, xhr.onreadystatechange,
-			MsgConstants.response, xhr.response));
+    send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: getTimeStamp(date), ID: xhr.id, callbackFunction: xhr.onreadystatechange, response: xhr.response}));
 
 };
 
@@ -251,16 +210,7 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 	console.log(" + Target DOM element: ", arguments[1]);
 	console.log(" + Handler function: ", arguments[2]);
 
-	send(new Array(MsgConstants.msgType_domEvent, MsgConstants.url,
-			document.location.href, MsgConstants.year, date.getUTCFullYear(),
-			MsgConstants.month, date.getUTCMonth(), MsgConstants.day, date
-					.getUTCDate(), MsgConstants.hour, date.getUTCHours(),
-			MsgConstants.minute, date.getUTCMinutes(), MsgConstants.second,
-			date.getUTCSeconds(), MsgConstants.millisecond, date
-					.getUTCMilliseconds(), MsgConstants.eventType,
-			arguments[0], MsgConstants.targetElement, arguments[1].toString(),
-			MsgConstants.handlerFunction, arguments[2]));
-
+    send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: getTimeStamp(date), eventType: arguments[0], targetElement: arguments[1], eventHandler: arguments[2]}));
 };
 
 /*******************************************************************************

@@ -2,7 +2,6 @@ package com.metis.core;
 
 import java.io.File;
 
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
@@ -81,17 +80,13 @@ public class SimpleExample {
 			driver.get(URL);
 			String mwh=driver.getWindowHandle();
 
-			while (foundWindow(driver, mwh) == false) {
+			while (foundWindow(driver, mwh) == true) {
 				// If window is open still, wait
 				// Probably not the best solution, 'sleeping' should be avoided
 				Thread.sleep(4000);
 			}
 			
-			if (driver instanceof JavascriptExecutor) {
-			    ((JavascriptExecutor) driver).executeScript("sendReally();");
-			}
-			
-			//tracer.postCrawling();
+			tracer.postCrawling();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -104,7 +99,7 @@ public class SimpleExample {
 		try {
 			wd.switchTo().window(name);		
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			return false;
 		}
 		return true;

@@ -21,7 +21,6 @@
 package com.metis.jsmodify;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.DateFormat;
@@ -33,7 +32,6 @@ import java.util.logging.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-
 import com.crawljax.util.Helper;
 
 
@@ -57,6 +55,8 @@ public class JSExecutionTracer {
 
 	public static final String FUNCTIONTRACEDIRECTORY = "functiontrace/";
 
+	private static PrintStream output;
+
 	/**
 	 * @param filename
 	 *            
@@ -74,7 +74,7 @@ public class JSExecutionTracer {
 	public void preCrawling() {
 		try {
 			Helper.directoryCheck(getOutputFolder());
-			//Helper.directoryCheck(getOutputFolder() + FUNCTIONTRACEDIRECTORY);
+			output = new PrintStream(getOutputFolder() + getFilename());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -110,7 +110,7 @@ public class JSExecutionTracer {
 			Thread.sleep(ONE_SEC);
 
 			LOGGER.info("Saved execution trace as " + filename);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -142,21 +142,6 @@ public class JSExecutionTracer {
 
 	public void postCrawling() {
 		try {
-			PrintStream output = new PrintStream(getOutputFolder() + getFilename());
-
-			/* save the current System.out for later usage */
-			PrintStream oldOut = System.out;
-			/* redirect it to the file */
-			System.setOut(output);
-
-			//List<String> arguments = allTraceFiles();
-
-			for (int j = 0; j < points.length(); j++) {
-				System.out.println(points.get(j).toString());
-			}
-
-			/* Restore the old system.out */
-			System.setOut(oldOut);
 
 			/* close the output file */
 			output.close();
@@ -189,36 +174,26 @@ public class JSExecutionTracer {
 	 */
 	public static void addPoint(String string) {
 		JSONArray buffer = null;
+		
 		try {
-			System.out.println("JSON String: " + string);
-			buffer = new JSONArray(string);
-			for (int i = 0; i < buffer.length(); i++) {
-				points.put(buffer.get(i));
-			}
-
-			PrintStream output = new PrintStream(getOutputFolder() + getFilename());
-
 			/* save the current System.out for later usage */
 			PrintStream oldOut = System.out;
 			/* redirect it to the file */
 			System.setOut(output);
-			
+
+			buffer = new JSONArray(string);
 			for (int i = 0; i < buffer.length(); i++) {
-				System.out.println(buffer.get(i).toString());
+				points.put(buffer.getJSONObject(i));
+				System.out.println(buffer.getJSONObject(i).toString(2));
 			}
 
 			/* Restore the old system.out */
 			System.setOut(oldOut);
 
-			/* close the output file */
-			output.close();
-			
-			
 		} catch (JSONException e) {
 			e.printStackTrace();
-		} catch (FileNotFoundException fnfe) {
-			fnfe.printStackTrace();
 		}
+
 	}
-	
+
 }

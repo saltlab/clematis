@@ -158,16 +158,9 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 * @return The modified response.
 	 */
 	private Response createResponse(Response response, Request request) {
-		if (response == null)  System.out.println("RESPONSE IS NULL");
-
 		String type = response.getHeader("Content-Type");
-
-		System.out.println("REQUEST:");
-		System.out.println(request.getURL().toString());
-		System.out.println("=======================");
 		
 		if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
-			System.out.println("Execution trace request " + request.getURL().toString());
 			String rawResponse = new String(request.getContent());
 			JSExecutionTracer.addPoint(rawResponse);
 			return response;

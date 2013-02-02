@@ -51,16 +51,11 @@ public class PointOfInterest {
 		switch (this.type) {
 		case org.mozilla.javascript.Token.FUNCTION: 
 			if (this.getEnd() == -1) {
-				// Function Beginning
-				//return "send(new Array(document.location.href, \"Function execution\", \"name\",\""+ getName()+"\", \"lineno\", "+getLineNo()+"));";
-				
-				return "send(new Array(document.location.href, \":::FUNCTION_ENTER\", '"+getName()+"', "+getLineNo()+"));";
-				
-				
+				// Function Beginning				
+				return "send(JSON.stringify({messageType:\"FUNCTION_ENTER\", timeStamp: getTimeStamp(new Date()), targetFunction:\""+getName()+"\",lineNo:"+getLineNo()+"}));";	
 			} else if (this.getEnd() == -2) {
 				// Function End
-				//return ";send(new Array(document.location.href, \"Function exit\", \"name\",\""+ getName()+"\", \"lineno\", "+getLineNo()+"));";
-				return ";send(new Array(document.location.href, \":::FUNCTION_EXIT\", '"+getName()+"', "+getLineNo()+"));";
+				return "send(JSON.stringify({messageType: \"FUNCTION_EXIT\", timeStamp: getTimeStamp(new Date()), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+"}));";	
 			} else {
 				// General Function
 				return "";
