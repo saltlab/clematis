@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
@@ -85,17 +86,12 @@ public class SimpleExample {
 
 			// Use WebDriver to visit specified URL
 			driver.get(URL);
-			String mwh=driver.getWindowHandle();
-
-
-
-
-
 
 			while (!sessionOver) {
 				// Wait until the user/tester has closed the browser
 				try {
-					if(driver.getWindowHandles().size() > 1 && driver.getWindowHandle() == driver.getWindowHandle()) {
+					//System.out.println("handle: " + driver.getWindowHandle());
+					if(driver.getWindowHandles().size() > 0) {
 						// Periodically push trace information from client to server
 						((JavascriptExecutor) driver).executeScript("sendReally();");
 					}
@@ -103,6 +99,8 @@ public class SimpleExample {
 					sessionOver = true;
 				} catch (TimeoutException e) {
 					// 10 seconds has elapsed and the window is still open
+					sessionOver = false;
+				} catch (UnhandledAlertException uae) {
 					sessionOver = false;
 				}
 			}
