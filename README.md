@@ -1,4 +1,4 @@
-Metis
+Metis-Dev
 =====
 
 Monitoring, logging, and understanding JavaScript events.
