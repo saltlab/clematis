@@ -32,6 +32,8 @@ import java.util.logging.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.crawljax.util.Helper;
 
 
@@ -142,7 +144,6 @@ public class JSExecutionTracer {
 
 	public void postCrawling() {
 		try {
-
 			/* close the output file */
 			output.close();
 		} catch (Exception e) {
@@ -174,7 +175,9 @@ public class JSExecutionTracer {
 	 */
 	public static void addPoint(String string) {
 		JSONArray buffer = null;
-		
+		JSONObject targetAttributes = null;
+		JSONObject targetElement = null;
+
 		try {
 			/* save the current System.out for later usage */
 			PrintStream oldOut = System.out;
@@ -184,6 +187,32 @@ public class JSExecutionTracer {
 			buffer = new JSONArray(string);
 			for (int i = 0; i < buffer.length(); i++) {
 				points.put(buffer.getJSONObject(i));
+
+
+				if(buffer.getJSONObject(i).has("targetElement")) {
+					JSONArray extractedArray = new JSONArray(buffer.getJSONObject(i).get("targetElement").toString());
+
+					targetElement = new JSONObject("{\"elementType\":\"TABLE\",\"attributes\":\"asdasd\"}");
+
+					try {
+						targetAttributes = extractedArray.getJSONObject(1);
+						String targetType = extractedArray.get(0).toString();
+
+						targetElement = new JSONObject("{\"elementType\":\""+targetType+"\",\"attributes\":"+targetAttributes.toString()+"}");
+
+					} catch (Exception e)  {
+						// targetElement is not usual DOM element
+						// E.g. DOMContentLoadedA
+						if (buffer.getJSONObject(i).has("eventType") && buffer.getJSONObject(i).get("eventType").toString().contains("ContentLoaded")) {
+							targetElement = new JSONObject("{\"elementType\":\"DOCUMENT\",\"attributes\":\"-\"}");
+						} else {
+							targetElement = new JSONObject("{\"elementType\":\"UNKNOWN\",\"attributes\":\"-\"}");
+						}
+					}
+					buffer.getJSONObject(i).remove("targetElement");
+					buffer.getJSONObject(i).put("targetElement",targetElement);
+				}
+
 				System.out.println(buffer.getJSONObject(i).toString(2));
 			}
 

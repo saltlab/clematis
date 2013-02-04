@@ -2,6 +2,7 @@ package com.metis.core;
 
 import java.io.File;
 
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
@@ -19,19 +20,19 @@ public class SimpleExample {
 
 	//private static final String URL = "http://localhost:8080/same-game/same-game.html";
 	private static final String URL = "http://localhost:8080/example_webapplication/index.html";
-	
+
 	private static String outputFolder = "";
-	
+
 	public static void main(String[] args) {
 		try {
 
 			outputFolder = Helper.addFolderSlashIfNeeded("metis-output");
-			
+
 			JSExecutionTracer tracer = new JSExecutionTracer("function.trace");
 			tracer.setOutputFolder(outputFolder + "ftrace");
 			//config.addPlugin(tracer);
 			tracer.preCrawling();
-			
+
 			// Create a new instance of the firefox driver
 			FirefoxProfile profile = new FirefoxProfile();
 
@@ -45,6 +46,7 @@ public class SimpleExample {
 			s.setFileNameToAttach("/asyncLogger.js");
 			s.setFileNameToAttach("/applicationView.js");
 			s.setFileNameToAttach("/eventlistenersMirror.js");
+			s.setFileNameToAttach("/jsonml-dom.js");
 			s.instrumentDOMModifications();
 
 			// Interface for Ast traversal
@@ -83,9 +85,12 @@ public class SimpleExample {
 			while (foundWindow(driver, mwh) == true) {
 				// If window is open still, wait
 				// Probably not the best solution, 'sleeping' should be avoided
-				Thread.sleep(4000);
+				if (driver instanceof JavascriptExecutor) {
+					((JavascriptExecutor) driver).executeScript("sendReally();");
+				}
+				Thread.sleep(5000);
+
 			}
-			
 			tracer.postCrawling();
 
 		} catch (Exception e) {
@@ -104,7 +109,7 @@ public class SimpleExample {
 		}
 		return true;
 	}
-	
+
 	public static String getOutputFolder() {
 		return Helper.addFolderSlashIfNeeded(outputFolder);
 	}

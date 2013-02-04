@@ -51,7 +51,6 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 *            List with variable patterns to exclude.
 	 */
 	public JSModifyProxyPlugin(JSASTModifier modify, List<String> excludes) {
-		//excludeFilenamePatterns = new ArrayList<String>();
 		excludeFilenamePatterns = excludes;
 		modifier = modify;
 	}
@@ -64,10 +63,8 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		excludeFilenamePatterns.add(".*mootools.js?.*");
 		excludeFilenamePatterns.add(".*dojo.xd.js?.*");
 
+		// Example application specific
 		excludeFilenamePatterns.add(".*tabcontent.js?.*");
-
-
-
 	}
 
 
@@ -88,7 +85,6 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -162,10 +158,10 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		
 		if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
 			String rawResponse = new String(request.getContent());
+			System.out.println(rawResponse);
 			JSExecutionTracer.addPoint(rawResponse);
 			return response;
 		}
-		
 		
 		if (request.getURL().toString().contains("?sendtester")) {
 			String rawResponse = new String(request.getContent());

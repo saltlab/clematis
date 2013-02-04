@@ -197,7 +197,10 @@ logger.logXHRResponse = function(xhr) {
  * Prints the information related to a DOM event on the console
  */
 logger.logDOMEvent = function(type, targetEl, callback) {
-	if (!recordStarted)
+
+	var jml;
+
+	if (!recordStarted || arguments[0].toString().indexOf("webdriver-evaluate") >= 0)
 		return;
 	console.log("------------------------------------");
 	console.log("DOM EVENT HANDLED");
@@ -210,7 +213,12 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 	console.log(" + Target DOM element: ", arguments[1]);
 	console.log(" + Handler function: ", arguments[2]);
 
-    send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: getTimeStamp(date), eventType: arguments[0], targetElement: arguments[1], eventHandler: arguments[2]}));
+    jml = JsonML.fromHTML(arguments[1]);
+	if (jml) {
+		jml = JSON.stringify(jml);
+    	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: getTimeStamp(date), eventType: arguments[0], targetElement: jml, eventHandler: arguments[2]}));
+	}
+
 };
 
 /*******************************************************************************

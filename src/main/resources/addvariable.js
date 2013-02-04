@@ -40,9 +40,11 @@ function send(value) {
 }
 
 function sendReally() {
-	window.xhr.open('POST', document.location.href + '?thisisafunctiontracingcall', false);
-	window.xhr.send('['+(window.buffer).toString()+']');
-	window.buffer = new Array();
+    if (window.buffer.length > 0) { 
+    	window.xhr.open('POST', document.location.href + '?thisisafunctiontracingcall', false);
+    	window.xhr.send('['+(window.buffer).toString()+']');
+    	window.buffer = new Array();
+    }
 }
 
 function addVariable(name, value) {
