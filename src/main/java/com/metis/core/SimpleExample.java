@@ -3,9 +3,12 @@ package com.metis.core;
 import java.io.File;
 
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.owasp.webscarab.model.Preferences;
 import org.owasp.webscarab.plugin.Framework;
 import org.owasp.webscarab.plugin.proxy.Proxy;
@@ -77,20 +80,27 @@ public class SimpleExample {
 			}
 
 			WebDriver driver = new FirefoxDriver(profile);
+			WebDriverWait wait = new WebDriverWait(driver, 10);
+			boolean sessionOver = false;
 
 			// Use WebDriver to visit specified URL
 			driver.get(URL);
-			String mwh=driver.getWindowHandle();
-
-			while (foundWindow(driver, mwh) == true) {
-				// If window is open still, wait
-				// Probably not the best solution, 'sleeping' should be avoided
-				if (driver instanceof JavascriptExecutor) {
-					((JavascriptExecutor) driver).executeScript("sendReally();");
+			
+			while (!sessionOver) {
+				// Wait until the user/tester has closed the browser
+				try {
+					if(driver.getWindowHandles().size() == 1) {
+						// Periodically push trace information from client to server
+						((JavascriptExecutor) driver).executeScript("sendReally();");
+					}
+					waitForWindowClose(wait);
+					sessionOver = true;
+				} catch (TimeoutException e) {
+					// 10 seconds has elapsed and the window is still open
+					sessionOver = false;
 				}
-				Thread.sleep(5000);
-
 			}
+
 			tracer.postCrawling();
 
 		} catch (Exception e) {
@@ -99,14 +109,19 @@ public class SimpleExample {
 		}
 	}
 
-	static boolean foundWindow(WebDriver wd, String name) {
+	static boolean waitForWindowClose(WebDriverWait w) throws TimeoutException {
 		// Function to check if window has been closed
-		try {
-			wd.switchTo().window(name);		
-		} catch (Exception e) {
-			//e.printStackTrace();
-			return false;
-		}
+		
+		w.until(new ExpectedCondition<Boolean>() {
+			@Override
+			public Boolean apply(WebDriver d) {
+				try {
+					return d.getWindowHandles().size() < 1;
+				} catch (Exception e) {
+					return true;
+				}
+			}
+		});
 		return true;
 	}
 
