@@ -85,11 +85,17 @@ public class SimpleExample {
 
 			// Use WebDriver to visit specified URL
 			driver.get(URL);
-			
+			String mwh=driver.getWindowHandle();
+
+
+
+
+
+
 			while (!sessionOver) {
 				// Wait until the user/tester has closed the browser
 				try {
-					if(driver.getWindowHandles().size() == 1) {
+					if(driver.getWindowHandles().size() > 1 && driver.getWindowHandle() == driver.getWindowHandle()) {
 						// Periodically push trace information from client to server
 						((JavascriptExecutor) driver).executeScript("sendReally();");
 					}
