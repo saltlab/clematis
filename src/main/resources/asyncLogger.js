@@ -152,6 +152,7 @@ logger.logXHRSend = function(xhr, str) {
 	console.log("XMLHTTPREQUEST: SEND");
 	console.log(" + XHR ID: ", xhr.id);
 	console.log(" + Message (POST):", str);
+	var date = new Date();
 
     send(JSON.stringify({messageType: "XHR_SEND", timeStamp: getTimeStamp(date), ID: xhr.id, message: str}));
 };

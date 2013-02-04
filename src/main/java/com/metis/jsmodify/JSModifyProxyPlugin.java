@@ -158,7 +158,6 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		
 		if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
 			String rawResponse = new String(request.getContent());
-			System.out.println(rawResponse);
 			JSExecutionTracer.addPoint(rawResponse);
 			return response;
 		}
