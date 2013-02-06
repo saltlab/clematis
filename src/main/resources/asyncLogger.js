@@ -86,8 +86,8 @@ logger.logSetTimeout = function(func, delay) {
 	 * allArgs + '$' + args[i];
 	 */
 	console.log("Number of active timeouts: ", timeoutCounter);
-
-    send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: getTimeStamp(date), ID: func.id, callbackFunction: func, delayTime: delay, argus: args}));
+/////////////////// ID -> id
+    send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: getTimeStamp(date), id: func.id, callbackFunction: func, delayTime: delay, argus: args}));
 
 };
 
@@ -116,7 +116,7 @@ logger.logTimeoutCallback = function(func) {
 		// responsible unit.
 	}
 
-    send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: getTimeStamp(date), ID: func.id, callbackFunction: func}));
+    send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: getTimeStamp(date), id: func.id, callbackFunction: func}));
 };
 
 /**
@@ -138,7 +138,7 @@ logger.logXHROpen = function(xhr, method, url, async) {
 	console.log(" + URL: ", url);
 	console.log(" + Async: ", async);
 
-    send(JSON.stringify({messageType: "XHR_OPEN", timeStamp: getTimeStamp(date), ID: xhr.id, methodType: method, serverURL: url, async1: async}));
+    send(JSON.stringify({messageType: "XHR_OPEN", timeStamp: getTimeStamp(date), id: xhr.id, methodType: method, serverURL: url, async: async}));
 };
 
 /**
@@ -154,7 +154,7 @@ logger.logXHRSend = function(xhr, str) {
 	console.log(" + Message (POST):", str);
 	var date = new Date();
 
-    send(JSON.stringify({messageType: "XHR_SEND", timeStamp: getTimeStamp(date), ID: xhr.id, message: str}));
+    send(JSON.stringify({messageType: "XHR_SEND", timeStamp: getTimeStamp(date), id: xhr.id, message: str}));
 };
 
 /**
@@ -190,7 +190,7 @@ logger.logXHRResponse = function(xhr) {
 		// responsible unit.
 	}
 
-    send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: getTimeStamp(date), ID: xhr.id, callbackFunction: xhr.onreadystatechange, response: xhr.response}));
+    send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: getTimeStamp(date), id: xhr.id, callbackFunction: xhr.onreadystatechange, response: xhr.response}));
 
 };
 
@@ -217,7 +217,8 @@ logger.logDOMEvent = function(type, targetEl, callback) {
     jml = JsonML.fromHTML(arguments[1]);
 	if (jml) {
 		jml = JSON.stringify(jml);
-    	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: getTimeStamp(date), eventType: arguments[0], targetElement: jml, eventHandler: arguments[2]}));
+//    	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: getTimeStamp(date), eventType: arguments[0], targetElement: jml, eventHandler: arguments[2]}));
+    	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: getTimeStamp(date), eventType: arguments[0], eventHandler: arguments[2]}));
 	}
 
 };

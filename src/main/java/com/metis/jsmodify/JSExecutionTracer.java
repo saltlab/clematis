@@ -27,14 +27,18 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.crawljax.util.Helper;
+import com.metis.core.trace.TraceObject;
 
 
 /**
@@ -58,6 +62,8 @@ public class JSExecutionTracer {
 	public static final String FUNCTIONTRACEDIRECTORY = "functiontrace/";
 
 	private static PrintStream output;
+	
+	private static ArrayList<TraceObject> traceObjects;
 
 	/**
 	 * @param filename
@@ -65,6 +71,7 @@ public class JSExecutionTracer {
 	 */
 	public JSExecutionTracer(String filename) {
 		traceFilename = filename;
+		traceObjects = new ArrayList<TraceObject>();
 	}
 
 	/**
@@ -146,6 +153,19 @@ public class JSExecutionTracer {
 		try {
 			/* close the output file */
 			output.close();
+			
+			ObjectMapper mapper = new ObjectMapper();
+			File file = new File("metis-output/ftrace/function.trace");
+			
+			JsonFactory jsonFactory = new JsonFactory();
+			
+			for (Iterator<TraceObject> it = mapper.readValues(jsonFactory.createJsonParser(file), TraceObject.class); it.hasNext(); ) {
+				TraceObject to = it.next();
+				traceObjects.add(to);
+				System.out.println(to.getMessageType() + " - " + to.getLineNo());
+			}
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
