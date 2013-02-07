@@ -27,19 +27,33 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.codehaus.jackson.JsonFactory;
+//import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.crawljax.util.Helper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.metis.core.trace.TraceObject;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 
 
 /**
- * Crawljax Plugin that reads an instrumentation array from the webbrowser and saves the contents in
- * a Daikon trace file.
+ * Crawljax Plugin that reads an instrumentation array from the webbrowser and
+ * saves the contents in a Daikon trace file.
  * 
  * @author Frank Groeneveld
  * @version $Id: JSExecutionTracer.java 6162 2009-12-16 13:56:21Z frank $
@@ -53,18 +67,22 @@ public class JSExecutionTracer {
 
 	private static JSONArray points = new JSONArray();
 
-	private static final Logger LOGGER = Logger.getLogger(JSExecutionTracer.class.getName());
+	private static final Logger LOGGER = Logger
+			.getLogger(JSExecutionTracer.class.getName());
 
 	public static final String FUNCTIONTRACEDIRECTORY = "functiontrace/";
 
 	private static PrintStream output;
 
+	private static ArrayList<TraceObject> traceObjects;
+
 	/**
 	 * @param filename
-	 *            
+	 * 
 	 */
 	public JSExecutionTracer(String filename) {
 		traceFilename = filename;
+		traceObjects = new ArrayList<TraceObject>();
 	}
 
 	/**
@@ -83,8 +101,8 @@ public class JSExecutionTracer {
 	}
 
 	/**
-	 * Retrieves the JavaScript instrumentation array from the webbrowser and writes its contents in
-	 * Daikon format to a file.
+	 * Retrieves the JavaScript instrumentation array from the webbrowser and
+	 * writes its contents in Daikon format to a file.
 	 * 
 	 * @param session
 	 *            The crawling session.
@@ -94,8 +112,8 @@ public class JSExecutionTracer {
 
 	public void preStateCrawling() {
 
-
-		String filename = getOutputFolder() + FUNCTIONTRACEDIRECTORY + "jstrace-";
+		String filename = getOutputFolder() + FUNCTIONTRACEDIRECTORY
+				+ "jstrace-";
 
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 		Date date = new Date();
@@ -107,8 +125,7 @@ public class JSExecutionTracer {
 
 			LOGGER.info("Parsing JavaScript execution trace");
 
-
-			//session.getBrowser().executeJavaScript("sendReally();");
+			// session.getBrowser().executeJavaScript("sendReally();");
 			Thread.sleep(ONE_SEC);
 
 			LOGGER.info("Saved execution trace as " + filename);
@@ -146,9 +163,45 @@ public class JSExecutionTracer {
 		try {
 			/* close the output file */
 			output.close();
+
+			extraxtTraceObjects();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * This method parses the JSON file containing the trace objects and
+	 * extracts the objects
+	 */
+	private void extraxtTraceObjects() {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			// Register the module that serializes the Guava Multimap
+			mapper.registerModule(new GuavaModule());
+
+			// TODO THIS IS JUST AN EXAMPLE
+			// REMOVE THIS STRING LATER AND READ FROM JSON FILE
+		    String serializedForm = "{\"FunctionCall\":[{\"@class\":\"com.metis.core.trace.FunctionCall\",\"lineNo\": 1,\"messageType\": \"FUNCTION_CALL\",\"targetFunction\":\"getElementById\",\"timeStamp\": {\"day\": 6,\"hour\": 23,\"minute\": 26,\"month\": 1,\"ms\": 542,\"second\": 59,\"year\": 2013}}]}";
+			
+		    Multimap<String, TraceObject> traceMap = mapper.<Multimap<String, TraceObject>>readValue(serializedForm, new TypeReference<TreeMultimap<String, TraceObject>>() {});
+
+/*			File file = new File("metis-output/ftrace/function.trace");
+
+			JsonFactory jsonFactory = new JsonFactory();
+
+			for (Iterator<TraceObject> it = mapper.readValues(
+					jsonFactory.createJsonParser(file), TraceObject.class); it
+					.hasNext();) {
+				TraceObject to = it.next();
+				traceObjects.add(to);
+				System.out
+						.println(to.getMessageType() + " - " + to.getLineNo());
+			}
+	*/	} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	/**
@@ -167,8 +220,8 @@ public class JSExecutionTracer {
 	}
 
 	/**
-	 * Dirty way to save program points from the proxy request threads. TODO: Frank, find cleaner
-	 * way.
+	 * Dirty way to save program points from the proxy request threads. TODO:
+	 * Frank, find cleaner way.
 	 * 
 	 * @param string
 	 *            The JSON-text to save.
@@ -188,29 +241,36 @@ public class JSExecutionTracer {
 			for (int i = 0; i < buffer.length(); i++) {
 				points.put(buffer.getJSONObject(i));
 
+				if (buffer.getJSONObject(i).has("targetElement")) {
+					JSONArray extractedArray = new JSONArray(buffer
+							.getJSONObject(i).get("targetElement").toString());
 
-				if(buffer.getJSONObject(i).has("targetElement")) {
-					JSONArray extractedArray = new JSONArray(buffer.getJSONObject(i).get("targetElement").toString());
-
-					targetElement = new JSONObject("{\"elementType\":\"TABLE\",\"attributes\":\"asdasd\"}");
+					targetElement = new JSONObject(
+							"{\"elementType\":\"TABLE\",\"attributes\":\"asdasd\"}");
 
 					try {
 						targetAttributes = extractedArray.getJSONObject(1);
 						String targetType = extractedArray.get(0).toString();
 
-						targetElement = new JSONObject("{\"elementType\":\""+targetType+"\",\"attributes\":"+targetAttributes.toString()+"}");
+						targetElement = new JSONObject("{\"elementType\":\""
+								+ targetType + "\",\"attributes\":"
+								+ targetAttributes.toString() + "}");
 
-					} catch (Exception e)  {
+					} catch (Exception e) {
 						// targetElement is not usual DOM element
 						// E.g. DOMContentLoadedA
-						if (buffer.getJSONObject(i).has("eventType") && buffer.getJSONObject(i).get("eventType").toString().contains("ContentLoaded")) {
-							targetElement = new JSONObject("{\"elementType\":\"DOCUMENT\",\"attributes\":\"-\"}");
+						if (buffer.getJSONObject(i).has("eventType")
+								&& buffer.getJSONObject(i).get("eventType")
+										.toString().contains("ContentLoaded")) {
+							targetElement = new JSONObject(
+									"{\"elementType\":\"DOCUMENT\",\"attributes\":\"-\"}");
 						} else {
-							targetElement = new JSONObject("{\"elementType\":\"UNKNOWN\",\"attributes\":\"-\"}");
+							targetElement = new JSONObject(
+									"{\"elementType\":\"UNKNOWN\",\"attributes\":\"-\"}");
 						}
 					}
 					buffer.getJSONObject(i).remove("targetElement");
-					buffer.getJSONObject(i).put("targetElement",targetElement);
+					buffer.getJSONObject(i).put("targetElement", targetElement);
 				}
 
 				System.out.println(buffer.getJSONObject(i).toString(2));
