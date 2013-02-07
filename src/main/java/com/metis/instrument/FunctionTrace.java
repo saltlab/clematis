@@ -3,6 +3,7 @@ package com.metis.instrument;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -64,6 +65,8 @@ public class FunctionTrace extends AstInstrumenter {
 	 */
 	public AstNode parse(String code) {
 		Parser p = new Parser(compilerEnvirons, null);
+		
+		//System.out.println(code);
 		return p.parse(code, null, 0);
 
 	}
@@ -232,6 +235,16 @@ public class FunctionTrace extends AstInstrumenter {
 		return toke;
 	}
 
+	private PointOfInterest createEntryWithArguments(String name, int type, int[] range, int lineNo, String body, int hashCode, String arg) {
+		PointOfInterest toke = null;
+		try {
+			toke = new PointOfInterest(new Object[]{name, type, range[0], range[1], lineNo, body, hashCode, arg});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return toke;
+	}
+
 	private void handleFunction(FunctionNode node) {
 		// Store information on function declarations
 		AstNode parent = node.getParent();
@@ -241,6 +254,18 @@ public class FunctionTrace extends AstInstrumenter {
 		int hash = node.hashCode();	
 		int type = node.getType();
 		int lineNo = node.getLineno();
+		String arguments = new String();
+
+		if(node.getParamCount() > 0){
+			List<AstNode> params = node.getParams();
+			for (AstNode pp: params) {
+				arguments +=  "," + pp.toSource();
+			}
+			arguments = arguments.replaceFirst(",", "");
+		} else {
+			arguments = "";
+		}
+
 
 		if (node.getFunctionType() == FunctionNode.FUNCTION_EXPRESSION) {
 			// Complicated Case
@@ -252,22 +277,23 @@ public class FunctionTrace extends AstInstrumenter {
 				name = src.substring(node.getParent().getAbsolutePosition(),node.getEncodedSourceStart());
 				name = name.substring(name.lastIndexOf(".")+1,name.indexOf("="));
 			}
-			PointOfInterest toke = createEntry(name, type, range, lineNo, body, hash);
+			PointOfInterest toke = createEntryWithArguments(name, type, range, lineNo, body, hash, arguments);
 			if (toke != null) functionTokens.add(toke);
 		}
 		else if (node.getFunctionType() == FunctionNode.FUNCTION_STATEMENT) {
 			// Simple Case
-			PointOfInterest toke = createEntry(name, type, range, lineNo, body, hash);
+			PointOfInterest toke = createEntryWithArguments(name, type, range, lineNo, body, hash, arguments);
 			if (toke != null) functionTokens.add(toke);
 		}
 		else if (node.getFunctionType() == FunctionNode.FUNCTION_EXPRESSION_STATEMENT) {
-			PointOfInterest toke = createEntry(name, type, range, lineNo, body, hash);
+			PointOfInterest toke = createEntryWithArguments(name, type, range, lineNo, body, hash, arguments);
 			if (toke != null) functionTokens.add(toke);
 		}
 		else {
 			// unrecognized;
 			System.out.println("Unrecognized function name at " + lineNo);
 		}
+
 	}
 
 	private void handleFunctionCall(FunctionCall node) {
@@ -360,8 +386,8 @@ public class FunctionTrace extends AstInstrumenter {
 						-1,
 						functionTokens.get(i).getLineNo(),
 						functionTokens.get(i).getBody(),
-						functionTokens.get(i).getHash()}));
-
+						functionTokens.get(i).getHash(),
+						functionTokens.get(i).getArguments()}));
 				// Add code before end of function declaration
 				pointsOfInstrumentation.add(new PointOfInterest(new Object[]{functionTokens.get(i).getName(),
 						functionTokens.get(i).getType(),
@@ -369,7 +395,8 @@ public class FunctionTrace extends AstInstrumenter {
 						-2,
 						functionTokens.get(i).getLineNo(),
 						functionTokens.get(i).getBody(),
-						functionTokens.get(i).getHash()}));
+						functionTokens.get(i).getHash(),
+						functionTokens.get(i).getArguments()}));
 			}
 		}
 

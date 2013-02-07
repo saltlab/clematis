@@ -55,26 +55,34 @@ function addVariable(name, value) {
 				if(value[0] instanceof Array){
 					
 					if(value[0].length > 0) 
-						return new Array(name, typeof (value[0][0]) + '_array', value);
+						//return new Array(name, typeof (value[0][0]) + '_array', value);
+						return JSON.stringify({name: name, type: typeof (value[0][0]) + '_array', value: value});
 				
 					else
-						return new Array(name, 'object_array', value);
+//						return new Array(name, 'object_array', value);
+						return JSON.stringify({name: name, type: 'object_array', value: value});
 				}
 				else
 					if(value.length > 0)
-						return new Array(name, typeof (value[0]) + '_array', value);
+						//return new Array(name, typeof (value[0]) + '_array', value);
+						return JSON.stringify({name: name, type: typeof (value[0]) + '_array', value: value});
 					else 
-						return new Array(name, 'object_array', value);
+						//return new Array(name, 'object_array', value);
+						return JSON.stringify({name: name, type: 'object_array', value: value});
 		}
 	
 	} else if(typeof(value) != 'undefined' && typeof(value) != 'function') {
-		return new Array(name, typeof(value), value);
+	//	return new Array(name, typeof(value), value);
+		return JSON.stringify({name: name, type: typeof(value), value: value});
 	}
 		else if (pattern.test(name) || getAttrPattern.test(name)){
-			return new Array(name, 'string', value);//'java.lang.String');
+		//	return new Array(name, 'string', value);//'java.lang.String');
+		return JSON.stringify({name: name, type: 'string', value: value});
 		}
 	else if (name.match(pattern)==".attr("){
-		return new Array(name, 'string', 'java.lang.String');
+		//return new Array(name, 'string', 'java.lang.String');
+		return JSON.stringify({name: name, type: 'string', value: 'java.lang.String'});
 	}
-	return new Array(name, typeof(value), 'undefined');
+	//return new Array(name, typeof(value), 'undefined');
+	return JSON.stringify({name: name, type: typeof(value), value: 'undefined'});
 }

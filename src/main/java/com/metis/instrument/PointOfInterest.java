@@ -1,5 +1,7 @@
 package com.metis.instrument;
 
+import java.util.ArrayList;
+
 import org.mozilla.javascript.Context;
 
 public class PointOfInterest {
@@ -10,6 +12,7 @@ public class PointOfInterest {
 	private int[] range = {0,0};
 	private int hashCode = -1;
 	private int lineNo = -1;
+	private ArrayList<String> arguments = new ArrayList<String>();
 
 	// The zero-argument constructor used by Rhino runtime to create instances
 	public PointOfInterest(Object[] args) { 
@@ -39,6 +42,15 @@ public class PointOfInterest {
 				break;
 			case 6:
 				this.setHash(Integer.parseInt(Context.toString(args[i])));
+				break;
+			case 7:
+				String unseparatedArguments = Context.toString(args[i]);
+				if (unseparatedArguments != "") {
+					String[] seperatedArguments = unseparatedArguments.split(",");
+					for (int p=0; p<seperatedArguments.length; p++) {
+						this.arguments.add(seperatedArguments[p].replace("," , ""));
+					}
+				}
 			default:
 
 			}
@@ -52,7 +64,20 @@ public class PointOfInterest {
 		case org.mozilla.javascript.Token.FUNCTION: 
 			if (this.getEnd() == -1) {
 				// Function Beginning				
-				return "send(JSON.stringify({messageType:\"FUNCTION_ENTER\", timeStamp: getTimeStamp(new Date()), targetFunction:\""+getName()+"\",lineNo:"+getLineNo()+"}));";	
+				String code = "send(JSON.stringify({messageType:\"FUNCTION_ENTER\", timeStamp: getTimeStamp(new Date()), targetFunction:\""+getName()+"\", lineNo:"+getLineNo()+", args: {";	
+				String vars = new String();
+				for (String s : arguments) {
+					vars += "\"" + s + "\":" + s + ",";
+				}
+				if (vars.length() > 0) {
+					/* remove last comma */
+					vars = vars.substring(0, vars.length() - 1);
+					code += vars + "}}));";
+				} else {
+					/* no arguments to instrument here */
+					return "send(JSON.stringify({messageType: \"FUNCTION_ENTER\", timeStamp: getTimeStamp(new Date()), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+"}));";	
+				}
+				return code;	
 			} else if (this.getEnd() == -2) {
 				// Function End
 				return "send(JSON.stringify({messageType: \"FUNCTION_EXIT\", timeStamp: getTimeStamp(new Date()), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+"}));";	
@@ -151,6 +176,20 @@ public class PointOfInterest {
 
 	public int getEnd() {
 		return range[1];
+	}
+
+	public String getArguments() {
+		if (this.arguments.size() == 0) return "";
+		
+		String argumentsToString = new String();
+		for (String s : arguments) {
+			argumentsToString +=  "," + s;
+		}
+		return argumentsToString.replaceFirst(",", "");		
+	}
+
+	public void setArguments(ArrayList<String> arguments) {
+		this.arguments = arguments;
 	}
 
 }
