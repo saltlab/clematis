@@ -128,8 +128,6 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			/* clean up */
 			Context.exit();
 
-			System.out.println(ast.toSource());
-
 			return ast.toSource();
 		} catch (RhinoException re) {
 			System.err.println(re.getMessage()

@@ -72,7 +72,7 @@ public class PointOfInterest {
 				if (vars.length() > 0) {
 					/* remove last comma */
 					vars = vars.substring(0, vars.length() - 1);
-					code += vars + "}}));";
+					code += vars + "}, counter:traceCounter++}));";
 				} else {
 					/* no arguments to instrument here */
 					return "send(JSON.stringify({messageType: \"FUNCTION_ENTER\", timeStamp: getTimeStamp(new Date()), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+", counter:traceCounter++}));";	
