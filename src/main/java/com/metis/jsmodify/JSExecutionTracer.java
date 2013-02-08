@@ -26,6 +26,7 @@ import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -37,6 +38,7 @@ import org.json.JSONObject;
 
 import com.crawljax.util.Helper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.metis.core.trace.TimingTrace;
 import com.metis.core.trace.TraceObject;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -188,11 +190,14 @@ public class JSExecutionTracer {
 			// Register the module that serializes the Guava Multimap
 			mapper.registerModule(new GuavaModule());
 
-			// TODO THIS IS JUST AN EXAMPLE
-			// REMOVE THIS STRING LATER AND READ FROM JSON FILE
-			String serializedForm = "{\"FunctionCall\":[{\"@class\":\"com.metis.core.trace.FunctionCall\",\"lineNo\": 1,\"messageType\": \"FUNCTION_CALL\",\"targetFunction\":\"getElementById\",\"timeStamp\": {\"day\": 6,\"hour\": 23,\"minute\": 26,\"month\": 1,\"ms\": 542,\"second\": 59,\"year\": 2013}}]}";
-
-			Multimap<String, TraceObject> traceMap = mapper.<Multimap<String, TraceObject>>readValue(serializedForm, new TypeReference<TreeMultimap<String, TraceObject>>() {});
+			Multimap<String, TraceObject> traceMap = mapper.<Multimap<String, TraceObject>>readValue(new File("metis-output/ftrace/function.trace"), new TypeReference<TreeMultimap<String, TraceObject>>() {});
+			
+			Collection<TraceObject> timingTraces = traceMap.get("TimingTrace");
+			Collection<TraceObject> domEventTraces = traceMap.get("DOMEventTrace");
+			Collection<TraceObject> XHRTraces = traceMap.get("XHRTrace");
+			Collection<TraceObject> functionTraces = traceMap.get("FunctionTrace");
+			
+			System.out.println(timingTraces.size() + " - " + domEventTraces.size() + " - " + XHRTraces.size() + " - " + functionTraces.size());
 
 			/*			File file = new File("metis-output/ftrace/function.trace");
 
@@ -292,31 +297,31 @@ public class JSExecutionTracer {
 					// Maybe better to change mType to ENUM and use switch instead of 'if's
 					if (mType.contains("FUNCTION_CALL")) {
 						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.FunctionCall");
-						JSONLabel = "FunctionTrace:";
+						JSONLabel = "\"FunctionTrace\":";
 					} else if (mType.contains("FUNCTION_ENTER")) {
 						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.FunctionEnter");
-						JSONLabel = "FunctionTrace:";
+						JSONLabel = "\"FunctionTrace\":";
 					} else if (mType.contains("FUNCTION_EXIT")) {
 						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.FunctionExit");
-						JSONLabel = "FunctionTrace:";
+						JSONLabel = "\"FunctionTrace\":";
 					} else if (mType.contains("DOM_EVENT")) {
 						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.DOMEventTrace");
-						JSONLabel = "DOMEventTrace:";
+						JSONLabel = "\"DOMEventTrace\":";
 					} else if (mType.contains("TIMEOUT_SET")) {
 						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.TimeoutSet");
-						JSONLabel = "TimingTrace:";
+						JSONLabel = "\"TimingTrace\":";
 					} else if (mType.contains("TIMEOUT_CALLBACK")) {
 						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.TimeoutCallback");
-						JSONLabel = "TimingTrace:";
+						JSONLabel = "\"TimingTrace\":";
 					} else if (mType.contains("XHR_OPEN")) {
 						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.XMLHttpRequestOpen");
-						JSONLabel = "XHRTrace:";
+						JSONLabel = "\"XHRTrace\":";
 					} else if (mType.contains("XHR_SEND")) {
 						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.XMLHttpRequestSend");	
-						JSONLabel = "XHRTrace:";
+						JSONLabel = "\"XHRTrace\":";
 					} else if (mType.contains("XHR_RESPONSE")) {
 						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.XMLHttpRequestResponse");
-						JSONLabel = "XHRTrace:";
+						JSONLabel = "\"XHRTrace\":";
 					}
 					// messageType obsolete
 					buffer.getJSONObject(i).remove("messageType");

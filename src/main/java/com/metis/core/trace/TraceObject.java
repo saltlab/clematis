@@ -3,7 +3,7 @@ package com.metis.core.trace;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
-public class TraceObject {
+public class TraceObject implements Comparable {
 	private int id;
 	private String messageType;
 	private TimeStamp timeStamp;
@@ -25,5 +25,13 @@ public class TraceObject {
 	}
 	public void setTimeStamp(TimeStamp timeStamp) {
 		this.timeStamp = timeStamp;
+	}
+	@Override
+	public int compareTo(Object arg0) {
+		// TODO Auto-generated method stub
+		if (this.timeStamp.getYear() >= ((TraceObject) arg0).getTimeStamp().getYear())
+			return 1;
+		else
+			return -1;
 	}	
 }

@@ -86,8 +86,8 @@ logger.logSetTimeout = function(func, delay) {
 	 * allArgs + '$' + args[i];
 	 */
 	console.log("Number of active timeouts: ", timeoutCounter);
-/////////////////// ID -> id
-    send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: getTimeStamp(date), id: func.id, callbackFunction: func, delayTime: delay, argus: args}));
+
+    send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: getTimeStamp(date), id: func.id, callbackFunction: func, delay: delay, args: args}));
 
 };
 
@@ -138,7 +138,7 @@ logger.logXHROpen = function(xhr, method, url, async) {
 	console.log(" + URL: ", url);
 	console.log(" + Async: ", async);
 
-    send(JSON.stringify({messageType: "XHR_OPEN", timeStamp: getTimeStamp(date), id: xhr.id, methodType: method, serverURL: url, async: async}));
+    send(JSON.stringify({messageType: "XHR_OPEN", timeStamp: getTimeStamp(date), id: xhr.id, methodType: method, url: url, async: async}));
 };
 
 /**

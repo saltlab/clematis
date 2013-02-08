@@ -1,6 +1,6 @@
 package com.metis.core.trace;
 
-public class TimingTrace {
+public class TimingTrace extends TraceObject {
 	private int timeoutId;
 	private String callbackFunction;
 
