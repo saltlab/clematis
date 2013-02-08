@@ -27,11 +27,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.codehaus.jackson.JsonFactory;
 //import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,12 +39,8 @@ import com.crawljax.util.Helper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.metis.core.trace.TraceObject;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 
@@ -95,6 +89,13 @@ public class JSExecutionTracer {
 		try {
 			Helper.directoryCheck(getOutputFolder());
 			output = new PrintStream(getOutputFolder() + getFilename());
+
+			// Add opening bracket around whole trace
+			PrintStream oldOut = System.out;
+			System.setOut(output);
+			System.out.println("{");
+			System.setOut(oldOut);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -161,6 +162,13 @@ public class JSExecutionTracer {
 
 	public void postCrawling() {
 		try {
+			// Add closing bracket
+			PrintStream oldOut = System.out;
+			System.setOut(output);
+			System.out.println(" ");
+			System.out.println("}");
+			System.setOut(oldOut);
+
 			/* close the output file */
 			output.close();
 
@@ -182,11 +190,11 @@ public class JSExecutionTracer {
 
 			// TODO THIS IS JUST AN EXAMPLE
 			// REMOVE THIS STRING LATER AND READ FROM JSON FILE
-		    String serializedForm = "{\"FunctionCall\":[{\"@class\":\"com.metis.core.trace.FunctionCall\",\"lineNo\": 1,\"messageType\": \"FUNCTION_CALL\",\"targetFunction\":\"getElementById\",\"timeStamp\": {\"day\": 6,\"hour\": 23,\"minute\": 26,\"month\": 1,\"ms\": 542,\"second\": 59,\"year\": 2013}}]}";
-			
-		    Multimap<String, TraceObject> traceMap = mapper.<Multimap<String, TraceObject>>readValue(serializedForm, new TypeReference<TreeMultimap<String, TraceObject>>() {});
+			String serializedForm = "{\"FunctionCall\":[{\"@class\":\"com.metis.core.trace.FunctionCall\",\"lineNo\": 1,\"messageType\": \"FUNCTION_CALL\",\"targetFunction\":\"getElementById\",\"timeStamp\": {\"day\": 6,\"hour\": 23,\"minute\": 26,\"month\": 1,\"ms\": 542,\"second\": 59,\"year\": 2013}}]}";
 
-/*			File file = new File("metis-output/ftrace/function.trace");
+			Multimap<String, TraceObject> traceMap = mapper.<Multimap<String, TraceObject>>readValue(serializedForm, new TypeReference<TreeMultimap<String, TraceObject>>() {});
+
+			/*			File file = new File("metis-output/ftrace/function.trace");
 
 			JsonFactory jsonFactory = new JsonFactory();
 
@@ -198,9 +206,9 @@ public class JSExecutionTracer {
 				System.out
 						.println(to.getMessageType() + " - " + to.getLineNo());
 			}
-	*/	} catch (Exception e) {
-			e.printStackTrace();
-		}
+			 */	} catch (Exception e) {
+				 e.printStackTrace();
+			 }
 
 	}
 
@@ -230,6 +238,7 @@ public class JSExecutionTracer {
 		JSONArray buffer = null;
 		JSONObject targetAttributes = null;
 		JSONObject targetElement = null;
+		String JSONLabel = new String();
 
 		try {
 			/* save the current System.out for later usage */
@@ -239,14 +248,18 @@ public class JSExecutionTracer {
 
 			buffer = new JSONArray(string);
 			for (int i = 0; i < buffer.length(); i++) {
+
+				if (points.length() > 0) {
+					// Add comma after previous trace object
+					System.out.println(",");
+				}
+
 				points.put(buffer.getJSONObject(i));
 
 				if (buffer.getJSONObject(i).has("targetElement")) {
 					JSONArray extractedArray = new JSONArray(buffer
 							.getJSONObject(i).get("targetElement").toString());
 
-					targetElement = new JSONObject(
-							"{\"elementType\":\"TABLE\",\"attributes\":\"asdasd\"}");
 
 					try {
 						targetAttributes = extractedArray.getJSONObject(1);
@@ -261,7 +274,7 @@ public class JSExecutionTracer {
 						// E.g. DOMContentLoadedA
 						if (buffer.getJSONObject(i).has("eventType")
 								&& buffer.getJSONObject(i).get("eventType")
-										.toString().contains("ContentLoaded")) {
+								.toString().contains("ContentLoaded")) {
 							targetElement = new JSONObject(
 									"{\"elementType\":\"DOCUMENT\",\"attributes\":\"-\"}");
 						} else {
@@ -273,7 +286,43 @@ public class JSExecutionTracer {
 					buffer.getJSONObject(i).put("targetElement", targetElement);
 				}
 
-				System.out.println(buffer.getJSONObject(i).toString(2));
+				if (buffer.getJSONObject(i).has("messageType")) {
+					String mType = buffer.getJSONObject(i).get("messageType").toString();
+
+					// Maybe better to change mType to ENUM and use switch instead of 'if's
+					if (mType.contains("FUNCTION_CALL")) {
+						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.FunctionCall");
+						JSONLabel = "FunctionTrace:";
+					} else if (mType.contains("FUNCTION_ENTER")) {
+						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.FunctionEnter");
+						JSONLabel = "FunctionTrace:";
+					} else if (mType.contains("FUNCTION_EXIT")) {
+						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.FunctionExit");
+						JSONLabel = "FunctionTrace:";
+					} else if (mType.contains("DOM_EVENT")) {
+						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.DOMEventTrace");
+						JSONLabel = "DOMEventTrace:";
+					} else if (mType.contains("TIMEOUT_SET")) {
+						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.TimeoutSet");
+						JSONLabel = "TimingTrace:";
+					} else if (mType.contains("TIMEOUT_CALLBACK")) {
+						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.TimeoutCallback");
+						JSONLabel = "TimingTrace:";
+					} else if (mType.contains("XHR_OPEN")) {
+						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.XMLHttpRequestOpen");
+						JSONLabel = "XHRTrace:";
+					} else if (mType.contains("XHR_SEND")) {
+						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.XMLHttpRequestSend");	
+						JSONLabel = "XHRTrace:";
+					} else if (mType.contains("XHR_RESPONSE")) {
+						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.XMLHttpRequestResponse");
+						JSONLabel = "XHRTrace:";
+					}
+					// messageType obsolete
+					buffer.getJSONObject(i).remove("messageType");
+				} 
+
+				System.out.print(JSONLabel + "[" + buffer.getJSONObject(i).toString(2) + "]");
 			}
 
 			/* Restore the old system.out */
