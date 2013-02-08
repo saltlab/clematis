@@ -38,14 +38,15 @@ import org.json.JSONObject;
 
 import com.crawljax.util.Helper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.metis.core.trace.DOMEventTrace;
 import com.metis.core.trace.TimingTrace;
+import com.metis.core.trace.Trace;
 import com.metis.core.trace.TraceObject;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
-
 
 /**
  * Crawljax Plugin that reads an instrumentation array from the webbrowser and
@@ -71,6 +72,8 @@ public class JSExecutionTracer {
 	private static PrintStream output;
 
 	private static ArrayList<TraceObject> traceObjects;
+	
+	private Trace trace;
 
 	/**
 	 * @param filename
@@ -190,30 +193,28 @@ public class JSExecutionTracer {
 			// Register the module that serializes the Guava Multimap
 			mapper.registerModule(new GuavaModule());
 
-			Multimap<String, TraceObject> traceMap = mapper.<Multimap<String, TraceObject>>readValue(new File("metis-output/ftrace/function.trace"), new TypeReference<TreeMultimap<String, TraceObject>>() {});
+			Multimap<String, TraceObject> traceMap = mapper
+					.<Multimap<String, TraceObject>> readValue(
+							new File("metis-output/ftrace/function.trace"),
+							new TypeReference<TreeMultimap<String, TraceObject>>() {
+							});
 			
 			Collection<TraceObject> timingTraces = traceMap.get("TimingTrace");
-			Collection<TraceObject> domEventTraces = traceMap.get("DOMEventTrace");
+			Collection<TraceObject> domEventTraces = traceMap
+					.get("DOMEventTrace");
 			Collection<TraceObject> XHRTraces = traceMap.get("XHRTrace");
-			Collection<TraceObject> functionTraces = traceMap.get("FunctionTrace");
-			
-			System.out.println(timingTraces.size() + " - " + domEventTraces.size() + " - " + XHRTraces.size() + " - " + functionTraces.size());
+			Collection<TraceObject> functionTraces = traceMap
+					.get("FunctionTrace");
+			/////
+			trace = new Trace(domEventTraces, functionTraces, timingTraces, XHRTraces);
+			/////
+			System.out.println(trace.getTimingTraces().size() + " - "
+					+ trace.getDomEventTraces().size() + " - " + trace.getXhrTraces().size() + " - "
+					+ trace.getFunctionTraces().size());
 
-			/*			File file = new File("metis-output/ftrace/function.trace");
-
-			JsonFactory jsonFactory = new JsonFactory();
-
-			for (Iterator<TraceObject> it = mapper.readValues(
-					jsonFactory.createJsonParser(file), TraceObject.class); it
-					.hasNext();) {
-				TraceObject to = it.next();
-				traceObjects.add(to);
-				System.out
-						.println(to.getMessageType() + " - " + to.getLineNo());
-			}
-			 */	} catch (Exception e) {
-				 e.printStackTrace();
-			 }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -265,7 +266,6 @@ public class JSExecutionTracer {
 					JSONArray extractedArray = new JSONArray(buffer
 							.getJSONObject(i).get("targetElement").toString());
 
-
 					try {
 						targetAttributes = extractedArray.getJSONObject(1);
 						String targetType = extractedArray.get(0).toString();
@@ -279,7 +279,7 @@ public class JSExecutionTracer {
 						// E.g. DOMContentLoadedA
 						if (buffer.getJSONObject(i).has("eventType")
 								&& buffer.getJSONObject(i).get("eventType")
-								.toString().contains("ContentLoaded")) {
+										.toString().contains("ContentLoaded")) {
 							targetElement = new JSONObject(
 									"{\"elementType\":\"DOCUMENT\",\"attributes\":\"-\"}");
 						} else {
@@ -292,42 +292,54 @@ public class JSExecutionTracer {
 				}
 
 				if (buffer.getJSONObject(i).has("messageType")) {
-					String mType = buffer.getJSONObject(i).get("messageType").toString();
+					String mType = buffer.getJSONObject(i).get("messageType")
+							.toString();
 
-					// Maybe better to change mType to ENUM and use switch instead of 'if's
+					// Maybe better to change mType to ENUM and use switch
+					// instead of 'if's
 					if (mType.contains("FUNCTION_CALL")) {
-						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.FunctionCall");
+						buffer.getJSONObject(i).put("@class",
+								"com.metis.core.trace.FunctionCall");
 						JSONLabel = "\"FunctionTrace\":";
 					} else if (mType.contains("FUNCTION_ENTER")) {
-						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.FunctionEnter");
+						buffer.getJSONObject(i).put("@class",
+								"com.metis.core.trace.FunctionEnter");
 						JSONLabel = "\"FunctionTrace\":";
 					} else if (mType.contains("FUNCTION_EXIT")) {
-						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.FunctionExit");
+						buffer.getJSONObject(i).put("@class",
+								"com.metis.core.trace.FunctionExit");
 						JSONLabel = "\"FunctionTrace\":";
 					} else if (mType.contains("DOM_EVENT")) {
-						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.DOMEventTrace");
+						buffer.getJSONObject(i).put("@class",
+								"com.metis.core.trace.DOMEventTrace");
 						JSONLabel = "\"DOMEventTrace\":";
 					} else if (mType.contains("TIMEOUT_SET")) {
-						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.TimeoutSet");
+						buffer.getJSONObject(i).put("@class",
+								"com.metis.core.trace.TimeoutSet");
 						JSONLabel = "\"TimingTrace\":";
 					} else if (mType.contains("TIMEOUT_CALLBACK")) {
-						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.TimeoutCallback");
+						buffer.getJSONObject(i).put("@class",
+								"com.metis.core.trace.TimeoutCallback");
 						JSONLabel = "\"TimingTrace\":";
 					} else if (mType.contains("XHR_OPEN")) {
-						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.XMLHttpRequestOpen");
+						buffer.getJSONObject(i).put("@class",
+								"com.metis.core.trace.XMLHttpRequestOpen");
 						JSONLabel = "\"XHRTrace\":";
 					} else if (mType.contains("XHR_SEND")) {
-						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.XMLHttpRequestSend");	
+						buffer.getJSONObject(i).put("@class",
+								"com.metis.core.trace.XMLHttpRequestSend");
 						JSONLabel = "\"XHRTrace\":";
 					} else if (mType.contains("XHR_RESPONSE")) {
-						buffer.getJSONObject(i).put("@class", "com.metis.core.trace.XMLHttpRequestResponse");
+						buffer.getJSONObject(i).put("@class",
+								"com.metis.core.trace.XMLHttpRequestResponse");
 						JSONLabel = "\"XHRTrace\":";
 					}
 					// messageType obsolete
 					buffer.getJSONObject(i).remove("messageType");
-				} 
+				}
 
-				System.out.print(JSONLabel + "[" + buffer.getJSONObject(i).toString(2) + "]");
+				System.out.print(JSONLabel + "["
+						+ buffer.getJSONObject(i).toString(2) + "]");
 			}
 
 			/* Restore the old system.out */

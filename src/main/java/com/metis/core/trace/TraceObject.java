@@ -5,9 +5,17 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
 public class TraceObject implements Comparable {
 	private int id;
+	private int counter;
 	private String messageType;
 	private TimeStamp timeStamp;
 
+	
+	public int getCounter() {
+		return counter;
+	}
+	public void setCounter(int counter) {
+		this.counter = counter;
+	}
 	public int getId() {
 		return id;
 	}
