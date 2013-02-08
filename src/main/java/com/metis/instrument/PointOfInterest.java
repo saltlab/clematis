@@ -75,12 +75,12 @@ public class PointOfInterest {
 					code += vars + "}}));";
 				} else {
 					/* no arguments to instrument here */
-					return "send(JSON.stringify({messageType: \"FUNCTION_ENTER\", timeStamp: getTimeStamp(new Date()), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+"}));";	
+					return "send(JSON.stringify({messageType: \"FUNCTION_ENTER\", timeStamp: getTimeStamp(new Date()), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+", counter:traceCounter++}));";	
 				}
 				return code;	
 			} else if (this.getEnd() == -2) {
 				// Function End
-				return "send(JSON.stringify({messageType: \"FUNCTION_EXIT\", timeStamp: getTimeStamp(new Date()), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+"}));";	
+				return "send(JSON.stringify({messageType: \"FUNCTION_EXIT\", timeStamp: getTimeStamp(new Date()), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+", counter:traceCounter++}));";	
 			} else {
 				// General Function
 				return "";

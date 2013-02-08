@@ -1,14 +1,16 @@
 window.xhr = new XMLHttpRequest();
 window.buffer = new Array();
 
+var traceCounter = 0;
+
 // Function Call Wrapper
 function FCW() {
 	var date = new Date();
 
     if (arguments.length == 2) {
-        send(JSON.stringify({messageType: "FUNCTION_CALL", timeStamp: getTimeStamp(date), targetFunction: arguments[0], lineNo: arguments[1]}));
+        send(JSON.stringify({messageType: "FUNCTION_CALL", timeStamp: getTimeStamp(date), targetFunction: arguments[0], lineNo: arguments[1], counter: traceCounter++}));
     } else {
-        send(JSON.stringify({messageType: "FUNCTION_CALL", timeStamp: getTimeStamp(date), targetFunction: arguments[1], lineNo: arguments[2]}));
+        send(JSON.stringify({messageType: "FUNCTION_CALL", timeStamp: getTimeStamp(date), targetFunction: arguments[1], lineNo: arguments[2], counter: traceCounter++}));
     }
 	return arguments[0];
 }
@@ -20,10 +22,10 @@ function RSW() {
 
     if (arguments.length > 1) {
     // arguments[0] = value, arguments[1] = name, arguments[2] = lineno
-        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: getTimeStamp(date), returnValue: new Array(arguments[1], arguments[0]), lineNo: arguments[2]}));
+        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: getTimeStamp(date), returnValue: new Array(arguments[1], arguments[0]), lineNo: arguments[2], counter: traceCounter++}));
     } else {
     // arguments[0] = lineno
-        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: getTimeStamp(date), returnValue: new Array(null, null), lineNo: arguments[0]}));
+        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: getTimeStamp(date), returnValue: new Array(null, null), lineNo: arguments[0], counter: traceCounter++}));
     }
 	return arguments[0];
 }
@@ -46,6 +48,7 @@ function sendReally() {
     	window.buffer = new Array();
     }
 }
+setInterval(sendReally, 8000);
 
 function addVariable(name, value) {
 	var pattern=/[.]attr[(]/;

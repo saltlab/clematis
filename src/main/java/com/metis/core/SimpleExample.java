@@ -2,10 +2,13 @@ package com.metis.core;
 
 import java.io.File;
 
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -26,6 +29,7 @@ public class SimpleExample {
 	private static final String URL = "http://localhost:8080/example_webapplication/index.html";
 
 	private static String outputFolder = "";
+	private static WebDriver driver;
 
 	public static void main(String[] args) {
 		try {
@@ -80,27 +84,26 @@ public class SimpleExample {
 				profile.setPreference("network.proxy.no_proxies_on", "");
 			}
 
-			WebDriver driver = new FirefoxDriver(profile);
+			driver = new FirefoxDriver(profile);
 			WebDriverWait wait = new WebDriverWait(driver, 10);
 			boolean sessionOver = false;
 
 			// Use WebDriver to visit specified URL
-			driver.get(URL);			
+			driver.get(URL);
 
 			while (!sessionOver) {
 				// Wait until the user/tester has closed the browser
+				
 				try {
-					//System.out.println("handle: " + driver.getWindowHandle());
-					if(driver.getWindowHandles().size() > 0) {
-						// Periodically push trace information from client to server
-						((JavascriptExecutor) driver).executeScript("sendReally();");
-					}
 					waitForWindowClose(wait);
+					
+					// At this point the window was closed, no TimeoutException
 					sessionOver = true;
 				} catch (TimeoutException e) {
 					// 10 seconds has elapsed and the window is still open
 					sessionOver = false;
-				} catch (UnhandledAlertException uae) {
+				} catch (WebDriverException wde) {
+					wde.printStackTrace();
 					sessionOver = false;
 				}
 			}
@@ -115,7 +118,7 @@ public class SimpleExample {
 
 	static boolean waitForWindowClose(WebDriverWait w) throws TimeoutException {
 		// Function to check if window has been closed
-		
+
 		w.until(new ExpectedCondition<Boolean>() {
 			@Override
 			public Boolean apply(WebDriver d) {
@@ -127,6 +130,18 @@ public class SimpleExample {
 			}
 		});
 		return true;
+	}
+
+	public static boolean isAlertPresent() 
+	{ 
+		// Selenium bug where all alerts must be closed before 
+		// driver.execute(String) can be executed
+		try { 
+			driver.switchTo().alert(); 
+			return true; 
+		} catch (NoAlertPresentException Ex) {
+			return false; 
+		}   
 	}
 
 	public static String getOutputFolder() {
