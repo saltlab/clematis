@@ -67,11 +67,7 @@ logger.logSetTimeout = function(func, delay) {
 
 	console.log("------------------------------------");
 	console.log("TIMEOUT: NEW");
-	var date = new Date();
-	console.log("Time: (", date.getUTCFullYear(), "-", date.getUTCMonth(), "-",
-			date.getUTCDate(), " ", date.getUTCHours(), ":", date
-					.getUTCMinutes(), ":", date.getUTCSeconds(), ":", date
-					.getUTCMilliseconds(), ")");
+	var date = Date.now();
 
 	func.id = totalNumOfTimeouts;
 	console.log(" + Timeout ID:", func.id);
@@ -87,7 +83,7 @@ logger.logSetTimeout = function(func, delay) {
 	 */
 	console.log("Number of active timeouts: ", timeoutCounter);
 
-    send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: getTimeStamp(date), id: func.id, callbackFunction: func, delay: delay, args: args, counter: traceCounter++}));
+    send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: date, id: func.id, callbackFunction: func, delay: delay, args: args, counter: traceCounter++}));
 
 };
 
@@ -100,11 +96,7 @@ logger.logTimeoutCallback = function(func) {
 		return;
 	console.log("------------------------------------");
 	console.log("TIMEOUT: CALLBACK");
-	var date = new Date();
-	console.log("Time: (", date.getUTCFullYear(), "-", date.getUTCMonth(), "-",
-			date.getUTCDate(), " ", date.getUTCHours(), ":", date
-					.getUTCMinutes(), ":", date.getUTCSeconds(), ":", date
-					.getUTCMilliseconds(), ")");
+	var date = Date.now();
 
 	console.log(" + Timeout ID:", func.id);
 	console.log(" + Callback function: ", func);
@@ -116,7 +108,7 @@ logger.logTimeoutCallback = function(func) {
 		// responsible unit.
 	}
 
-    send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: getTimeStamp(date), id: func.id, callbackFunction: func, counter: traceCounter++}));
+    send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func, counter: traceCounter++}));
 };
 
 /**
@@ -128,17 +120,14 @@ logger.logXHROpen = function(xhr, method, url, async) {
 		return;
 	console.log("------------------------------------");
 	console.log("XMLHTTPREQUEST: OPEN");
-	var date = new Date();
-	console.log("Time: (", date.getUTCFullYear(), "-", date.getUTCMonth(), "-",
-			date.getUTCDate(), " ", date.getUTCHours(), ":", date
-					.getUTCMinutes(), ":", date.getUTCSeconds(), ":", date
-					.getUTCMilliseconds(), ")");
+	var date = Date.now();
+
 	console.log(" + XHR ID: ", xhr.id);
 	console.log(" + Method: ", method);
 	console.log(" + URL: ", url);
 	console.log(" + Async: ", async);
 
-    send(JSON.stringify({messageType: "XHR_OPEN", timeStamp: getTimeStamp(date), id: xhr.id, methodType: method, url: url, async: async, counter: traceCounter++}));
+    send(JSON.stringify({messageType: "XHR_OPEN", timeStamp: date, id: xhr.id, methodType: method, url: url, async: async, counter: traceCounter++}));
 };
 
 /**
@@ -152,9 +141,9 @@ logger.logXHRSend = function(xhr, str) {
 	console.log("XMLHTTPREQUEST: SEND");
 	console.log(" + XHR ID: ", xhr.id);
 	console.log(" + Message (POST):", str);
-	var date = new Date();
+	var date = Date.now();
 
-    send(JSON.stringify({messageType: "XHR_SEND", timeStamp: getTimeStamp(date), id: xhr.id, message: str, counter: traceCounter++}));
+    send(JSON.stringify({messageType: "XHR_SEND", timeStamp: date, id: xhr.id, message: str, counter: traceCounter++}));
 };
 
 /**
@@ -167,11 +156,7 @@ logger.logXHRResponse = function(xhr) {
 	console.log("------------------------------------");
 	console.log("XMLHTTPREQUEST: RESPONSE");
 
-	var date = new Date();
-	console.log("Time: (", date.getUTCFullYear(), "-", date.getUTCMonth(), "-",
-			date.getUTCDate(), " ", date.getUTCHours(), ":", date
-					.getUTCMinutes(), ":", date.getUTCSeconds(), ":", date
-					.getUTCMilliseconds(), ")");
+	var date = Date.now();
 
 	console.log(" + XHR ID: ", xhr.id);
 
@@ -180,17 +165,13 @@ logger.logXHRResponse = function(xhr) {
 	console.log(" + XHR response: ", xhr.response);
 
 	if (xhrCounter == 0) {
-		var date = new Date();
-		console.log("Total num of XHRs: ", totalNumOfXhrs, ". Time: (", date
-				.getUTCFullYear(), "-", date.getUTCMonth(), "-", date
-				.getUTCDate(), " ", date.getUTCHours(), ":", date
-				.getUTCMinutes(), ":", date.getUTCSeconds(), ":", date
-				.getUTCMilliseconds(), ")");
+		var date = Date.now();
+
 		// The execution of all registered XHRs is finished. Notify the
 		// responsible unit.
 	}
 
-    send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: getTimeStamp(date), id: xhr.id, callbackFunction: xhr.onreadystatechange, response: xhr.response, counter: traceCounter++}));
+    send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: date, id: xhr.id, callbackFunction: xhr.onreadystatechange, response: xhr.response, counter: traceCounter++}));
 
 };
 
@@ -205,11 +186,8 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 		return;
 	console.log("------------------------------------");
 	console.log("DOM EVENT HANDLED");
-	var date = new Date();
-	console.log("Time: (", date.getUTCFullYear(), "-", date.getUTCMonth(), "-",
-			date.getUTCDate(), " ", date.getUTCHours(), ":", date
-					.getUTCMinutes(), ":", date.getUTCSeconds(), ":", date
-					.getUTCMilliseconds(), ")");
+	var date = Date.now();
+
 	console.log(" + Event type: ", arguments[0]);
 	console.log(" + Target DOM element: ", arguments[1]);
 	console.log(" + Handler function: ", arguments[2]);
@@ -217,8 +195,7 @@ logger.logDOMEvent = function(type, targetEl, callback) {
     jml = JsonML.fromHTML(arguments[1]);
 	if (jml) {
 		jml = JSON.stringify(jml);
-//    	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: getTimeStamp(date), eventType: arguments[0], targetElement: jml, eventHandler: arguments[2]}));
-    	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: getTimeStamp(date), eventType: arguments[0], eventHandler: arguments[2], counter: traceCounter++}));
+    	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: arguments[2], counter: traceCounter++}));
 	}
 
 };
