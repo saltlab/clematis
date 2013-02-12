@@ -7,7 +7,7 @@ public class TraceObject implements Comparable {
 	private int id;
 	private int counter;
 	private String messageType;
-	private TimeStamp timeStamp;
+	private long timeStamp;
 
 	
 	public int getCounter() {
@@ -28,18 +28,19 @@ public class TraceObject implements Comparable {
 	public void setMessageType(String messageType) {
 		this.messageType = messageType;
 	}
-	public TimeStamp getTimeStamp() {
+	public long getTimeStamp() {
 		return timeStamp;
 	}
-	public void setTimeStamp(TimeStamp timeStamp) {
+	public void setTimeStamp(long timeStamp) {
 		this.timeStamp = timeStamp;
 	}
 	@Override
-	public int compareTo(Object arg0) {
-		// TODO Auto-generated method stub
-		if (this.timeStamp.getYear() >= ((TraceObject) arg0).getTimeStamp().getYear())
-			return 1;
-		else
+	public int compareTo(Object o) {
+		if (timeStamp < (Long)o)
 			return -1;
-	}	
+		else if (timeStamp > (Long)o)
+			return 1;
+		return 0;
+	}
+	
 }
