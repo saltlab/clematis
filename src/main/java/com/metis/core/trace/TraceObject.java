@@ -36,9 +36,9 @@ public class TraceObject implements Comparable {
 	}
 	@Override
 	public int compareTo(Object o) {
-		if (timeStamp < (Long)o)
+		if (timeStamp < ((TraceObject)o).getTimeStamp())
 			return -1;
-		else if (timeStamp > (Long)o)
+		else if (timeStamp > ((TraceObject)o).getTimeStamp())
 			return 1;
 		return 0;
 	}
