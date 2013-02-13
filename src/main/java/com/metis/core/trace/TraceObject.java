@@ -3,12 +3,11 @@ package com.metis.core.trace;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
-public class TraceObject implements Comparable {
+public class TraceObject implements Comparable<TraceObject> {
 	private int id;
 	private int counter;
 	private String messageType;
 	private long timeStamp;
-
 	
 	public int getCounter() {
 		return counter;
@@ -35,10 +34,10 @@ public class TraceObject implements Comparable {
 		this.timeStamp = timeStamp;
 	}
 	@Override
-	public int compareTo(Object o) {
-		if (timeStamp < ((TraceObject)o).getTimeStamp())
+	public int compareTo(TraceObject o) {
+		if (counter < o.getCounter())
 			return -1;
-		else if (timeStamp > ((TraceObject)o).getTimeStamp())
+		else if (counter > o.getCounter())
 			return 1;
 		return 0;
 	}

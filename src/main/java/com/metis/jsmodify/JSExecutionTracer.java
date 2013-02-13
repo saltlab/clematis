@@ -211,7 +211,20 @@ public class JSExecutionTracer {
 			System.out.println(trace.getTimingTraces().size() + " - "
 					+ trace.getDomEventTraces().size() + " - " + trace.getXhrTraces().size() + " - "
 					+ trace.getFunctionTraces().size());
-
+/*			
+			for (TraceObject to : timingTraces) {
+				System.out.println(to.getCounter());
+			}
+			for (TraceObject to : domEventTraces) {
+				System.out.println(to.getCounter());
+			}
+			for (TraceObject to : XHRTraces) {
+				System.out.println(to.getCounter());
+			}
+			for (TraceObject to : functionTraces) {
+				System.out.println(to.getCounter());
+			}
+*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
