@@ -72,7 +72,7 @@ public class JSExecutionTracer {
 	private static PrintStream output;
 
 	private static ArrayList<TraceObject> traceObjects;
-	
+
 	private Trace trace;
 
 	/**
@@ -198,7 +198,7 @@ public class JSExecutionTracer {
 							new File("metis-output/ftrace/function.trace"),
 							new TypeReference<TreeMultimap<String, TraceObject>>() {
 							});
-			
+
 			Collection<TraceObject> timingTraces = traceMap.get("TimingTrace");
 			Collection<TraceObject> domEventTraces = traceMap
 					.get("DOMEventTrace");
@@ -211,7 +211,7 @@ public class JSExecutionTracer {
 			System.out.println(trace.getTimingTraces().size() + " - "
 					+ trace.getDomEventTraces().size() + " - " + trace.getXhrTraces().size() + " - "
 					+ trace.getFunctionTraces().size());
-/*			
+			/*			
 			for (TraceObject to : timingTraces) {
 				System.out.println(to.getCounter());
 			}
@@ -224,7 +224,7 @@ public class JSExecutionTracer {
 			for (TraceObject to : functionTraces) {
 				System.out.println(to.getCounter());
 			}
-*/
+			 */
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -275,6 +275,22 @@ public class JSExecutionTracer {
 
 				points.put(buffer.getJSONObject(i));
 
+				if (buffer.getJSONObject(i).has("args")) {
+					JSONArray args = (JSONArray) buffer.getJSONObject(i).get("args");
+					for (int j = 0; j < args.length(); j++) {
+						try {
+							if (args.getJSONObject(j).has("value")) {
+								String newValue = args.getJSONObject(j).get("value").toString();
+								args.getJSONObject(j).remove("value");
+								args.getJSONObject(j).put("value", newValue);
+							}
+						} catch (JSONException jse) {
+							// argument is not a JSON object
+							continue;
+						}
+					}
+				}
+
 				if (buffer.getJSONObject(i).has("targetElement")) {
 					JSONArray extractedArray = new JSONArray(buffer
 							.getJSONObject(i).get("targetElement").toString());
@@ -292,7 +308,7 @@ public class JSExecutionTracer {
 						// E.g. DOMContentLoadedA
 						if (buffer.getJSONObject(i).has("eventType")
 								&& buffer.getJSONObject(i).get("eventType")
-										.toString().contains("ContentLoaded")) {
+								.toString().contains("ContentLoaded")) {
 							targetElement = new JSONObject(
 									"{\"elementType\":\"DOCUMENT\",\"attributes\":\"-\"}");
 						} else {

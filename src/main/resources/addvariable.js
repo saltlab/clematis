@@ -36,9 +36,9 @@ function getTimeStamp(date) {
 
 function send(value) {
 	window.buffer.push(value);
-	if(window.buffer.length >= 50) {
-		sendReally();	
-	}
+//	if(window.buffer.length >= 50) {
+//		sendReally();	
+//	}
 }
 
 function sendReally() {
