@@ -1,15 +1,22 @@
 package com.metis.core.trace;
 
 import org.codehaus.jackson.annotate.JsonSetter;
-import org.codehaus.jackson.annotate.JsonUnwrapped;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class FunctionEnter extends FunctionTrace {
 	private String TargetFunction;
 	private JSONObject args;
+	String scopeName;
 
+	public String getScopeName() {
+		return scopeName;
+	}
+
+	public void setScopeName(String sn) {
+		this.scopeName = sn;
+	}
+	
 	public String getTargetFunction() {
 		return TargetFunction;
 	}

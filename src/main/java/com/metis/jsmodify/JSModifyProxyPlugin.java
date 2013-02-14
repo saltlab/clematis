@@ -1,6 +1,7 @@
 package com.metis.jsmodify;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,9 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	private List<String> excludeFilenamePatterns;
 
 	private final JSASTModifier modifier;
+	
+	private static String outputFolder = "";
+	private static String jsFilename = "";
 
 	/**
 	 * Construct without patterns.
@@ -40,6 +44,8 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	public JSModifyProxyPlugin(JSASTModifier modify) {
 		excludeFilenamePatterns = new ArrayList<String>();
 		modifier = modify;
+		
+		outputFolder = Helper.addFolderSlashIfNeeded("metis-output") + "js_snapshot";
 	}
 
 	/**
@@ -101,10 +107,22 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 */
 	private synchronized String modifyJS(String input, String scopename) {
 
+		System.out.println("Scope: " + scopename);
+		
 		if (!shouldModify(scopename)) {
 			return input;
 		}
 		try {
+			
+			// Save original JavaScript files/nodes
+			Helper.directoryCheck(getOutputFolder());
+			setFileName(scopename);
+			PrintStream output = new PrintStream(getOutputFolder() + getFilename());
+			PrintStream oldOut = System.out;
+			System.setOut(output);
+			System.out.println(input);
+			System.setOut(oldOut);
+			
 			AstRoot ast = null;
 
 			/* initialize JavaScript context */
@@ -116,7 +134,8 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			/* parse some script and save it in AST */
 			ast = rhinoParser.parse(new String(input), scopename, 0);
 
-			modifier.setScopeName(scopename);
+			//modifier.setScopeName(scopename);
+			modifier.setScopeName(getFilename());
 
 			modifier.start(new String(input));
 
@@ -136,10 +155,25 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 		} catch (IllegalArgumentException iae) {
 			System.err.println("Invalid operator exception catched. Not instrumenting code.");
+		} catch (IOException ioe) {
+			System.err.println("Error saving original javascript files.");
 		}
 		System.err.println("Here is the corresponding buffer: \n" + input + "\n");
 
 		return input;
+	}
+
+	private void setFileName(String scopename) {
+		int index = scopename.lastIndexOf("/");
+		jsFilename = scopename.substring(index+1);
+	}
+
+	private static String getOutputFolder() {
+		return Helper.addFolderSlashIfNeeded(outputFolder);
+	}
+	
+	private static String getFilename() {
+		return jsFilename;
 	}
 
 	/**
