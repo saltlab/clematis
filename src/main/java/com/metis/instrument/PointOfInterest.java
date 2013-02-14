@@ -64,16 +64,15 @@ public class PointOfInterest {
 		case org.mozilla.javascript.Token.FUNCTION: 
 			if (this.getEnd() == -1) {
 				// Function Beginning				
-				String code = "send(JSON.stringify({messageType:\"FUNCTION_ENTER\", timeStamp: Date.now(), targetFunction:\""+getName()+"\", lineNo:"+getLineNo()+", args: [";	
+				String code = "send(JSON.stringify({messageType:\"FUNCTION_ENTER\", timeStamp: Date.now(), targetFunction:\""+getName()+"\", lineNo:"+getLineNo()+", args: {";	
 				String vars = new String();
 				for (String s : arguments) {
-					vars += "{\"label\":\"" + s + "\",";
-					vars += "\"value\":" + s + "},";
+					vars += "\""+s+"\":"+s+",";
 				}
 				if (vars.length() > 0) {
 					/* remove last comma */
 					vars = vars.substring(0, vars.length() - 1);
-					code += vars + "], counter:traceCounter++}));";
+					code += vars + "}, counter:traceCounter++}));";
 				} else {
 					/* no arguments to instrument here */
 					return "send(JSON.stringify({messageType: \"FUNCTION_ENTER\", timeStamp: Date.now(), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+", counter:traceCounter++}));";	

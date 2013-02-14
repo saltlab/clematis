@@ -275,20 +275,17 @@ public class JSExecutionTracer {
 
 				points.put(buffer.getJSONObject(i));
 
-				if (buffer.getJSONObject(i).has("args")) {
-					JSONArray args = (JSONArray) buffer.getJSONObject(i).get("args");
-					for (int j = 0; j < args.length(); j++) {
-						try {
-							if (args.getJSONObject(j).has("value")) {
-								String newValue = args.getJSONObject(j).get("value").toString();
-								args.getJSONObject(j).remove("value");
-								args.getJSONObject(j).put("value", newValue);
-							}
-						} catch (JSONException jse) {
-							// argument is not a JSON object
-							continue;
-						}
+				if (buffer.getJSONObject(i).has("args") && ((String) buffer.getJSONObject(i).get("messageType")).contains("FUNCTION_ENTER")) {
+					try {
+						JSONObject args = (JSONObject) buffer.getJSONObject(i).get("args");
+						String newValue = args.toString();				
+						buffer.getJSONObject(i).remove("args");
+						buffer.getJSONObject(i).put("args", newValue);
+					} catch (JSONException jse) {
+						// argument is not a JSON object
+						continue;
 					}
+
 				}
 
 				if (buffer.getJSONObject(i).has("targetElement")) {
@@ -305,7 +302,7 @@ public class JSExecutionTracer {
 
 					} catch (Exception e) {
 						// targetElement is not usual DOM element
-						// E.g. DOMContentLoadedA
+						// E.g. DOMContentLoaded
 						if (buffer.getJSONObject(i).has("eventType")
 								&& buffer.getJSONObject(i).get("eventType")
 								.toString().contains("ContentLoaded")) {
@@ -317,9 +314,10 @@ public class JSExecutionTracer {
 						}
 					}
 					buffer.getJSONObject(i).remove("targetElement");
-					buffer.getJSONObject(i).put("targetElement", targetElement);
+					buffer.getJSONObject(i).put("targetElement", targetElement.toString());
 				}
 
+				// Insert @class key for Jackson mapping
 				if (buffer.getJSONObject(i).has("messageType")) {
 					String mType = buffer.getJSONObject(i).get("messageType")
 							.toString();
