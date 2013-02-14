@@ -1,7 +1,5 @@
 package com.metis.core.trace;
 
-import org.json.JSONObject;
-
 public class Variable {
 	private String label;
 	private String value;

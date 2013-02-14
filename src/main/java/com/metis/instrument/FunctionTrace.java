@@ -228,7 +228,7 @@ public class FunctionTrace extends AstInstrumenter {
 	private PointOfInterest createEntry(String name, int type, int[] range, int lineNo, String body, int hashCode) {
 		PointOfInterest toke = null;
 		try {
-			toke = new PointOfInterest(new Object[]{name, type, range[0], range[1], lineNo, body, hashCode});
+			toke = new PointOfInterest(new Object[]{name, type, range[0], range[1], lineNo, body, hashCode, getScopeName()});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -238,7 +238,7 @@ public class FunctionTrace extends AstInstrumenter {
 	private PointOfInterest createEntryWithArguments(String name, int type, int[] range, int lineNo, String body, int hashCode, String arg) {
 		PointOfInterest toke = null;
 		try {
-			toke = new PointOfInterest(new Object[]{name, type, range[0], range[1], lineNo, body, hashCode, arg});
+			toke = new PointOfInterest(new Object[]{name, type, range[0], range[1], lineNo, body, hashCode, getScopeName(), arg});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -253,7 +253,7 @@ public class FunctionTrace extends AstInstrumenter {
 		int[] range = {node.getBody().getAbsolutePosition()+1,node.getEncodedSourceEnd()-1};
 		int hash = node.hashCode();	
 		int type = node.getType();
-		int lineNo = node.getLineno();
+		int lineNo = node.getLineno()+1;
 		String arguments = new String();
 
 		if(node.getParamCount() > 0){
@@ -303,7 +303,7 @@ public class FunctionTrace extends AstInstrumenter {
 		String body = node.toSource();		
 		int hash = 0;
 		int[] range = {0,0};
-		int lineNo = node.getLineno();
+		int lineNo = node.getLineno()+1;
 
 		range[0] = node.getAbsolutePosition();
 		range[1] = node.getAbsolutePosition()+node.getLength();
@@ -339,7 +339,7 @@ public class FunctionTrace extends AstInstrumenter {
 		String body = "";
 		int[] range = {-1,-1};
 		int hash = 0;
-		int lineNo = node.getLineno();
+		int lineNo = node.getLineno()+1;
 
 		// Get name of enclosing function
 		String enclosingFunctionName = new String();
@@ -387,6 +387,7 @@ public class FunctionTrace extends AstInstrumenter {
 						functionTokens.get(i).getLineNo(),
 						functionTokens.get(i).getBody(),
 						functionTokens.get(i).getHash(),
+						functionTokens.get(i).getScopeName(),
 						functionTokens.get(i).getArguments()}));
 				// Add code before end of function declaration
 				pointsOfInstrumentation.add(new PointOfInterest(new Object[]{functionTokens.get(i).getName(),
@@ -396,6 +397,7 @@ public class FunctionTrace extends AstInstrumenter {
 						functionTokens.get(i).getLineNo(),
 						functionTokens.get(i).getBody(),
 						functionTokens.get(i).getHash(),
+						functionTokens.get(i).getScopeName(),
 						functionTokens.get(i).getArguments()}));
 			}
 		}

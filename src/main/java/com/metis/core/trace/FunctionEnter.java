@@ -1,8 +1,6 @@
 package com.metis.core.trace;
 
 import org.codehaus.jackson.annotate.JsonSetter;
-import org.codehaus.jackson.annotate.JsonUnwrapped;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 

@@ -13,6 +13,7 @@ public class PointOfInterest {
 	private int hashCode = -1;
 	private int lineNo = -1;
 	private ArrayList<String> arguments = new ArrayList<String>();
+	private String scopeName = "";
 
 	// The zero-argument constructor used by Rhino runtime to create instances
 	public PointOfInterest(Object[] args) { 
@@ -44,6 +45,9 @@ public class PointOfInterest {
 				this.setHash(Integer.parseInt(Context.toString(args[i])));
 				break;
 			case 7:
+				this.setScopeName(Context.toString(args[i]));
+				break;
+			case 8:
 				String unseparatedArguments = Context.toString(args[i]);
 				if (unseparatedArguments != "") {
 					String[] seperatedArguments = unseparatedArguments.split(",");
@@ -72,15 +76,15 @@ public class PointOfInterest {
 				if (vars.length() > 0) {
 					/* remove last comma */
 					vars = vars.substring(0, vars.length() - 1);
-					code += vars + "}, counter:traceCounter++}));";
+					code += vars + "}, scopeName: \""+getScopeName()+"\", counter:traceCounter++}));";
 				} else {
 					/* no arguments to instrument here */
-					return "send(JSON.stringify({messageType: \"FUNCTION_ENTER\", timeStamp: Date.now(), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+", counter:traceCounter++}));";	
+					return "send(JSON.stringify({messageType: \"FUNCTION_ENTER\", timeStamp: Date.now(), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+", scopeName: \""+getScopeName()+"\", counter:traceCounter++}));";	
 				}
 				return code;	
 			} else if (this.getEnd() == -2) {
 				// Function End
-				return "send(JSON.stringify({messageType: \"FUNCTION_EXIT\", timeStamp: Date.now(), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+", counter:traceCounter++}));";	
+				return "send(JSON.stringify({messageType: \"FUNCTION_EXIT\", timeStamp: Date.now(), targetFunction: \""+getName()+"\",lineNo: "+getLineNo()+", scopeName: \""+getScopeName()+"\", counter:traceCounter++}));";	
 			} else {
 				// General Function
 				return "";
@@ -180,7 +184,7 @@ public class PointOfInterest {
 
 	public String getArguments() {
 		if (this.arguments.size() == 0) return "";
-		
+
 		String argumentsToString = new String();
 		for (String s : arguments) {
 			argumentsToString +=  "," + s;
@@ -190,6 +194,14 @@ public class PointOfInterest {
 
 	public void setArguments(ArrayList<String> arguments) {
 		this.arguments = arguments;
+	}
+	
+	public String getScopeName(){
+		return this.scopeName;
+	}
+	
+	public void setScopeName(String sn) {
+		this.scopeName = sn;
 	}
 
 }
