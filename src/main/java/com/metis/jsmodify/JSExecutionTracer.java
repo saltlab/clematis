@@ -45,6 +45,7 @@ import com.metis.core.trace.TraceObject;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 
@@ -205,12 +206,17 @@ public class JSExecutionTracer {
 			Collection<TraceObject> XHRTraces = traceMap.get("XHRTrace");
 			Collection<TraceObject> functionTraces = traceMap
 					.get("FunctionTrace");
-			/////
+			
 			trace = new Trace(domEventTraces, functionTraces, timingTraces, XHRTraces);
-			/////
+			
 			System.out.println(trace.getTimingTraces().size() + " - "
 					+ trace.getDomEventTraces().size() + " - " + trace.getXhrTraces().size() + " - "
 					+ trace.getFunctionTraces().size());
+			
+			ArrayList<TraceObject> sortedTrace = sortTraceObjects();
+			
+			for (int i = 0; i < sortedTrace.size(); i ++)
+				System.out.println(sortedTrace.get(i).getCounter());
 /*			
 			for (TraceObject to : timingTraces) {
 				System.out.println(to.getCounter());
@@ -229,6 +235,46 @@ public class JSExecutionTracer {
 			e.printStackTrace();
 		}
 
+	}
+	
+	/**
+	 * This method sorts all four groups of trace objects into one ordered list of trace objects
+	 */
+	private ArrayList<TraceObject> sortTraceObjects() {
+		ArrayList<TraceObject> sortedTrace = new ArrayList<TraceObject>();
+		
+		ArrayList<Collection<TraceObject>> allCollections = new ArrayList<Collection<TraceObject>>();
+		allCollections.add(trace.getDomEventTraces());
+		allCollections.add(trace.getFunctionTraces());
+		allCollections.add(trace.getTimingTraces());
+		allCollections.add(trace.getXhrTraces());
+		
+		ArrayList<Integer> currentIndexInCollection = new ArrayList<Integer>();
+		for (int i = 0; i < 4; i ++)
+			currentIndexInCollection.add(0);
+	
+		while (true) {
+			int currentMinArray = 0;
+			
+			for (int i = 0; i < allCollections.size(); i ++) {
+				TraceObject traceObj = Iterables.get(allCollections.get(i), currentIndexInCollection.get(i));
+				TraceObject currObj = Iterables.get(allCollections.get(currentMinArray), currentIndexInCollection.get(currentMinArray));
+				if (traceObj.getCounter() < currObj.getCounter())
+					currentMinArray = i;
+			}
+			
+			sortedTrace.add(Iterables.get(allCollections.get(currentMinArray), currentIndexInCollection.get(currentMinArray)));
+
+			currentIndexInCollection.set(currentMinArray, currentIndexInCollection.get(currentMinArray) + 1);
+			if (currentIndexInCollection.get(currentMinArray) >= allCollections.get(currentMinArray).size()) {
+				allCollections.remove(currentMinArray);
+				currentIndexInCollection.remove(currentMinArray);
+				if (allCollections.size() == 0)
+					break;
+			}
+		}
+
+		return sortedTrace;
 	}
 
 	/**
