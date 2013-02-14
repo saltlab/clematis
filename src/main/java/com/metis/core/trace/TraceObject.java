@@ -8,6 +8,11 @@ public class TraceObject implements Comparable<TraceObject> {
 	private int counter;
 	private String messageType;
 	private long timeStamp;
+	protected boolean isEpisodeSource;
+	
+	public TraceObject() {
+		isEpisodeSource = false;
+	}
 	
 	public int getCounter() {
 		return counter;
@@ -40,6 +45,12 @@ public class TraceObject implements Comparable<TraceObject> {
 		else if (counter > o.getCounter())
 			return 1;
 		return 0;
+	}
+	public boolean isEpisodeSource() {
+		return isEpisodeSource;
+	}
+	public void setEpisodeSource(boolean isEpisodeSource) {
+		this.isEpisodeSource = isEpisodeSource;
 	}
 	
 }

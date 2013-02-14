@@ -4,11 +4,17 @@ import org.codehaus.jackson.annotate.JsonSetter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class DOMEventTrace extends TraceObject {
+import com.metis.core.episode.EpisodeSource;
+
+public class DOMEventTrace extends TraceObject/* implements EpisodeSource */{
 	private String eventType;
 	private String eventHandler;
 	private JSONObject targetElement;
 
+	public DOMEventTrace() {
+		super();
+		this.isEpisodeSource = true;
+	}
 	public String getEventType() {
 		return eventType;
 	}

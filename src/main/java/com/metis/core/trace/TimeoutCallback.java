@@ -1,5 +1,10 @@
 package com.metis.core.trace;
 
-public class TimeoutCallback extends TimingTrace {
+import com.metis.core.episode.EpisodeSource;
 
+public class TimeoutCallback extends TimingTrace/* implements EpisodeSource*/ {
+	public TimeoutCallback() {
+		super();
+		this.isEpisodeSource = true;
+	}
 }

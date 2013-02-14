@@ -38,6 +38,8 @@ import org.json.JSONObject;
 
 import com.crawljax.util.Helper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.metis.core.episode.Episode;
+import com.metis.core.episode.EpisodeSource;
 import com.metis.core.trace.DOMEventTrace;
 import com.metis.core.trace.TimingTrace;
 import com.metis.core.trace.Trace;
@@ -75,6 +77,8 @@ public class JSExecutionTracer {
 	private static ArrayList<TraceObject> traceObjects;
 
 	private Trace trace;
+	private ArrayList<TraceObject> sortedTraceList;
+	private ArrayList<Episode> episodeList;
 
 	/**
 	 * @param filename
@@ -83,6 +87,8 @@ public class JSExecutionTracer {
 	public JSExecutionTracer(String filename) {
 		traceFilename = filename;
 		traceObjects = new ArrayList<TraceObject>();
+		sortedTraceList = new ArrayList<TraceObject>();
+		episodeList = new ArrayList<Episode>();
 	}
 
 	/**
@@ -209,11 +215,13 @@ public class JSExecutionTracer {
 			
 			trace = new Trace(domEventTraces, functionTraces, timingTraces, XHRTraces);
 			
-			System.out.println(trace.getTimingTraces().size() + " - "
-					+ trace.getDomEventTraces().size() + " - " + trace.getXhrTraces().size() + " - "
-					+ trace.getFunctionTraces().size());
-
-			ArrayList<TraceObject> sortedTrace = sortTraceObjects();
+			sortedTraceList = sortTraceObjects();
+			
+			System.out.println("# of trace objects: " + sortedTraceList.size());
+			
+			episodeList = buildEpisodes();
+			
+			System.out.println("# of episodes: " + episodeList.size());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -259,6 +267,36 @@ public class JSExecutionTracer {
 		}
 
 		return sortedTrace;
+	}
+	
+	private ArrayList<Episode> buildEpisodes() {
+		ArrayList<Episode> episodes = new ArrayList<Episode>();
+		
+		int i = 0;
+		while (i < sortedTraceList.size()) {
+//			System.out.println("i: " + i);
+			TraceObject currentTraceObj = sortedTraceList.get(i);
+			if (currentTraceObj.isEpisodeSource()) {
+				Episode episode = new Episode(currentTraceObj);
+				episodes.add(episode);
+				
+				i ++;
+				while (i < sortedTraceList.size()) {
+//					System.out.println("i: " + i);
+					currentTraceObj = sortedTraceList.get(i);
+					if (!(currentTraceObj.isEpisodeSource())) {
+						episode.addToTrace(currentTraceObj);
+						i ++;//
+					}
+					else
+						break;
+//					i ++;
+				}
+			}
+			else
+				i ++; // TODO change this!
+		}
+		return episodes;
 	}
 
 	/**
