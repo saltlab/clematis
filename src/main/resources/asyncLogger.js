@@ -60,7 +60,7 @@ var MsgConstants = {
 /**
  * Prints the information related to creation of a timeout to the console
  */
-logger.logSetTimeout = function(func, delay) {
+logger.logSetTimeout = function(func, delay, params) {
 
 	if (!recordStarted)
 		return;
@@ -83,8 +83,21 @@ logger.logSetTimeout = function(func, delay) {
 	 */
 	console.log("Number of active timeouts: ", timeoutCounter);
 
-    send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: date, id: func.id, callbackFunction: func, delay: delay, args: args, counter: traceCounter++}));
+    if (args.length == 0 || args[0] == "") {
+        // No arguments (thrid parameter of setTimeout()
+        send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: date, id: func.id, callbackFunction: func.name, delay: delay, counter: traceCounter++}));
+    } else {
+        var argsJSONObject = "{";
+        for(var ai=0; ai<args.length; ai++) {
+            argsJSONObject += "\""+args[ai]+"\":"+JSON.stringify(params[ai])+","
+        }
 
+		/* remove last comma */
+		argsJSONObject = argsJSONObject.substring(0, argsJSONObject.length - 1);
+        argsJSONObject += "}";
+
+        send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: date, id: func.id, callbackFunction: func.name, delay: delay, args: argsJSONObject, counter: traceCounter++}));
+    }
 };
 
 /**
@@ -108,7 +121,7 @@ logger.logTimeoutCallback = function(func) {
 		// responsible unit.
 	}
 
-    send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func, counter: traceCounter++}));
+    send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func.name, counter: traceCounter++}));
 };
 
 /**
@@ -171,7 +184,7 @@ logger.logXHRResponse = function(xhr) {
 		// responsible unit.
 	}
 
-    send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: date, id: xhr.id, callbackFunction: xhr.onreadystatechange, response: xhr.response, counter: traceCounter++}));
+    send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: date, id: xhr.id, callbackFunction: xhr.onreadystatechange.name, response: xhr.response, counter: traceCounter++}));
 
 };
 
@@ -195,7 +208,7 @@ logger.logDOMEvent = function(type, targetEl, callback) {
     jml = JsonML.fromHTML(arguments[1]);
 	if (jml) {
 		jml = JSON.stringify(jml);
-    	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: arguments[2], counter: traceCounter++}));
+    	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
 	}
 
 };
@@ -222,7 +235,7 @@ window.setTimeout = function(func, delay, params) {
 	var timeoutArgs = Array.prototype.slice.call(arguments, 2);
 
 	// Log the creation of the timeout
-	logger.logSetTimeout(func, delay);
+	logger.logSetTimeout(func, delay, timeoutArgs);
 
 	// Call the original timeout after logging
 	window.oldSetTimeout(function(/* params */) {

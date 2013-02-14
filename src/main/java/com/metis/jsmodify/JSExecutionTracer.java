@@ -73,7 +73,7 @@ public class JSExecutionTracer {
 	private static PrintStream output;
 
 	private static ArrayList<TraceObject> traceObjects;
-	
+
 	private Trace trace;
 
 	/**
@@ -199,7 +199,7 @@ public class JSExecutionTracer {
 							new File("metis-output/ftrace/function.trace"),
 							new TypeReference<TreeMultimap<String, TraceObject>>() {
 							});
-			
+
 			Collection<TraceObject> timingTraces = traceMap.get("TimingTrace");
 			Collection<TraceObject> domEventTraces = traceMap
 					.get("DOMEventTrace");
@@ -212,25 +212,9 @@ public class JSExecutionTracer {
 			System.out.println(trace.getTimingTraces().size() + " - "
 					+ trace.getDomEventTraces().size() + " - " + trace.getXhrTraces().size() + " - "
 					+ trace.getFunctionTraces().size());
-			
+
 			ArrayList<TraceObject> sortedTrace = sortTraceObjects();
-			
-			for (int i = 0; i < sortedTrace.size(); i ++)
-				System.out.println(sortedTrace.get(i).getCounter());
-/*			
-			for (TraceObject to : timingTraces) {
-				System.out.println(to.getCounter());
-			}
-			for (TraceObject to : domEventTraces) {
-				System.out.println(to.getCounter());
-			}
-			for (TraceObject to : XHRTraces) {
-				System.out.println(to.getCounter());
-			}
-			for (TraceObject to : functionTraces) {
-				System.out.println(to.getCounter());
-			}
-*/
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -321,6 +305,19 @@ public class JSExecutionTracer {
 
 				points.put(buffer.getJSONObject(i));
 
+				if (buffer.getJSONObject(i).has("args") && ((String) buffer.getJSONObject(i).get("messageType")).contains("FUNCTION_ENTER")) {
+					try {
+						JSONObject args = (JSONObject) buffer.getJSONObject(i).get("args");
+						String newValue = args.toString();				
+						buffer.getJSONObject(i).remove("args");
+						buffer.getJSONObject(i).put("args", newValue);
+					} catch (JSONException jse) {
+						// argument is not a JSON object
+						continue;
+					}
+
+				}
+
 				if (buffer.getJSONObject(i).has("targetElement")) {
 					JSONArray extractedArray = new JSONArray(buffer
 							.getJSONObject(i).get("targetElement").toString());
@@ -335,10 +332,10 @@ public class JSExecutionTracer {
 
 					} catch (Exception e) {
 						// targetElement is not usual DOM element
-						// E.g. DOMContentLoadedA
+						// E.g. DOMContentLoaded
 						if (buffer.getJSONObject(i).has("eventType")
 								&& buffer.getJSONObject(i).get("eventType")
-										.toString().contains("ContentLoaded")) {
+								.toString().contains("ContentLoaded")) {
 							targetElement = new JSONObject(
 									"{\"elementType\":\"DOCUMENT\",\"attributes\":\"-\"}");
 						} else {
@@ -347,9 +344,10 @@ public class JSExecutionTracer {
 						}
 					}
 					buffer.getJSONObject(i).remove("targetElement");
-					buffer.getJSONObject(i).put("targetElement", targetElement);
+					buffer.getJSONObject(i).put("targetElement", targetElement.toString());
 				}
 
+				// Insert @class key for Jackson mapping
 				if (buffer.getJSONObject(i).has("messageType")) {
 					String mType = buffer.getJSONObject(i).get("messageType")
 							.toString();
