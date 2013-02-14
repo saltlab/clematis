@@ -1,9 +1,15 @@
 package com.metis.core.trace;
 
-public class XMLHttpRequestResponse extends XMLHttpRequestTrace {
+import com.metis.core.episode.EpisodeSource;
+
+public class XMLHttpRequestResponse extends XMLHttpRequestTrace/* implements EpisodeSource */{
 	private String callbackFunction; // Function type ?
 	private String response;
 
+	public XMLHttpRequestResponse() {
+		super();
+		this.isEpisodeSource = true;
+	}
 	public String getCallbackFunction() {
 		return callbackFunction;
 	}
