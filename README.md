@@ -3,9 +3,13 @@ Metis
 
 Monitoring, logging, and understanding JavaScript events.
 
+## Application Dependencies
+
+Currrently, the Metis project is designed to run from within the Eclipse IDE. Additionally, both [Mozilla Firefox](http://www.mozilla.org/en-US/firefox/new/) and [Apache Maven](http://maven.apache.org/download.cgi) will be needed to successfully run this project. Support for Google Chrome is planned for future iterations of Metis.
+
 ## Installation
 
-Currrently, the Metis project is designed to run from within the Eclipse IDE. In terms of installation, setting up the project is easier than ever. Simply checkout the project from GitHub and import it into Eclipse as an existing Maven project (File > Import... > Maven > Existing Maven Projects). In order to do this you will need the [m2e plugin for Eclipse](http://eclipse.org/m2e/download/). This provides Maven integration for Eclipse and simplifies the handling of project dependencies. Please note that it may take a few minutes to compile Metis after the first import.
+In terms of installation, setting up the project is easier than ever. Simply checkout the project from GitHub and import it into Eclipse as an existing Maven project (File > Import... > Maven > Existing Maven Projects). In order to do this you will need the [m2e plugin for Eclipse](http://eclipse.org/m2e/download/). This provides Maven integration for Eclipse and simplifies the handling of project dependencies. Please note that it may take a few minutes to compile Metis after the first import.
 
 ## Configuration
 
@@ -13,7 +17,7 @@ Upon checkout, Metis contains a simple application for testing the tracing proce
 
 In addition to adding your application to the webapp/ folder, you will also need to set your web-application as the target for Metis. This is done from the [SimpleExample](https://github.com/saltlab/metis-dev/blob/master/src/main/java/com/metis/core/SimpleExample.java) class (line 26). 
 
-## Running/Testing 
+## Running the Tool 
 
 The Jetty server must be started before running Metis. First, navigate to the root directory of Metis (where you checked-out metis-dev) and execute the following from your command-line (Terminal, etc.):
 
