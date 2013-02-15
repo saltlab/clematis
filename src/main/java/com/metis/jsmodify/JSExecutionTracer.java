@@ -52,8 +52,8 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 
 /**
- * Crawljax Plugin that reads an instrumentation array from the webbrowser and
- * saves the contents in a Daikon trace file.
+ * Reads an instrumentation array from the webbrowser and
+ * saves the contents in a JSON trace file.
  * 
  * @author Frank Groeneveld
  * @version $Id: JSExecutionTracer.java 6162 2009-12-16 13:56:21Z frank $
@@ -168,7 +168,6 @@ public class JSExecutionTracer {
 				result.add(getOutputFolder() + FUNCTIONTRACEDIRECTORY + file);
 			}
 		}
-
 		return result;
 	}
 
@@ -212,15 +211,15 @@ public class JSExecutionTracer {
 			Collection<TraceObject> XHRTraces = traceMap.get("XHRTrace");
 			Collection<TraceObject> functionTraces = traceMap
 					.get("FunctionTrace");
-			
+
 			trace = new Trace(domEventTraces, functionTraces, timingTraces, XHRTraces);
-			
+
 			sortedTraceList = sortTraceObjects();
-			
+
 			System.out.println("# of trace objects: " + sortedTraceList.size());
-			
+
 			episodeList = buildEpisodes();
-			
+
 			System.out.println("# of episodes: " + episodeList.size());
 
 		} catch (Exception e) {
@@ -228,33 +227,33 @@ public class JSExecutionTracer {
 		}
 
 	}
-	
+
 	/**
 	 * This method sorts all four groups of trace objects into one ordered list of trace objects
 	 */
 	private ArrayList<TraceObject> sortTraceObjects() {
 		ArrayList<TraceObject> sortedTrace = new ArrayList<TraceObject>();
-		
+
 		ArrayList<Collection<TraceObject>> allCollections = new ArrayList<Collection<TraceObject>>();
 		allCollections.add(trace.getDomEventTraces());
 		allCollections.add(trace.getFunctionTraces());
 		allCollections.add(trace.getTimingTraces());
 		allCollections.add(trace.getXhrTraces());
-		
+
 		ArrayList<Integer> currentIndexInCollection = new ArrayList<Integer>();
 		for (int i = 0; i < 4; i ++)
 			currentIndexInCollection.add(0);
-	
+
 		while (true) {
 			int currentMinArray = 0;
-			
+
 			for (int i = 0; i < allCollections.size(); i ++) {
 				TraceObject traceObj = Iterables.get(allCollections.get(i), currentIndexInCollection.get(i));
 				TraceObject currObj = Iterables.get(allCollections.get(currentMinArray), currentIndexInCollection.get(currentMinArray));
 				if (traceObj.getCounter() < currObj.getCounter())
 					currentMinArray = i;
 			}
-			
+
 			sortedTrace.add(Iterables.get(allCollections.get(currentMinArray), currentIndexInCollection.get(currentMinArray)));
 
 			currentIndexInCollection.set(currentMinArray, currentIndexInCollection.get(currentMinArray) + 1);
@@ -268,37 +267,44 @@ public class JSExecutionTracer {
 
 		return sortedTrace;
 	}
-	
+
 	private ArrayList<Episode> buildEpisodes() {
 		ArrayList<Episode> episodes = new ArrayList<Episode>();
-		
-		int i = 0;
-		while (i < sortedTraceList.size()) {
-//			System.out.println("i: " + i);
+		int i, j;
+
+		for (i = 0; i<sortedTraceList.size(); i++) {
+			// Iterate through all TraceObjects and identify episodes
 			TraceObject currentTraceObj = sortedTraceList.get(i);
+
 			if (currentTraceObj.isEpisodeSource()) {
+				// If the TraceObject is the beginning of an episode
+				// i.e. DOMEvent, TimingEvent, or XHRRequest, create an episode
 				Episode episode = new Episode(currentTraceObj);
-				episodes.add(episode);
 				
-				i ++;
-				while (i < sortedTraceList.size()) {
-//					System.out.println("i: " + i);
-					currentTraceObj = sortedTraceList.get(i);
+				for (j = i+1; j<sortedTraceList.size(); j++ ) {
+					// Go through the succeeding TraceObjects looking for the
+					// end of the episode (as indicated by another episode starter
+					// (DOMEvent, TimingEvent, etc.)
+
+					currentTraceObj = sortedTraceList.get(j);
+
 					if (!(currentTraceObj.isEpisodeSource())) {
+						// If the succeeding TraceObject is not the beginning of
+						// another episode, add it to the current episode
 						episode.addToTrace(currentTraceObj);
-						i ++;//
-					}
-					else
+					} else {
+						// End of current episode, break out of inner-loop
 						break;
-//					i ++;
+					}
 				}
+				// Add the newly created episode to the list of episodes
+				episodes.add(episode);
+				// Update i to the end of the newly created episode
+				i=j-1;
 			}
-			else
-				i ++; // TODO change this!
 		}
 		return episodes;
 	}
-
 	/**
 	 * @return Name of the file.
 	 */
@@ -353,13 +359,10 @@ public class JSExecutionTracer {
 						// argument is not a JSON object
 						continue;
 					}
-
 				}
-
 				if (buffer.getJSONObject(i).has("targetElement")) {
 					JSONArray extractedArray = new JSONArray(buffer
 							.getJSONObject(i).get("targetElement").toString());
-
 					try {
 						targetAttributes = extractedArray.getJSONObject(1);
 						String targetType = extractedArray.get(0).toString();
