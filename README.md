@@ -9,19 +9,19 @@ Currrently, the Metis project is designed to run from within the Eclipse IDE. In
 
 ## Configuration
 
-Upon checkout, Metis contains a simple application for testing the tracing process ([src/main/webapp/example\_webapplication](https://github.com/saltlab/metis-dev/tree/master/src/main/webapp/example_webapplication)). This example application contains some basic synchronous and asynchronous JavaScript mechanisms. In order to test your own web-application using Metis, place the appropriate application files in the [webapp](https://gthub.com/saltlab/metis-dev/tree/master/src/main/webapp/) folder in accordance with the [Jetty guidelines](http://wiki.eclipse.org/Jetty/Howto/Deploy_Web_Applications).
+Upon checkout, Metis contains a simple application for testing the tracing process ([src/main/webapp/example\_webapplication](https://github.com/saltlab/metis-dev/tree/master/src/main/webapp/example_webapplication)). This example application contains some basic synchronous and asynchronous JavaScript mechanisms. In order to test your own web-application using Metis, place the appropriate application files in the [webapp](https://github.com/saltlab/metis-dev/tree/master/src/main/webapp/) folder in accordance with the [Jetty guidelines](http://wiki.eclipse.org/Jetty/Howto/Deploy_Web_Applications).
 
 In addition to adding your application to the webapp/ folder, you will also need to set your web-application as the target for Metis. This done from the [SimpleExample](https://github.com/saltlab/metis-dev/blob/master/src/main/java/com/metis/core/SimpleExample.java) class (line 26). 
 
+## Running/Testing 
+
+The Jetty server must be started before running Metis. First, navigate to the root directory of Metis (where you checked-out metis-dev) and execute the following from your command-line (Terminal, etc.):
+
 ```
-.../js-instrumentation/eventlistenersMirror.js
-.../js-instrumentation/asyncLogger.js
-.../js-instrumentation/applicationView.js
+mvn jetty:run
 ```
 
-Include each of the aforementioned scripts within your original HTML file. Specifically, 
-the scripts must be imported from within your application's `<head>`. An example of this inclusion can be 
-seen in the provided example web page ([.../example_webapplication/index.html](https://github.com/saltlab/metis/blob/master/example_webapplication/index.html), lines 13-15). After saving the updated HTML file, refresh the application within your browser to begin the instrumentation process.
+If successful, a notification should appear confirming that the server is up-and-running (``[INFO] Started Jetty Server``). Next, run the Metis project as a Java application from Eclipse by setting com.metis.core.SimpleExample as the Main class. Once a new browser session is started by Metis, feel free to use your application as you normally would. Quitting Firefox (Cmd+Q) notifies Metis that your user session is over and the generated trace files can be found in metis-output/ from the root of metis-dev.
 
 More documentation (and fewer bugs) coming soon.
 
