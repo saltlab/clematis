@@ -9,7 +9,9 @@ Currrently, the Metis project is designed to run from within the Eclipse IDE. In
 
 ## Configuration
 
-Upon checkout, Metis contains a simple application for testing the tracing process. This example is located in the [src/main/webapps/example\_webapplication](https://github.com/saltlab/metis-dev/tree/master/src/main/webapp/example_webapplication) directory from the Metis root directory. 
+Upon checkout, Metis contains a simple application for testing the tracing process ([src/main/webapp/example\_webapplication](https://github.com/saltlab/metis-dev/tree/master/src/main/webapp/example_webapplication)). This example application contains some basic synchronous and asynchronous JavaScript mechanisms. In order to test your own web-application using Metis, place the appropriate application files in the [webapp](https://gthub.com/saltlab/metis-dev/tree/master/src/main/webapp/) folder in accordance with the [Jetty guidelines](http://wiki.eclipse.org/Jetty/Howto/Deploy_Web_Applications).
+
+In addition to adding your application to the webapp/ folder, you will also need to set your web-application as the target for Metis. This done from the [SimpleExample](https://github.com/saltlab/metis-dev/blob/master/src/main/java/com/metis/core/SimpleExample.java) class (line 26). 
 
 ```
 .../js-instrumentation/eventlistenersMirror.js
