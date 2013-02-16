@@ -8,7 +8,7 @@ public class XMLHttpRequestResponse extends XMLHttpRequestTrace/* implements Epi
 
 	public XMLHttpRequestResponse() {
 		super();
-		this.isEpisodeSource = true;
+		setEpisodeSource(true);
 	}
 	public String getCallbackFunction() {
 		return callbackFunction;

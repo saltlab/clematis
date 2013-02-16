@@ -5,6 +5,6 @@ import com.metis.core.episode.EpisodeSource;
 public class TimeoutCallback extends TimingTrace/* implements EpisodeSource*/ {
 	public TimeoutCallback() {
 		super();
-		this.isEpisodeSource = true;
+		setEpisodeSource(true);
 	}
 }

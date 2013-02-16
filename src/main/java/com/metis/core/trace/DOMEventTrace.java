@@ -13,7 +13,7 @@ public class DOMEventTrace extends TraceObject/* implements EpisodeSource */{
 
 	public DOMEventTrace() {
 		super();
-		this.isEpisodeSource = true;
+		setEpisodeSource(true);
 	}
 	public String getEventType() {
 		return eventType;

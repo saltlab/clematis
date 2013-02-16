@@ -8,7 +8,7 @@ public class TraceObject implements Comparable<TraceObject> {
 	private int counter;
 	private String messageType;
 	private long timeStamp;
-	protected boolean isEpisodeSource;
+	private boolean isEpisodeSource;
 	
 	public TraceObject() {
 		isEpisodeSource = false;
