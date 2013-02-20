@@ -300,7 +300,12 @@ public class JSExecutionTracer {
 			System.setOut(oldOut);
 			endPicFile(output, componentNames);
 		} catch (IOException e1) {
+			System.setOut(System.out);
 			System.out.println("Error creating pic file fore episode.");
+		} catch (Exception oe) {
+			System.setOut(System.out);
+			System.out.println("Episode source " + e.getSource().getCounter() +" with counter "+ e.getSource().getClass());
+			oe.printStackTrace();
 		}
 	}
 
@@ -378,25 +383,26 @@ public class JSExecutionTracer {
 
 	private ArrayList<Episode> buildEpisodes() {
 		ArrayList<Episode> episodes = new ArrayList<Episode>();
-		int i, j;
+		int i, j, previousEpisodeEnd = 0;
 
 		for (i = 0; i<sortedTraceList.size(); i++) {
 			// Iterate through all TraceObjects and identify episodes
-			TraceObject currentTraceObj = sortedTraceList.get(i);
+			TraceObject sourceTraceObj = sortedTraceList.get(i);
 
-			if (currentTraceObj.isEpisodeSource()) {
+			if (sourceTraceObj.isEpisodeSource() && !(sourceTraceObj.getClass().toString().contains("TimeoutCallback"))) {
+				// Simple case
 				// If the TraceObject is the beginning of an episode
-				// i.e. DOMEvent, TimingEvent, or XHRRequest, create an episode
-				Episode episode = new Episode(currentTraceObj);
+				// i.e. DOMEvent, XHRRequest, create an episode
+				Episode episode = new Episode(sourceTraceObj);
 
 				for (j = i+1; j<sortedTraceList.size(); j++ ) {
 					// Go through the succeeding TraceObjects looking for the
 					// end of the episode (as indicated by another episode starter
 					// (DOMEvent, TimingEvent, etc.)
 
-					currentTraceObj = sortedTraceList.get(j);
+					TraceObject currentTraceObj = sortedTraceList.get(j);
 
-					if (!(currentTraceObj.isEpisodeSource())) {
+					if (Math.abs(currentTraceObj.getTimeStamp() - sourceTraceObj.getTimeStamp()) < 80) {
 						// If the succeeding TraceObject is not the beginning of
 						// another episode, add it to the current episode
 						episode.addToTrace(currentTraceObj);
@@ -409,6 +415,27 @@ public class JSExecutionTracer {
 				episodes.add(episode);
 				// Update i to the end of the newly created episode
 				i=j-1;
+				previousEpisodeEnd = i;
+			} else if (sourceTraceObj.getClass().toString().contains("TimeoutCallback")) {
+				// Special case
+				// TimeoutCallback is triggered after the callback function
+				// of a timeout has completed. Therefore, have to search backwards in
+				// Episode.
+				// e.g. FunctionEnter -> FunctionEnter -> FuntionExit -> FunctionExit -> TimeoutCallback
+				// As opposed to DOMEvent:
+				// DOMEvent -> FunctionEnter -> FunctionEnter -> FuntionExit -> FunctionExit
+
+				Episode episode = new Episode(sourceTraceObj);
+				for (j = previousEpisodeEnd + 1; j<i; j++) {
+					// Iterate from end of last episode to this TimeoutCallback
+
+					TraceObject currentTraceObj = sortedTraceList.get(j);
+					episode.addToTrace(currentTraceObj);
+				}
+
+				// Add the newly created episode to the list of episodes
+				episodes.add(episode);
+				previousEpisodeEnd = i;
 			}
 		}
 		return episodes;
