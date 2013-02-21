@@ -64,6 +64,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>maven-plugins</groupId>
+			<artifactId>maven-dotuml-plugin</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-firefox-driver</artifactId>
 			<version>[${selenium.version},)</version>
@@ -123,6 +129,23 @@
 				<plugin>
 					<groupId>org.mortbay.jetty</groupId>
 					<artifactId>jetty-maven-plugin</artifactId>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.9</version>
+					<configuration>
+						<doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+
+						<!-- <docletPath>/path/to/UmlGraph.jar</docletPath> -->
+						<docletArtifact>
+							<groupId>org.umlgraph</groupId>
+							<artifactId>doclet</artifactId>
+							<version>5.1</version>
+						</docletArtifact>
+						<additionalparam>-views</additionalparam>
+						<useStandardDocletOptions>true</useStandardDocletOptions>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>

@@ -184,8 +184,13 @@ logger.logXHRResponse = function(xhr) {
 		// responsible unit.
 	}
 
-    send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: date, id: xhr.id, callbackFunction: xhr.onreadystatechange.name, response: xhr.response, counter: traceCounter++}));
-
+    if (xhr.onreadystatechange != null) {
+        send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: date, id: xhr.id, callbackFunction: xhr.onreadystatechange.name, response: xhr.response, counter: traceCounter++}));
+    } else if (xhr.onload != null) {
+        send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: date, id: xhr.id, callbackFunction: xhr.onload.name, response: xhr.response, counter: traceCounter++}));
+    } else {
+        send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: date, id: xhr.id, callbackFunction: "", response: xhr.response, counter: traceCounter++}));
+	}
 };
 
 /**
@@ -240,10 +245,10 @@ window.setTimeout = function(func, delay, params) {
 	// Call the original timeout after logging
 	window.oldSetTimeout(function(/* params */) {
 		try {
+			logger.logTimeoutCallback(func);
 			func.apply(null, timeoutArgs);
 			timeoutCounter--;
 
-			logger.logTimeoutCallback(func);
 		} catch (exception) {
 		}
 	}, delay);
@@ -280,16 +285,23 @@ XMLHttpRequest = function() {
 		// The value of OnLoad declares when the response is back. Call the
 		// logger function when the response is ready which cause the callback
 		// function to be executed as well.
-		var onload = function() {
-			xhrCounter--;
-
-			logger.logXHRResponse(xhr);
-		}
-
-		xhr.addEventListener("load", onload, false);
-
 		return _send.apply(this, [ str ]);
 	}
+	var onreadystatechange = function() {
+    
+		if (this.readyState==4) {
+			xhrCounter--;
+			logger.logXHRResponse(this);
+		}
+	}
+	var onload = function() {
+		xhrCounter--;
+
+		logger.logXHRResponse(this);
+	}
+
+	//xhr.addEventListener("load", onload, false);
+	xhr.addEventListener("readystatechange", onreadystatechange, false);
 
 	return xhr;
 }

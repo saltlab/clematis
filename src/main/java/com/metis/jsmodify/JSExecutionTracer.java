@@ -46,6 +46,11 @@ import com.metis.core.trace.FunctionExit;
 import com.metis.core.trace.TimingTrace;
 import com.metis.core.trace.Trace;
 import com.metis.core.trace.TraceObject;
+import com.metis.core.trace.XMLHttpRequestOpen;
+import com.metis.core.trace.XMLHttpRequestResponse;
+import com.metis.core.trace.XMLHttpRequestSend;
+import com.metis.core.trace.XMLHttpRequestTrace;
+import com.metis.visual.SequenceDiagram;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -235,110 +240,11 @@ public class JSExecutionTracer {
 		// Given an episode (source, trace included), a pic file will be created
 		// in metis-output/ftrace/sequence_diagrams
 
-		ArrayList<String> functionHeirarchy = new ArrayList<String>();
+		SequenceDiagram sd = new SequenceDiagram(getOutputFolder(), e);
+		sd.createComponents();
+		sd.createMessages();
+		sd.close();
 
-		try {
-			Helper.directoryCheck(getOutputFolder()+"sequence_diagrams/");
-			output = new PrintStream(getOutputFolder()+"sequence_diagrams/"+e.getSource().getCounter()+".pic");	
-
-			beginPicFile(output);
-
-			// Define all the objects for the sequence diagram
-			ArrayList<TraceObject> functionTraceObjects = e.getTrace().getTrace();
-			ArrayList<String> componentNames = new ArrayList<String>();
-			PrintStream oldOut = System.out;
-			System.setOut(output);
-
-			System.out.println("# Define the objects");
-			System.out.println("pobject(EPISODESOURCE,\""+e.getSource().getClass().toString()+"\");");
-			push(functionHeirarchy, "EPISODESOURCE");
-			for (TraceObject to: functionTraceObjects) {
-				if (to.getClass().toString().contains("FunctionEnter")) {
-					// Create components in the sequence diagram for developer-defined functions
-					FunctionEnter feto = (FunctionEnter) to;
-					if (!componentNames.contains(feto.getTargetFunction().toUpperCase())) {
-						// Component for this function has not already been created
-						System.out.println("object("+feto.getTargetFunction().toUpperCase()+",\":"+feto.getTargetFunction()+"\");");
-						componentNames.add(feto.getTargetFunction().toUpperCase());
-					}
-				}
-			}
-			System.out.println("step();");
-			System.out.println("");
-
-			System.out.println(" # Message sequences");
-			for (TraceObject to: functionTraceObjects) {
-				if (to.getClass().toString().contains("FunctionEnter")) {
-					// Message entering next function
-					FunctionEnter feto = (FunctionEnter) to;
-
-					push(functionHeirarchy, feto.getTargetFunction());
-
-					// Create message from previously executing function
-					System.out.println("message("+functionHeirarchy.get(functionHeirarchy.size()-2)+","
-							+functionHeirarchy.get(functionHeirarchy.size()-1)+",\"arguments\");");
-
-					// Mark new function as executing
-					System.out.println("active("+functionHeirarchy.get(functionHeirarchy.size()-1)+");");
-
-				} else if (to.getClass().toString().contains("FunctionExit")) {
-					// Return to previous function
-
-					System.out.println("rmessage("+functionHeirarchy.get(functionHeirarchy.size()-1)
-							+","+functionHeirarchy.get(functionHeirarchy.size()-2)+");");
-					System.out.println("inactive("+functionHeirarchy.get(functionHeirarchy.size()-1)+");");
-					pop(functionHeirarchy);
-
-				} else if (to.getClass().toString().contains("ReturnStatement")) {
-					System.out.println("rmessage("+functionHeirarchy.get(functionHeirarchy.size()-1)
-							+","+functionHeirarchy.get(functionHeirarchy.size()-2)+");");
-					System.out.println("inactive("+functionHeirarchy.get(functionHeirarchy.size()-1)+");");
-					pop(functionHeirarchy);
-				}
-			}
-
-			System.setOut(oldOut);
-			endPicFile(output, componentNames);
-		} catch (IOException e1) {
-			System.setOut(System.out);
-			System.out.println("Error creating pic file fore episode.");
-		} catch (Exception oe) {
-			System.setOut(System.out);
-			System.out.println("Episode source " + e.getSource().getCounter() +" with counter "+ e.getSource().getClass());
-			oe.printStackTrace();
-		}
-	}
-
-	private void beginPicFile(PrintStream output2) {
-		System.setOut(output2);
-		System.out.println(".PS");
-		System.out.println("copy \"sequence.pic\";");
-		System.out.println("");
-		System.setOut(System.out);			
-	}
-
-	private void endPicFile(PrintStream output2, ArrayList<String> compNames) {
-		System.setOut(output2);
-		System.out.println("");
-		System.out.println("# Complete the lifelines");
-		System.out.println("step();");
-
-		for (String cName: compNames) {
-			System.out.println("complete("+cName+");");
-		}
-
-		System.out.println(".PE");
-		System.setOut(System.out);	
-	}
-
-	private String pop(ArrayList<String> fh) {
-		// Removes the last function called and returns the name
-		// FILO
-		return fh.remove(fh.size()-1);
-	}
-
-	private void push(ArrayList<String> fh, String functionName) {
-		fh.add(functionName.toUpperCase());
 	}
 
 	/**
@@ -389,7 +295,9 @@ public class JSExecutionTracer {
 			// Iterate through all TraceObjects and identify episodes
 			TraceObject sourceTraceObj = sortedTraceList.get(i);
 
-			if (sourceTraceObj.isEpisodeSource() && !(sourceTraceObj.getClass().toString().contains("TimeoutCallback"))) {
+			if (sourceTraceObj.isEpisodeSource() ){
+				//	&& !(sourceTraceObj.getClass().toString().contains("TimeoutCallback"))
+				//	&& !(sourceTraceObj.getClass().toString().contains("XMLHttpRequestResponse"))) {
 				// Simple case
 				// If the TraceObject is the beginning of an episode
 				// i.e. DOMEvent, XHRRequest, create an episode
@@ -416,7 +324,9 @@ public class JSExecutionTracer {
 				// Update i to the end of the newly created episode
 				i=j-1;
 				previousEpisodeEnd = i;
-			} else if (sourceTraceObj.getClass().toString().contains("TimeoutCallback")) {
+
+			} else if (sourceTraceObj.getClass().toString().contains("TimeoutCallback") 
+					|| sourceTraceObj.getClass().toString().contains("XMLHttpRequestResponse")) {
 				// Special case
 				// TimeoutCallback is triggered after the callback function
 				// of a timeout has completed. Therefore, have to search backwards in
@@ -436,7 +346,9 @@ public class JSExecutionTracer {
 				// Add the newly created episode to the list of episodes
 				episodes.add(episode);
 				previousEpisodeEnd = i;
+
 			}
+
 		}
 		return episodes;
 	}

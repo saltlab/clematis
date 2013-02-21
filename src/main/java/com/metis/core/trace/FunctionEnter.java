@@ -16,9 +16,9 @@ public class FunctionEnter extends FunctionTrace {
 	public void setScopeName(String sn) {
 		this.scopeName = sn;
 	}
-	
+
 	public String getTargetFunction() {
-		return TargetFunction;
+		return TargetFunction.replaceAll(" ", "");
 	}
 
 	public void setTargetFunction(String targetFunction) {
@@ -36,6 +36,39 @@ public class FunctionEnter extends FunctionTrace {
 		} catch (JSONException e) {
 			System.out.println("Exception constructing JSONObject from string " + args_string);
 			e.printStackTrace();
+		}
+	}
+
+	public String getArgsString() {
+
+		String[] labels = JSONObject.getNames(getArgs());
+		String arguments = "";
+
+		for (int i=0; i<labels.length; i++) {
+			try {
+				arguments += ", " + getArgs().get(labels[i]).toString().replaceAll("\"", "");
+			} catch (JSONException e) {
+				System.setOut(System.out);
+				System.out.println("Error translating arguments into String.");
+				e.printStackTrace();
+			}	
+		}
+
+		return arguments.replaceFirst(", ", "");
+	}
+
+	public String getArgsLabels() {
+		if (getArgs() == null) {
+			return "";
+		} else {
+			String[] labels = JSONObject.getNames(getArgs());
+			String argumentLabels = "";
+
+			for (int i=0; i<labels.length; i++) {
+				argumentLabels += ", " + labels[i].replaceAll("\"", "");	
+			}
+
+			return argumentLabels.replaceFirst(", ", "");
 		}
 	}
 }
