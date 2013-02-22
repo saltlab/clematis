@@ -39,17 +39,9 @@ import org.json.JSONObject;
 import com.crawljax.util.Helper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.metis.core.episode.Episode;
-import com.metis.core.episode.EpisodeSource;
-import com.metis.core.trace.DOMEventTrace;
-import com.metis.core.trace.FunctionEnter;
-import com.metis.core.trace.FunctionExit;
-import com.metis.core.trace.TimingTrace;
 import com.metis.core.trace.Trace;
 import com.metis.core.trace.TraceObject;
-import com.metis.core.trace.XMLHttpRequestOpen;
-import com.metis.core.trace.XMLHttpRequestResponse;
-import com.metis.core.trace.XMLHttpRequestSend;
-import com.metis.core.trace.XMLHttpRequestTrace;
+import com.metis.visual.EpisodeGraph;
 import com.metis.visual.SequenceDiagram;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -230,7 +222,12 @@ public class JSExecutionTracer {
 				// Create pic files for each episode's sequence diagram
 				designSequenceDiagram(e);
 			}
-
+			
+			// Create graph containing all episodes with embedded sequence diagrams
+			//Helper.directoryCheck(getOutputFolder() + "sequence_diagrams/");
+			EpisodeGraph eg = new EpisodeGraph(getOutputFolder(), episodeList);
+			eg.createGraph();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -244,7 +241,6 @@ public class JSExecutionTracer {
 		sd.createComponents();
 		sd.createMessages();
 		sd.close();
-
 	}
 
 	/**

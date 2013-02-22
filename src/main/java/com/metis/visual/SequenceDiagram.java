@@ -18,6 +18,7 @@ public class SequenceDiagram {
 
 	static ArrayList<String> functionHeirarchy = new ArrayList<String>();
 	static PrintStream output = null;
+	PrintStream oldOut = null;
 
 	// Define all the objects for the sequence diagram
 	static ArrayList<TraceObject> functionTraceObjects;
@@ -36,12 +37,13 @@ public class SequenceDiagram {
 			comments = new ArrayList<String>();
 
 			// Print initializing lines
+			oldOut = System.out;
 			System.setOut(output);
 			System.out.println(".PS");
 			System.out.println("copy \"sequence.pic\";");
 			System.out.println("");
-			System.setOut(System.out);
-			
+			System.setOut(oldOut);
+
 			functionTraceObjects = e.getTrace().getTrace();
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -90,8 +92,7 @@ public class SequenceDiagram {
 
 			} else if (to.getClass().toString().contains("DOMEventTrace")) {
 				// Create actors for child DOM events
-				DOMEventTrace deto = (DOMEventTrace) to;
-				System.out.println("actor("+getDiagramIdentifier(to)+",\""+deto.getEventType()+":DOMEvent\");");
+				System.out.println("actor("+getDiagramIdentifier(to)+",\"DOMEvent\");");
 			}
 		}
 		push(components.get(0));
@@ -117,13 +118,20 @@ public class SequenceDiagram {
 			} else if (to2.getClass().toString().contains("Timeout")) {
 				addTimeoutInfo(to2);
 			} else if (to2.getClass().toString().contains("DOMEventTrace")) {
-				// TODO
+				addDOMEventInfo(to2);
 			}
 		}
 		System.out.println("step();");
 		System.out.println("");
-		System.setOut(System.out);
+		System.setOut(oldOut);
 
+	}
+
+	private void addDOMEventInfo(TraceObject to) {
+		DOMEventTrace deto = (DOMEventTrace) to;
+		System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.5 ht .5 \\");
+		System.out.println("\"Event Type: "+deto.getEventType()+"\" \\");
+		System.out.println("\"Handler: "+deto.getEventHandler()+"\")");
 	}
 
 	private void addTimeoutInfo(TraceObject to) {
@@ -186,7 +194,7 @@ public class SequenceDiagram {
 				//TODO
 			} 
 		}
-		System.setOut(System.out);
+		System.setOut(oldOut);
 	}
 
 	private void TimeoutSetMessage(TraceObject before, TraceObject to) {
@@ -297,7 +305,7 @@ public class SequenceDiagram {
 		}
 
 		System.out.println(".PE");
-		System.setOut(System.out);
+		System.setOut(oldOut);
 
 		/* close the output file */
 		output.close();
@@ -333,6 +341,10 @@ public class SequenceDiagram {
 			DOMEventTrace deto = (DOMEventTrace) tObject;
 			return "DOMEVENT"+deto.getEventType();
 		}
+		return null;
+	}
+
+	public String getOutputFolder() {
 		return null;
 	}
 }
