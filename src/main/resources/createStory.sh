@@ -45,6 +45,9 @@ sed 's/NEWLINE/\
 sed "s/E\([0-9]*\) ->/E\1\_icon ->/g" image_graph.dot > flip.dot
 sed "s/-> E\([0-9]*\)/-> E\1\_icon/g" flip.dot >image_graph.dot
 
+sed "s/E\([0-9]*\)_icon \[ label=\"Timing ID: \([0-9]*\)\" \];/E\1_icon \[ label=\"Timing ID: \2\" color=maroon weight=0\];/g" image_graph.dot > flip.dot 
+cp flip.dot image_graph.dot
+
 rm flip.dot
 rm *.ps
 rm sequence.pic
