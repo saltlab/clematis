@@ -51,7 +51,6 @@ public class SimpleExample {
 			s.setFileNameToAttach("/asyncLogger.js");
 			s.setFileNameToAttach("/applicationView.js");
 			s.setFileNameToAttach("/eventlistenersMirror.js");
-			s.setFileNameToAttach("/domMutations.js");
 			s.setFileNameToAttach("/jsonml-dom.js");
 			s.instrumentDOMModifications();
 
