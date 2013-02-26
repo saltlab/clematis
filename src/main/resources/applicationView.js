@@ -35,6 +35,9 @@ function startRecord() {
 	    document.getElementById("recordButton").style.opacity = 0.5;
 	    document.getElementById("stopButton").style.opacity = 1;
     }	
+	// start the mutation summary observer
+	startObserver();
+	initializeValues();
 }
 
 // Function which halts logging to console of DOM events, XmlHttpRequests etc.
@@ -51,6 +54,8 @@ function stopRecord() {
     	document.getElementById("recordButton").style.opacity = 1;
 	    document.getElementById("stopButton").style.opacity = 0.5;	
     }
+	// stop the mutation summary observer
+	stopObserver();
 }
 
 

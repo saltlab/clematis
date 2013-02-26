@@ -215,7 +215,63 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 		jml = JSON.stringify(jml);
     	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
 	}
+	checkValues();
+	logger.logDOMMutation(false);
+};
 
+/**
+ * Prints the contents of the DOM Mutation array and empties the array
+ */
+	logger.logDOMMutation = function(checkRecordStart) {
+	//if (checkRecordStart && !recordStarted) return;
+	if (mutationArray.length == 0) return;
+	
+	console.log("------------------------------------");
+	console.log("DOM MUTATION");
+	for (var i=0; i<mutationArray.length; i++) {
+		var date = mutationArray[i].date;
+		//console.log("Time: (" , date.getUTCFullYear(), "-", date.getUTCMonth(), "-", date.getUTCDate(), " ", date.getUTCHours(), ":", date.getUTCMinutes(), ":", date.getUTCSeconds(), ":", date.getUTCMilliseconds(), ")");
+		console.log("Summaries are: ", mutationArray[i].summaries);
+		var summary = mutationArray[i].summaries[0];
+		//jml = JsonML.fromHTML(summary[0]);
+		//jml = JSON.stringify(jml);
+		var addedNodes = mutationArray[i].summaries[0].added[0];
+		
+		jml = JsonML.fromHTML(addedNodes);
+		
+    	send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, nodesAdded: jml}));
+    	
+    	if (summary.added.length > 0){
+			console.log("The added nodes are " + " " + addedNodes.data);
+			console.log("The node Type is " + " " + addedNodes.nodeType);
+			console.log("The node name is " + " " + addedNodes.nodeName);
+			console.log("The node value is " + " " + addedNodes.nodeValue);
+	    	
+			send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, nodesAdded: addedNodes.data, nodeType: addedNodes.nodeType, nodeName: addedNodes.nodeName, nodeValue: addedNodes.nodeValue}));
+			
+		}
+	}		
+		// Reset the array
+		console.log("Resetting the mutation array");
+		mutationArray.length = 0;
+				
+};
+
+/**
+ * Prints a summary of an element with a changed value
+ */
+	logger.logElementValueChange = function(changedElem, oldVal, newVal) {
+	
+		console.log("------------------------------------");
+		console.log("ELEMENT VALUE CHANGED");
+		var date = new Date();
+		console.log("Time: (" , date.getUTCFullYear(), "-", date.getUTCMonth(), "-", date.getUTCDate(), " ", date.getUTCHours(), ":", date.getUTCMinutes(), ":", date.getUTCSeconds(), ":", date.getUTCMilliseconds(), ")");
+ 		console.log("Changed element ", changedElem);
+		console.log("Old Value: ", oldValue);
+		console.log("New Value: ", newValue);
+		
+    	send(JSON.stringify({messageType: "ELEMENT_VALUE_CHANGE", timeStamp: getTimeStamp(date), changedElement: changeElem, oldValue: oldVal, newValue: newVal }));
+				
 };
 
 /*******************************************************************************
