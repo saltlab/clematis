@@ -90,10 +90,10 @@ public class SimpleExample {
 
 			while (!sessionOver) {
 				// Wait until the user/tester has closed the browser
-				
+
 				try {
 					waitForWindowClose(wait);
-					
+
 					// At this point the window was closed, no TimeoutException
 					sessionOver = true;
 				} catch (TimeoutException e) {
