@@ -27,20 +27,19 @@ function stopObserver() {
 	
 // Add the new summary to the mutationArray
 function handleSummary(summaries) {
-	var mutation = { date : new Date(), summaries : summaries };
+	var mutation = { date : Date.now(), summaries : summaries };
 	mutationArray.push(mutation);
 }
 
 // Functions to call after the Mutation Summary Observer is disconnected
 function handleSummaryLeftover(summaries) {
-	var mutation = { date : new Date(), summaries : summaries };
+	var mutation = { date : Date.now(), summaries : summaries };
 	mutationArray.push(mutation); 
 	// call the mutations
 	logger.logDOMMutation(false);
 	// check for changed element values
 	//checkValues();
 }
-
 
 var all = []; 
 var allElements
