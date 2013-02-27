@@ -250,6 +250,27 @@ public class JSExecutionTracer {
 		ArrayList<TraceObject> sortedTrace = new ArrayList<TraceObject>();
 
 		ArrayList<Collection<TraceObject>> allCollections = new ArrayList<Collection<TraceObject>>();
+		
+		if (trace.getDomEventTraces().size() > 0)
+			allCollections.add(trace.getDomEventTraces());
+		if (trace.getFunctionTraces().size() > 0)
+			allCollections.add(trace.getFunctionTraces());
+		if (trace.getTimingTraces().size() > 0)
+			allCollections.add(trace.getTimingTraces());
+		if (trace.getXhrTraces().size() > 0)
+			allCollections.add(trace.getXhrTraces());
+		
+		if (allCollections.size() == 0) {
+			System.out.println("No log");
+			return null;
+		}
+		
+		ArrayList<Integer> currentIndexInCollection = new ArrayList<Integer>();
+		for (int i = 0; i < allCollections.size(); i ++)
+			currentIndexInCollection.add(0);
+
+			
+		/*
 		allCollections.add(trace.getDomEventTraces());
 		allCollections.add(trace.getFunctionTraces());
 		allCollections.add(trace.getTimingTraces());
@@ -258,7 +279,7 @@ public class JSExecutionTracer {
 		ArrayList<Integer> currentIndexInCollection = new ArrayList<Integer>();
 		for (int i = 0; i < 4; i ++)
 			currentIndexInCollection.add(0);
-
+*/
 		while (true) {
 			int currentMinArray = 0;
 
