@@ -257,20 +257,27 @@ public class JSExecutionTracer {
 		ArrayList<TraceObject> sortedTrace = new ArrayList<TraceObject>();
 
 		ArrayList<Collection<TraceObject>> allCollections = new ArrayList<Collection<TraceObject>>();
-/*		allCollections.add(trace.getDomEventTraces());
-		allCollections.add(trace.getFunctionTraces());
-		allCollections.add(trace.getTimingTraces());
-		allCollections.add(trace.getXhrTraces());
-*/
-		allCollections.add(story.getDomEventTraces());
-		allCollections.add(story.getFunctionTraces());
-		allCollections.add(story.getTimingTraces());
-		allCollections.add(story.getXhrTraces());
 
+		
+		if (story.getDomEventTraces().size() > 0)
+			allCollections.add(story.getDomEventTraces());
+		if (story.getFunctionTraces().size() > 0)
+			allCollections.add(story.getFunctionTraces());
+		if (story.getTimingTraces().size() > 0)
+			allCollections.add(story.getTimingTraces());
+		if (story.getXhrTraces().size() > 0)
+			allCollections.add(story.getXhrTraces());
+		
+		if (allCollections.size() == 0) {
+			System.out.println("No log");
+			return null;
+		}
+		
 		ArrayList<Integer> currentIndexInCollection = new ArrayList<Integer>();
-		for (int i = 0; i < 4; i ++)
+		for (int i = 0; i < allCollections.size(); i ++)
 			currentIndexInCollection.add(0);
 
+			
 		while (true) {
 			int currentMinArray = 0;
 
