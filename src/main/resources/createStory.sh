@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ../../../metis-output/ftrace/sequence_diagrams/
+cd metis-output/ftrace/sequence_diagrams/
 cp ../../../src/main/resources/sequence.pic .
 
 ls *.pic > list
@@ -19,7 +19,6 @@ rm list2
 ls story_* > list
 for i in `cat list`
 do
-echo $i
 
 sed 's/digraph G {/digraph G {\
 \
@@ -46,11 +45,11 @@ sed "s/E\([0-9]*\) ->/E\1\_icon ->/g" image_graph.dot > flip.dot
 sed "s/-> E\([0-9]*\)/-> E\1\_icon/g" flip.dot >image_graph.dot
 
 sed "s/E\([0-9]*\)_icon \[ label=\"Timing ID: \([0-9]*\)\" \];/E\1_icon \[ label=\"Timing ID: \2\" color=maroon weight=0\];/g" image_graph.dot > flip.dot 
-cp flip.dot image_graph.dot
+sed "s/E\([0-9]*\)_icon \[ label=\"XHR ID: \([0-9]*\)\" \];/E\1_icon \[ label=\"XHR ID: \2\" color=maroon weight=0\];/g" flip.dot > image_graph.dot 
 
 rm flip.dot
-rm *.ps
-rm sequence.pic
+#rm *.ps
+#rm sequence.pic
 
 dot -Tpng -oimage_graph.png image_graph.dot
 cd -

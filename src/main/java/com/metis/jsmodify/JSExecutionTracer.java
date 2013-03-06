@@ -20,8 +20,10 @@
  */
 package com.metis.jsmodify;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -222,12 +224,25 @@ public class JSExecutionTracer {
 				// Create pic files for each episode's sequence diagram
 				designSequenceDiagram(e);
 			}
-			
+
 			// Create graph containing all episodes with embedded sequence diagrams
 			//Helper.directoryCheck(getOutputFolder() + "sequence_diagrams/");
 			EpisodeGraph eg = new EpisodeGraph(getOutputFolder(), episodeList);
 			eg.createGraph();
-			
+
+			String line;
+			Runtime rt = Runtime.getRuntime();
+			File f = new File("metis-output/ftrace/sequence_diagrams/");
+
+			Process p = rt.exec("pwd", null, f);
+
+			p = rt.exec("./../../../src/main/resources/createStory.sh", null, f);
+			BufferedReader in = new BufferedReader(
+					new InputStreamReader(p.getInputStream()) );
+			while ((line = in.readLine()) != null) {
+				System.out.println(line);
+			}
+			in.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -250,7 +265,7 @@ public class JSExecutionTracer {
 		ArrayList<TraceObject> sortedTrace = new ArrayList<TraceObject>();
 
 		ArrayList<Collection<TraceObject>> allCollections = new ArrayList<Collection<TraceObject>>();
-		
+
 		if (trace.getDomEventTraces().size() > 0)
 			allCollections.add(trace.getDomEventTraces());
 		if (trace.getFunctionTraces().size() > 0)
@@ -259,17 +274,17 @@ public class JSExecutionTracer {
 			allCollections.add(trace.getTimingTraces());
 		if (trace.getXhrTraces().size() > 0)
 			allCollections.add(trace.getXhrTraces());
-		
+
 		if (allCollections.size() == 0) {
 			System.out.println("No log");
 			return null;
 		}
-		
+
 		ArrayList<Integer> currentIndexInCollection = new ArrayList<Integer>();
 		for (int i = 0; i < allCollections.size(); i ++)
 			currentIndexInCollection.add(0);
 
-			
+
 		/*
 		allCollections.add(trace.getDomEventTraces());
 		allCollections.add(trace.getFunctionTraces());
@@ -279,7 +294,7 @@ public class JSExecutionTracer {
 		ArrayList<Integer> currentIndexInCollection = new ArrayList<Integer>();
 		for (int i = 0; i < 4; i ++)
 			currentIndexInCollection.add(0);
-*/
+		 */
 		while (true) {
 			int currentMinArray = 0;
 
