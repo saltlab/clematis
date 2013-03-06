@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class Trace {
+/*
 	private ArrayList<TraceObject> domEventTraces;
 	private ArrayList<TraceObject> functionTraces;
 	private ArrayList<TraceObject> timingTraces;
@@ -48,5 +49,5 @@ public class Trace {
 		this.xhrTraces = xhrTraces;
 	}
 	
-	
+*/	
 }
