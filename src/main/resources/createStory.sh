@@ -1,25 +1,57 @@
 #!/bin/bash
 
-cd ../../../metis-output/ftrace/sequence_diagrams/
+cd metis-output/ftrace/sequence_diagrams/
 cp ../../../src/main/resources/sequence.pic .
 
 ls *.pic > list
 sed 's/\.pic//' < list > list2
 sed 's/sequence//' < list2 > list 
-for i in `cat list`; do pic2plot -Tps "$i".pic > "$i".ps ; done
+for i in `cat list`
+do 
+
+size=`grep -c "message" ${i}.pic`
+echo $size
+
+if [ $size -gt 120 ]; then
+    pic2plot --font-size 1pt --line-width 0 -Tps "$i".pic > "$i".ps
+    echo 1pt
+else 
+    echo not 1pt
+	if [ $size -gt 80 ]; then
+    	pic2plot --font-size 2pt --line-width 0 -Tps "$i".pic > "$i".ps
+    echo 2pt
+	else
+		if [ $size -gt 40 ]; then
+    		pic2plot --font-size 3pt --line-width 0 -Tps "$i".pic > "$i".ps
+    echo 3pt
+		else
+			if [ $size -gt 40 ]; then
+    			pic2plot --font-size 5pt --line-width 0 -Tps "$i".pic > "$i".ps
+    echo 5pt
+			else
+    			pic2plot --font-size 8pt --line-width 0 -Tps "$i".pic > "$i".ps
+    echo 8pt
+			fi
+		fi
+	fi
+fi 
+
+echo ""
+
+done
+
 rm list2
 rm list
 
 ls *.ps > list
 sed 's/\.ps//' < list > list2 
-for i in `cat list2`; do convert "$i".ps "$i".png ; done
+#for i in `cat list2`; do convert "$i".ps "$i".png ; done
 rm list
 rm list2
 
 ls story_* > list
 for i in `cat list`
 do
-echo $i
 
 sed 's/digraph G {/digraph G {\
 \
@@ -37,7 +69,7 @@ sed 's/digraph G {/digraph G {\
 done
 rm list
 
-sed "s/E\([0-9]*\) \[ label=\"E\([0-9]*\)\" \];/subgraph cluster_E\1 \{label=\"E\1\"; labelloc=\"b\"; style=invis; E\1\_icon\};NEWLINEE\1\_icon \[label=\"\"\, shape=box\, shapefile=\"\1\.png\"\];NEWLINE/g" image_graph.dot >flip.dot 
+sed "s/E\([0-9]*\) \[ label=\"E\([0-9]*\)\" \];/subgraph cluster_E\1 \{label=\"E\1\"; labelloc=\"b\"; style=invis; E\1\_icon\};NEWLINEE\1\_icon \[label=\"\"\, shape=box\, shapefile=\"\1\.ps\"\];NEWLINE/g" image_graph.dot >flip.dot 
 
 sed 's/NEWLINE/\
   /g' flip.dot >image_graph.dot
@@ -46,11 +78,12 @@ sed "s/E\([0-9]*\) ->/E\1\_icon ->/g" image_graph.dot > flip.dot
 sed "s/-> E\([0-9]*\)/-> E\1\_icon/g" flip.dot >image_graph.dot
 
 sed "s/E\([0-9]*\)_icon \[ label=\"Timing ID: \([0-9]*\)\" \];/E\1_icon \[ label=\"Timing ID: \2\" color=maroon weight=0\];/g" image_graph.dot > flip.dot 
-cp flip.dot image_graph.dot
+sed "s/E\([0-9]*\)_icon \[ label=\"XHR ID: \([0-9]*\)\" \];/E\1_icon \[ label=\"XHR ID: \2\" color=maroon weight=0\];/g" flip.dot > image_graph.dot 
 
 rm flip.dot
-rm *.ps
-rm sequence.pic
+#rm *.ps
+#rm sequence.pic
 
-dot -Tpng -oimage_graph.png image_graph.dot
+dot -Tps -oimage_graph.ps image_graph.dot
 cd -
+

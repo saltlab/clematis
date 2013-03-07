@@ -135,17 +135,17 @@
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<version>2.9</version>
 					<configuration>
-						<doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
-
-						<!-- <docletPath>/path/to/UmlGraph.jar</docletPath> -->
-						<docletArtifact>
-							<groupId>org.umlgraph</groupId>
-							<artifactId>doclet</artifactId>
-							<version>5.1</version>
-						</docletArtifact>
-						<additionalparam>-views</additionalparam>
-						<useStandardDocletOptions>true</useStandardDocletOptions>
+						<compilerId>eclipse</compilerId>
+						<source>1.6</source>
+						<target>1.5</target>
 					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>org.codehaus.plexus</groupId>
+							<artifactId>plexus-compiler-eclipse</artifactId>
+							<version>1.8.4</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 			</plugins>
 		</pluginManagement>

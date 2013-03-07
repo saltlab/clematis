@@ -68,7 +68,7 @@ public class EpisodeGraph {
 					"E"+el.get(i+1).getSource().getCounter(), 
 					null);
 		}
-		for (int i = 0; i< el.size()-1; i++) {
+		for (int i = 0; i< el.size(); i++) {
 			// Add causal edges between episodes
 			Episode currentEpisode = el.get(i);
 
@@ -83,7 +83,7 @@ public class EpisodeGraph {
 				if (to.getClass().toString().contains("TimeoutCallback")
 						|| to.getClass().toString().contains("XMLHttpRequestResponse")) {
 					// Need to look for origin of Timeout or XMLHttpRequest in other Episodes
-					for (int j = 0; j< el.size()-1; j++) {
+					for (int j = 0; j< el.size(); j++) {
 						Episode otherEpisode = el.get(j);
 
 						if (i == j) {

@@ -17,6 +17,8 @@
 # $Id$
 #
 
+#size = 1 
+#scale = 0.0035
 
 # Default parameters (can be redefined)
 
@@ -26,7 +28,6 @@ spacing = 0.25;
 awid = .1;
 # Box height
 boxht = 0.3;
-boxwid = 2;
 # Commend folding
 corner_fold=awid
 # Comment distance
@@ -46,7 +47,7 @@ define object {
 		line from $1.w + (.1, -.07) to $1.e + (-.1, -.07);
 	}
 	move to $1.e;
-	move right;
+	move right 1.3;
 	# Active is the level of activations of the object
 	# 0 : inactive : draw thin line swimlane
 	# 1 : active : draw thick swimlane
@@ -66,7 +67,7 @@ define actor {
 		line at XSEQC.n invis "" "" "" $2;
 	]
 	move to $1.e;
-	move right;
+	move right 1.3;
 	active_$1 = 0;
 	lifestart_$1 = $1.s.y - .05;
 }
@@ -188,7 +189,7 @@ define create_message {
         }
 
 	# See comment in destroy_message
-	XSEQA: arrow from ($1.x + off_from, Here.y) to ($2.x + off_to, Here.y) "«create»" " ";
+	XSEQA: arrow from ($1.x + off_from, Here.y) to ($2.x + off_to, Here.y) "Â«createÂ»" " ";
 	if ($1.x <= $2.x) then {
 		{ XSEQB: box $3 with .w at XSEQA.end; }
 	} else {
@@ -222,7 +223,7 @@ define destroy_message {
 	# The pic2plot code is \Fo \Fc
 	# See http://www.delorie.com/gnu/docs/plotutils/plotutils_71.html
 	# To stay compatible with all we have to hardcode the characters
-	message($1,$2,"«destroy»");
+	message($1,$2,"Â«destroyÂ»");
 	complete($2);
 	drawx($2);
 }
@@ -406,3 +407,4 @@ define connect_to_comment {
 	# restore Here.y
 	move to ($1.x, old_y)
 }
+

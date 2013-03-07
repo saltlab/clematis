@@ -20,8 +20,10 @@
  */
 package com.metis.jsmodify;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -39,7 +41,8 @@ import org.json.JSONObject;
 import com.crawljax.util.Helper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.metis.core.episode.Episode;
-import com.metis.core.trace.Trace;
+import com.metis.core.episode.Story;
+//import com.metis.core.trace.Trace;
 import com.metis.core.trace.TraceObject;
 import com.metis.visual.EpisodeGraph;
 import com.metis.visual.SequenceDiagram;
@@ -75,9 +78,10 @@ public class JSExecutionTracer {
 
 	private static ArrayList<TraceObject> traceObjects;
 
-	private Trace trace;
-	private ArrayList<TraceObject> sortedTraceList;
-	private ArrayList<Episode> episodeList;
+	//	private Trace trace;
+	private Story story;
+	//	private ArrayList<TraceObject> sortedTraceList;
+	//	private ArrayList<Episode> episodeList;
 
 	/**
 	 * @param filename
@@ -86,8 +90,8 @@ public class JSExecutionTracer {
 	public JSExecutionTracer(String filename) {
 		traceFilename = filename;
 		traceObjects = new ArrayList<TraceObject>();
-		sortedTraceList = new ArrayList<TraceObject>();
-		episodeList = new ArrayList<Episode>();
+		//		sortedTraceList = new ArrayList<TraceObject>();
+		//		episodeList = new ArrayList<Episode>();
 	}
 
 	/**
@@ -211,23 +215,41 @@ public class JSExecutionTracer {
 			Collection<TraceObject> functionTraces = traceMap
 					.get("FunctionTrace");
 
-			trace = new Trace(domEventTraces, functionTraces, timingTraces, XHRTraces);
-			sortedTraceList = sortTraceObjects();
-			episodeList = buildEpisodes();
+			//			trace = new Trace(domEventTraces, functionTraces, timingTraces, XHRTraces);
+			story = new Story(domEventTraces, functionTraces, timingTraces, XHRTraces);
+			story.setOrderedTraceList(sortTraceObjects());
+			//			sortedTraceList = sortTraceObjects();
+			//			episodeList = buildEpisodes();
+			story.setEpisodes(buildEpisodes());
 
-			System.out.println("# of trace objects: " + sortedTraceList.size());
-			System.out.println("# of episodes: " + episodeList.size());
+			//			System.out.println("# of trace objects: " + sortedTraceList.size());
+			System.out.println("# of trace objects: " + story.getOrderedTraceList().size());
+			System.out.println("# of episodes: " + story.getEpisodes().size());
 
-			for (Episode e:episodeList) {
+			for (Episode e:story.getEpisodes()) {
 				// Create pic files for each episode's sequence diagram
 				designSequenceDiagram(e);
 			}
-			
+
 			// Create graph containing all episodes with embedded sequence diagrams
 			//Helper.directoryCheck(getOutputFolder() + "sequence_diagrams/");
-			EpisodeGraph eg = new EpisodeGraph(getOutputFolder(), episodeList);
+			//			EpisodeGraph eg = new EpisodeGraph(getOutputFolder(), episodeList);
+			EpisodeGraph eg = new EpisodeGraph(getOutputFolder(), story.getEpisodes());
 			eg.createGraph();
-			
+
+			String line;
+			Runtime rt = Runtime.getRuntime();
+			File f = new File("metis-output/ftrace/sequence_diagrams/");
+
+			Process p = rt.exec("pwd", null, f);
+
+			p = rt.exec("./../../../src/main/resources/createStory.sh", null, f);
+			BufferedReader in = new BufferedReader(
+					new InputStreamReader(p.getInputStream()) );
+			while ((line = in.readLine()) != null) {
+				System.out.println(line);
+			}
+			in.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -250,13 +272,23 @@ public class JSExecutionTracer {
 		ArrayList<TraceObject> sortedTrace = new ArrayList<TraceObject>();
 
 		ArrayList<Collection<TraceObject>> allCollections = new ArrayList<Collection<TraceObject>>();
-		allCollections.add(trace.getDomEventTraces());
-		allCollections.add(trace.getFunctionTraces());
-		allCollections.add(trace.getTimingTraces());
-		allCollections.add(trace.getXhrTraces());
+
+		if (story.getDomEventTraces().size() > 0)
+			allCollections.add(story.getDomEventTraces());
+		if (story.getFunctionTraces().size() > 0)
+			allCollections.add(story.getFunctionTraces());
+		if (story.getTimingTraces().size() > 0)
+			allCollections.add(story.getTimingTraces());
+		if (story.getXhrTraces().size() > 0)
+			allCollections.add(story.getXhrTraces());
+
+		if (allCollections.size() == 0) {
+			System.out.println("No log");
+			return null;
+		}
 
 		ArrayList<Integer> currentIndexInCollection = new ArrayList<Integer>();
-		for (int i = 0; i < 4; i ++)
+		for (int i = 0; i < allCollections.size(); i ++)
 			currentIndexInCollection.add(0);
 
 		while (true) {
@@ -287,9 +319,9 @@ public class JSExecutionTracer {
 		ArrayList<Episode> episodes = new ArrayList<Episode>();
 		int i, j, previousEpisodeEnd = 0;
 
-		for (i = 0; i<sortedTraceList.size(); i++) {
+		for (i = 0; i < story.getOrderedTraceList().size(); i++) {
 			// Iterate through all TraceObjects and identify episodes
-			TraceObject sourceTraceObj = sortedTraceList.get(i);
+			TraceObject sourceTraceObj = story.getOrderedTraceList().get(i);
 
 			if (sourceTraceObj.isEpisodeSource() ){
 				//	&& !(sourceTraceObj.getClass().toString().contains("TimeoutCallback"))
@@ -299,12 +331,12 @@ public class JSExecutionTracer {
 				// i.e. DOMEvent, XHRRequest, create an episode
 				Episode episode = new Episode(sourceTraceObj);
 
-				for (j = i+1; j<sortedTraceList.size(); j++ ) {
+				for (j = i+1; j < story.getOrderedTraceList().size(); j++ ) {
 					// Go through the succeeding TraceObjects looking for the
 					// end of the episode (as indicated by another episode starter
 					// (DOMEvent, TimingEvent, etc.)
 
-					TraceObject currentTraceObj = sortedTraceList.get(j);
+					TraceObject currentTraceObj = story.getOrderedTraceList().get(j);
 
 					if (Math.abs(currentTraceObj.getTimeStamp() - sourceTraceObj.getTimeStamp()) < 80) {
 						// If the succeeding TraceObject is not the beginning of
@@ -335,7 +367,7 @@ public class JSExecutionTracer {
 				for (j = previousEpisodeEnd + 1; j<i; j++) {
 					// Iterate from end of last episode to this TimeoutCallback
 
-					TraceObject currentTraceObj = sortedTraceList.get(j);
+					TraceObject currentTraceObj = story.getOrderedTraceList().get(j);
 					episode.addToTrace(currentTraceObj);
 				}
 
@@ -403,6 +435,18 @@ public class JSExecutionTracer {
 						continue;
 					}
 				}
+				if (buffer.getJSONObject(i).has("returnValue") && 
+						!buffer.getJSONObject(i).get("returnValue").getClass().toString().contains("Null")) {
+					try {
+						JSONObject rv = (JSONObject) buffer.getJSONObject(i).get("returnValue");
+						String newValue = rv.toString();				
+						buffer.getJSONObject(i).remove("returnValue");
+						buffer.getJSONObject(i).put("returnValue", newValue);
+					} catch (JSONException jse) {
+						// argument is not a JSON object
+						continue;
+					}
+				}
 				if (buffer.getJSONObject(i).has("targetElement")) {
 					JSONArray extractedArray = new JSONArray(buffer
 							.getJSONObject(i).get("targetElement").toString());
@@ -449,6 +493,10 @@ public class JSExecutionTracer {
 					} else if (mType.contains("FUNCTION_EXIT")) {
 						buffer.getJSONObject(i).put("@class",
 								"com.metis.core.trace.FunctionExit");
+						JSONLabel = "\"FunctionTrace\":";
+					} else if (mType.contains("RETURN_STATEMENT")) {
+						buffer.getJSONObject(i).put("@class",
+								"com.metis.core.trace.FunctionReturnStatement");
 						JSONLabel = "\"FunctionTrace\":";
 					} else if (mType.contains("DOM_EVENT")) {
 						buffer.getJSONObject(i).put("@class",

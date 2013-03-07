@@ -25,6 +25,7 @@ public class SequenceDiagram {
 	static ArrayList<String> components = null;
 	static ArrayList<String> comments = null;
 	static TraceObject episodeSource = null;
+	static int numOfMessages = 0;
 
 	public SequenceDiagram (String outputFolder, Episode e) {
 		// Constructor
@@ -130,6 +131,7 @@ public class SequenceDiagram {
 	private void addDOMEventInfo(TraceObject to) {
 		DOMEventTrace deto = (DOMEventTrace) to;
 		System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.5 ht .5 \\");
+		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
 		System.out.println("\"Event Type: "+deto.getEventType()+"\" \\");
 		System.out.println("\"Handler: "+deto.getEventHandler()+"\")");
 	}
@@ -137,6 +139,7 @@ public class SequenceDiagram {
 	private void addTimeoutInfo(TraceObject to) {
 		TimingTrace ttto = (TimingTrace) to;
 		System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.5 ht .5 \\");
+		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
 		System.out.println("\"Timing ID: "+ttto.getId()+"\" \\");
 		if (to.getClass().toString().contains("TimeoutSet")) {
 			// Only TimeoutSet stores 'delay', TimeoutCallback does not
@@ -151,6 +154,7 @@ public class SequenceDiagram {
 	private void addXMLHttpRequestInfo(TraceObject to) {
 		XMLHttpRequestTrace xhrto = (XMLHttpRequestTrace) to;
 		System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.2 ht .5 \\");
+		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
 		System.out.println("\"XHR ID: "+xhrto.getId()+"\" \\");
 		System.out.println("\"Message Type: "+xhrto.getMessageType()+"\")");		
 	}
@@ -171,25 +175,34 @@ public class SequenceDiagram {
 				} 
 				// Set new function as active
 				functionEnter(to);
+				numOfMessages++;
 			} else if (to.getClass().toString().contains("FunctionExit")) {
 				// Function ends execution, not return statement
 				functionExitMessage();
+				numOfMessages++;
 
 			} else if (to.getClass().toString().contains("ReturnStatement")) {
 				// Return to previous function
 				functionReturnMessage();
+				numOfMessages++;
 
 			} else if (to.getClass().toString().contains("XMLHttpRequestOpen")) {
 				// XMLHttpRequest is open, recursive call 'open'
 				XHROpenMessage(to);
+				numOfMessages++;
 
 			} else if (to.getClass().toString().contains("XMLHttpRequestSend")) {
 				XHRSendMessage(to);
+				numOfMessages++;
 
 			} else if (to.getClass().toString().contains("XMLHttpRequestResponse")) {
 				XHRResponseMessage(to);
+				numOfMessages++;
+
 			} else if (to.getClass().toString().contains("TimeoutSet")) {
 				TimeoutSetMessage(functionTraceObjects.get(i-1), to);
+				numOfMessages++;
+
 			} else if (to.getClass().toString().contains("TimeoutCallback")) {
 				//TODO
 			} 
@@ -285,11 +298,13 @@ public class SequenceDiagram {
 		System.out.println("rmessage("+functionHeirarchy.get(functionHeirarchy.size()-1)
 				+","+functionHeirarchy.get(functionHeirarchy.size()-2)+");");
 		System.out.println("inactive("+functionHeirarchy.get(functionHeirarchy.size()-1)+");");
+		System.out.println("step();");
 		pop();
 	}
 
 	private void addFunctionInfo(String object, FunctionEnter fe) {
 		System.out.println("comment("+object+",C, up, wid 1.2 ht .5 \\");
+	//	System.out.println("comment("+object+",C, up,");
 		System.out.println("\"File: "+fe.getScopeName()+"\" \\");
 		System.out.println("\"Line Number: "+fe.getLineNo()+"\")");
 	}
@@ -298,6 +313,8 @@ public class SequenceDiagram {
 		System.setOut(output);
 		System.out.println("");
 		System.out.println("# Complete the lifelines");
+		System.out.println("#size "+(numOfMessages*components.size()));
+
 		System.out.println("step();");
 
 		for (String cName: components) {
