@@ -130,16 +130,16 @@ public class SequenceDiagram {
 
 	private void addDOMEventInfo(TraceObject to) {
 		DOMEventTrace deto = (DOMEventTrace) to;
-		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.5 ht .5 \\");
-		System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
+		System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.5 ht .5 \\");
+		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
 		System.out.println("\"Event Type: "+deto.getEventType()+"\" \\");
 		System.out.println("\"Handler: "+deto.getEventHandler()+"\")");
 	}
 
 	private void addTimeoutInfo(TraceObject to) {
 		TimingTrace ttto = (TimingTrace) to;
-		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.5 ht .5 \\");
-		System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
+		System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.5 ht .5 \\");
+		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
 		System.out.println("\"Timing ID: "+ttto.getId()+"\" \\");
 		if (to.getClass().toString().contains("TimeoutSet")) {
 			// Only TimeoutSet stores 'delay', TimeoutCallback does not
@@ -153,8 +153,8 @@ public class SequenceDiagram {
 
 	private void addXMLHttpRequestInfo(TraceObject to) {
 		XMLHttpRequestTrace xhrto = (XMLHttpRequestTrace) to;
-		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.2 ht .5 \\");
-		System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
+		System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.2 ht .5 \\");
+		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
 		System.out.println("\"XHR ID: "+xhrto.getId()+"\" \\");
 		System.out.println("\"Message Type: "+xhrto.getMessageType()+"\")");		
 	}
@@ -303,8 +303,8 @@ public class SequenceDiagram {
 	}
 
 	private void addFunctionInfo(String object, FunctionEnter fe) {
-//		System.out.println("comment("+object+",C, up, wid 1.2 ht .5 \\");
-		System.out.println("comment("+object+",C, up,");
+		System.out.println("comment("+object+",C, up, wid 1.2 ht .5 \\");
+	//	System.out.println("comment("+object+",C, up,");
 		System.out.println("\"File: "+fe.getScopeName()+"\" \\");
 		System.out.println("\"Line Number: "+fe.getLineNo()+"\")");
 	}

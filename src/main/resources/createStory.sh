@@ -9,15 +9,37 @@ sed 's/sequence//' < list2 > list
 for i in `cat list`
 do 
 
-size=`wc -l $i.pic | awk '{print $1'}`
+size=`grep -c "message" ${i}.pic`
+echo $size
 
-LANG=C sed "s/size = \([0-9]*\)/size = $size/g" sequence.pic > dummy.pic
-mv dummy.pic sequence.pic
+if [ $size -gt 120 ]; then
+    pic2plot --font-size 1pt --line-width 0 -Tps "$i".pic > "$i".ps
+    echo 1pt
+else 
+    echo not 1pt
+	if [ $size -gt 80 ]; then
+    	pic2plot --font-size 2pt --line-width 0 -Tps "$i".pic > "$i".ps
+    echo 2pt
+	else
+		if [ $size -gt 40 ]; then
+    		pic2plot --font-size 3pt --line-width 0 -Tps "$i".pic > "$i".ps
+    echo 3pt
+		else
+			if [ $size -gt 40 ]; then
+    			pic2plot --font-size 5pt --line-width 0 -Tps "$i".pic > "$i".ps
+    echo 5pt
+			else
+    			pic2plot --font-size 8pt --line-width 0 -Tps "$i".pic > "$i".ps
+    echo 8pt
+			fi
+		fi
+	fi
+fi 
 
-#pic2plot --font-size 0.0035 --line-width 0 -Tps "$i".pic > "$i".ps
-pic2plot -Tps "$i".pic > "$i".ps
+echo ""
 
 done
+
 rm list2
 rm list
 
@@ -47,7 +69,7 @@ sed 's/digraph G {/digraph G {\
 done
 rm list
 
-sed "s/E\([0-9]*\) \[ label=\"E\([0-9]*\)\" \];/subgraph cluster_E\1 \{label=\"E\1\"; labelloc=\"b\"; style=invis; E\1\_icon\};NEWLINEE\1\_icon \[label=\"\"\, shape=box\, shapefile=\"\1\.png\"\];NEWLINE/g" image_graph.dot >flip.dot 
+sed "s/E\([0-9]*\) \[ label=\"E\([0-9]*\)\" \];/subgraph cluster_E\1 \{label=\"E\1\"; labelloc=\"b\"; style=invis; E\1\_icon\};NEWLINEE\1\_icon \[label=\"\"\, shape=box\, shapefile=\"\1\.ps\"\];NEWLINE/g" image_graph.dot >flip.dot 
 
 sed 's/NEWLINE/\
   /g' flip.dot >image_graph.dot
@@ -62,5 +84,6 @@ rm flip.dot
 #rm *.ps
 #rm sequence.pic
 
-#dot -Tpng -oimage_graph.png image_graph.dot
+dot -Tps -oimage_graph.ps image_graph.dot
 cd -
+
