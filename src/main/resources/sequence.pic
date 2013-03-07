@@ -17,6 +17,8 @@
 # $Id$
 #
 
+size = 1 
+scale = 0.0035*size
 
 # Default parameters (can be redefined)
 
@@ -26,7 +28,7 @@ spacing = 0.25;
 awid = .1;
 # Box height
 boxht = 0.3;
-boxwid = 2;
+boxwid = 1;
 # Commend folding
 corner_fold=awid
 # Comment distance
@@ -34,7 +36,7 @@ define comment_default_move {up 0.25 right 0.25};
 # Comment height
 comment_default_ht=0.5;
 # Comment width
-comment_default_wid=1;
+comment_default_wid=0.6;
 # Underline object name
 underline=1;
 
@@ -46,7 +48,7 @@ define object {
 		line from $1.w + (.1, -.07) to $1.e + (-.1, -.07);
 	}
 	move to $1.e;
-	move right;
+	move right (spacing*1);
 	# Active is the level of activations of the object
 	# 0 : inactive : draw thin line swimlane
 	# 1 : active : draw thick swimlane
@@ -66,7 +68,7 @@ define actor {
 		line at XSEQC.n invis "" "" "" $2;
 	]
 	move to $1.e;
-	move right;
+	move right (spacing*1);
 	active_$1 = 0;
 	lifestart_$1 = $1.s.y - .05;
 }

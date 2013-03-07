@@ -6,13 +6,24 @@ cp ../../../src/main/resources/sequence.pic .
 ls *.pic > list
 sed 's/\.pic//' < list > list2
 sed 's/sequence//' < list2 > list 
-for i in `cat list`; do pic2plot -Tps "$i".pic > "$i".ps ; done
+for i in `cat list`
+do 
+
+size=`wc -l $i.pic | awk '{print $1'}`
+
+LANG=C sed "s/size = \([0-9]*\)/size = $size/g" sequence.pic > dummy.pic
+mv dummy.pic sequence.pic
+
+#pic2plot --font-size 0.0035 --line-width 0 -Tps "$i".pic > "$i".ps
+pic2plot -Tps "$i".pic > "$i".ps
+
+done
 rm list2
 rm list
 
 ls *.ps > list
 sed 's/\.ps//' < list > list2 
-for i in `cat list2`; do convert "$i".ps "$i".png ; done
+#for i in `cat list2`; do convert "$i".ps "$i".png ; done
 rm list
 rm list2
 
@@ -51,5 +62,5 @@ rm flip.dot
 #rm *.ps
 #rm sequence.pic
 
-dot -Tpng -oimage_graph.png image_graph.dot
+#dot -Tpng -oimage_graph.png image_graph.dot
 cd -
