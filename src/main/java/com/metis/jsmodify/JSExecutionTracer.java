@@ -502,6 +502,10 @@ public class JSExecutionTracer {
 						buffer.getJSONObject(i).put("@class",
 								"com.metis.core.trace.DOMEventTrace");
 						JSONLabel = "\"DOMEventTrace\":";
+					} else if (mType.contains("DOM_MUTATION")) {
+						buffer.getJSONObject(i).put("@class",
+								"com.metis.core.trace.DOMMutationTrace");
+						JSONLabel = "\"DOMEventTrace\":";
 					} else if (mType.contains("TIMEOUT_SET")) {
 						buffer.getJSONObject(i).put("@class",
 								"com.metis.core.trace.TimeoutSet");

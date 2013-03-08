@@ -4,6 +4,7 @@ import com.metis.core.episode.EpisodeSource;
 
 public class DOMMutationTrace extends TraceObject/* implements EpisodeSource */{
 	private String mutationType;
+	private String data;
 	private String nodeName;
 	private String nodeValue;
 	private String parentNodeValue;
@@ -15,6 +16,14 @@ public class DOMMutationTrace extends TraceObject/* implements EpisodeSource */{
 
 	public String getMutationType() {
 		return mutationType;
+	}
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
 	}
 
 	public void setMutationType(String mutationType) {

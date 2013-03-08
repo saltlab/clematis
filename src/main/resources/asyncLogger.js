@@ -56,6 +56,7 @@ var MsgConstants = {
 	async : 'ASYNC',
 	xhrPostMsg : 'XHR_POST_MSG',
 	response : 'RESPONSE',
+	mutationType: 'MUTATION_TYPE',
 	data : 'DATA',
 	nodeName : 'NODE_NAME',
 	nodeValue : 'NODE_VALUE',
@@ -244,8 +245,7 @@ logger.logDOMMutation = function() {
 			console.log("Node value is " + removed.nodeValue);
 			console.log("Parent node value is " + removed.parentNodeValue);
 			
-			send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: eType, eventHandler : "removed", counter: traceCounter++}));
-			//send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: data, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue, counter: traceCounter++}));
+			send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: removed.data, nodeName: removed.nodeName, nodeValue: removed.nodeValue, parentNodeValue: removed.parentNodeValue, counter: traceCounter++}));
 		}
 
 		added = mutationArray[i].added;
@@ -256,7 +256,8 @@ logger.logDOMMutation = function() {
 			console.log("Node value is " + added.nodeValue);
 			console.log("Parent node value is " + added.parentNodeValue);
 			
-			send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: eType, counter: traceCounter++}));
+			send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
+
 			//send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: data, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue, counter: traceCounter++}));
 		}	
 
