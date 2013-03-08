@@ -25,18 +25,156 @@ function stopObserver() {
 	  handleSummaryLeftover(summaries);
 }
 	
-// Add the new summary to the mutationArray
+//Add the new summary to the mutationArray
 function handleSummary(summaries) {
-	var mutation = { date : Date.now(), summaries : summaries };
+	//var mutation = { date : Date.now(), summaries : summaries };
+
+	var added, removed;
+	if (summaries[0].added.length>0) {
+		var data = "null";
+		var nodeType = "null";
+		var nodeName = "null";
+		var nodeValue = "null";
+		var parentNodeValue = "null";
+
+		if (typeof(summaries[0].added[0].data) !== 'undefined' && summaries[0].added[0].data != null) {
+			data = summaries[0].added[0].data;
+		}
+
+		if (typeof(summaries[0].added[0].nodeType) !== 'undefined' && summaries[0].added[0].nodeType != null) {
+			nodeType = summaries[0].added[0].nodeType;
+		}
+
+		if (typeof(summaries[0].added[0].nodeName) !== 'undefined' && summaries[0].added[0].nodeName != null) {
+			nodeName = summaries[0].added[0].nodeName;
+		}
+
+		if (typeof(summaries[0].added[0].nodeValue) !== 'undefined' && summaries[0].added[0].nodeValue != null) {
+			nodeValue = summaries[0].added[0].nodeValue;
+		}
+
+		if (typeof(summaries[0].added[0].parentElement) !== 'undefined' && summaries[0].added[0].parentElement != null) {
+			if (summaries[0].added[0].parentElement.attributes.length > 0){
+				if (typeof(summaries[0].added[0].parentElement.attributes[0].nodeValue) !== 'undefined' && summaries[0].added[0].parentElement.attributes[0].nodeValue != null) {
+					parentNodeValue = summaries[0].added[0].parentElement.attributes[0].nodeValue;
+				}
+			}
+		}
+		added = {data: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue};	
+	}
+
+	if (summaries[0].removed.length>0) {
+		var data = "null";
+		var nodeType = "null";
+		var nodeName = "null";
+		var nodeValue = "null";
+		var parentNodeValue = "null";
+
+		if (typeof(summaries[0].removed[0].data) !== 'undefined' && summaries[0].removed[0].data != null) {
+			data = summaries[0].removed[0].data;
+		}
+
+		if (typeof(summaries[0].removed[0].nodeType) !== 'undefined' && summaries[0].removed[0].nodeType != null) {
+			nodeType = summaries[0].removed[0].nodeType;
+		}
+
+		if (typeof(summaries[0].removed[0].nodeName) !== 'undefined' && summaries[0].removed[0].nodeName != null) {
+			nodeName = summaries[0].removed[0].nodeName;
+		}
+
+		if (typeof(summaries[0].removed[0].nodeValue) !== 'undefined' && summaries[0].removed[0].nodeValue != null) {
+			nodeValue = summaries[0].removed[0].nodeValue;
+		}
+
+		if (typeof(summaries[0].removed[0].parentElement) !== 'undefined' && summaries[0].removed[0].parentElement != null) {
+			if (summaries[0].removed[0].parentElement.attributes.length > 0){
+				if (typeof(summaries[0].removed[0].parentElement.attributes[0].nodeValue) !== 'undefined' && summaries[0].removed[0].parentElement.attributes[0].nodeValue != null) {
+					parentNodeValue = summaries[0].removed[0].parentElement.attributes[0].nodeValue;
+				}
+			}
+		}
+		removed = {data: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue};	
+	}
+
+	var mutation = { date : Date.now(), added: added, removed: removed };
 	mutationArray.push(mutation);
 }
 
 // Functions to call after the Mutation Summary Observer is disconnected
 function handleSummaryLeftover(summaries) {
-	var mutation = { date : Date.now(), summaries : summaries };
-	mutationArray.push(mutation); 
+	var added, removed;
+	if (summaries[0].added.length>0) {
+		var data = "null";
+		var nodeType = "null";
+		var nodeName = "null";
+		var nodeValue = "null";
+		var parentNodeValue = "null";
+
+		if (typeof(summaries[0].added[0].data) !== 'undefined' && summaries[0].added[0].data != null) {
+			data = summaries[0].added[0].data;
+		}
+
+		if (typeof(summaries[0].added[0].nodeType) !== 'undefined' && summaries[0].added[0].nodeType != null) {
+			nodeType = summaries[0].added[0].nodeType;
+		}
+
+		if (typeof(summaries[0].added[0].nodeName) !== 'undefined' && summaries[0].added[0].nodeName != null) {
+			nodeName = summaries[0].added[0].nodeName;
+		}
+
+		if (typeof(summaries[0].added[0].nodeValue) !== 'undefined' && summaries[0].added[0].nodeValue != null) {
+			nodeValue = summaries[0].added[0].nodeValue;
+		}
+
+		if (typeof(summaries[0].added[0].parentElement) !== 'undefined' && summaries[0].added[0].parentElement != null) {
+			if (summaries[0].added[0].parentElement.attributes.length > 0){
+				if (typeof(summaries[0].added[0].parentElement.attributes[0].nodeValue) !== 'undefined' && summaries[0].added[0].parentElement.attributes[0].nodeValue != null) {
+					parentNodeValue = summaries[0].added[0].parentElement.attributes[0].nodeValue;
+				}
+			}
+		}
+		added = {data: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue};	
+	}
+
+	if (summaries[0].removed.length>0) {
+		var data = "null";
+		var nodeType = "null";
+		var nodeName = "null";
+		var nodeValue = "null";
+		var parentNodeValue = "null";
+
+		if (typeof(summaries[0].removed[0].data) !== 'undefined' && summaries[0].removed[0].data != null) {
+			data = summaries[0].removed[0].data;
+		}
+
+		if (typeof(summaries[0].removed[0].nodeType) !== 'undefined' && summaries[0].removed[0].nodeType != null) {
+			nodeType = summaries[0].removed[0].nodeType;
+		}
+
+		if (typeof(summaries[0].removed[0].nodeName) !== 'undefined' && summaries[0].removed[0].nodeName != null) {
+			nodeName = summaries[0].removed[0].nodeName;
+		}
+
+		if (typeof(summaries[0].removed[0].nodeValue) !== 'undefined' && summaries[0].removed[0].nodeValue != null) {
+			nodeValue = summaries[0].removed[0].nodeValue;
+		}
+
+		if (typeof(summaries[0].removed[0].parentElement) !== 'undefined' && summaries[0].removed[0].parentElement != null) {
+			if (summaries[0].removed[0].parentElement.attributes.length > 0){
+				if (typeof(summaries[0].removed[0].parentElement.attributes[0].nodeValue) !== 'undefined' && summaries[0].removed[0].parentElement.attributes[0].nodeValue != null) {
+					parentNodeValue = summaries[0].removed[0].parentElement.attributes[0].nodeValue;
+				}
+			}
+		}
+		removed = {data: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue};	
+	}
+
+	var mutation = { date : Date.now(), added: added, removed: removed };
+	mutationArray.push(mutation);
+	
+	
 	// call the mutations
-	logger.logDOMMutation(false);
+	logger.logDOMMutation();
 	// check for changed element values
 	//checkValues();
 }

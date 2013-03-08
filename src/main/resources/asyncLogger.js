@@ -35,6 +35,7 @@ var MsgConstants = {
 	msgType_xhrOpen : 'XHR_OPEN',
 	msgType_xhrSend : 'XHR_SEND',
 	msgType_xhrResponse : 'XHR_RESPONSE',
+	msgType_domMutation : 'DOM_MUTATION',
 	url : 'URL',
 	year : 'YEAR',
 	month : 'MONTH',
@@ -54,7 +55,12 @@ var MsgConstants = {
 	xhrUrl : 'XHR_URL',
 	async : 'ASYNC',
 	xhrPostMsg : 'XHR_POST_MSG',
-	response : 'RESPONSE'
+	response : 'RESPONSE',
+	data : 'DATA',
+	nodeName : 'NODE_NAME',
+	nodeValue : 'NODE_VALUE',
+	parentNodeValue : 'PARENT_NODE_VALUE'
+	
 }
 
 /**
@@ -215,72 +221,48 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 		jml = JSON.stringify(jml);
     	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
 	}
-	checkValues();
-	logger.logDOMMutation(false);
+	//checkValues();
+	logger.logDOMMutation();
 };
 
 /**
  * Prints the contents of the DOM Mutation array and empties the array
  */
-logger.logDOMMutation = function(checkRecordStart) {
-	//if (checkRecordStart && !recordStarted) return;
+logger.logDOMMutation = function() {
 	if (mutationArray.length == 0) return;
-
+	var removed, added;
+	
 	for (var i=0; i<mutationArray.length; i++) {
 		var date = mutationArray[i].date;
-		var summary = mutationArray[i].summaries[0];
+		var eType = "DOM_MUTATION_GOES_HERE";
 		
-		// Log added nodes
-		if (summary.added.length > 0){
-			logger.logInsertedNode(summary.added[0], "added", date);
+		removed = mutationArray[i].removed;
+		if (typeof(removed) !== 'undefined' && removed != null) {
+			console.log("Removed", removed);
+			console.log("Data is " + removed.data);
+			console.log("Node name is " + removed.nodeName);
+			console.log("Node value is " + removed.nodeValue);
+			console.log("Parent node value is " + removed.parentNodeValue);
+			
+			send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: eType, eventHandler : "removed", counter: traceCounter++}));
+			//send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: data, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue, counter: traceCounter++}));
 		}
 
-		// Log removed nodes
-		if (summary.removed.length > 0){
-			logger.logInsertedNode(summary.removed[0], "removed", date);
-		}
-	}
-	
-	// Reset the array
-	mutationArray.length = 0;
-};
+		added = mutationArray[i].added;
+		if (typeof(added) !== 'undefined' && added != null) { 
+			console.log("Added", added);
+			console.log("Data is " + added.data);
+			console.log("Node name is " + added.nodeName);
+			console.log("Node value is " + added.nodeValue);
+			console.log("Parent node value is " + added.parentNodeValue);
+			
+			send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: eType, counter: traceCounter++}));
+			//send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: data, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue, counter: traceCounter++}));
+		}	
 
-/**
- * Prints the contents of the DOM Mutation array and empties the array
- */
-logger.logInsertedNode = function(node, insertionType, date) {
-	var data = "null";
-	var nodeType = "null";
-	var nodeName = "null";
-	var nodeValue = "null";
-	var parentNodeValue = "null";
-
-	if (typeof(node.data) !== 'undefined' && node.data != null) {
-		data = node.data;
-	}
-
-	if (typeof(node.nodeType) !== 'undefined' && node.nodeType != null) {
-		nodeType = node.nodeType;
-	}
-
-	if (typeof(node.nodeName) !== 'undefined' && node.nodeName != null) {
-		nodeName = node.nodeName;
-	}
-
-	if (typeof(node.nodeValue) !== 'undefined' && node.nodeValue != null) {
-		nodeValue = node.nodeValue;
-	}
-
-	if (typeof(node.parentElement) !== 'undefined' && node.parentElement != null) {
-		if (node.parentElement.attributes.length > 0){
-			if (typeof(node.parentElement.attributes[0].nodeValue) !== 'undefined' && node.parentElement.attributes[0].nodeValue != null) {
-				parentNodeValue = node.parentElement.attributes[0].nodeValue;
-			}
-		}
-	}
-
-	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, insertionType: insertionType, nodesAdded: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue}));
-	
+	}		
+//	Reset the array
+	mutationArray.length = 0;	
 };
 
 /**
