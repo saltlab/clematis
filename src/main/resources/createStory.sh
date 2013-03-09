@@ -55,6 +55,9 @@ do
 
 sed 's/digraph G {/digraph G {\
 \
+  size="10,8.5";\
+  rotate=90;\
+  center=true;\
   compound=true;\
   rankdir="LR";\
   ranksep=1\.25;\

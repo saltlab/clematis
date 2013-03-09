@@ -103,6 +103,7 @@ public class EpisodeGraph {
 								addEdge("E"+currentEpisode.getSource().getCounter(), 
 										"E"+otherEpisode.getSource().getCounter(), 
 										to2);
+								break;
 							} else if (to2.getClass().toString().contains("TimeoutSet")
 									&& to.getClass().toString().contains("TimeoutCallback")
 									&& to.getId() == to2.getId()){
@@ -110,6 +111,7 @@ public class EpisodeGraph {
 								addEdge("E"+currentEpisode.getSource().getCounter(), 
 										"E"+otherEpisode.getSource().getCounter(), 
 										to2);
+								break;
 							}
 						}
 
