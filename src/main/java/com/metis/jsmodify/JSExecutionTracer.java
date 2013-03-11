@@ -76,8 +76,6 @@ public class JSExecutionTracer {
 
 	private static PrintStream output;
 
-	private static ArrayList<TraceObject> traceObjects;
-
 	//	private Trace trace;
 	private Story story;
 	//	private ArrayList<TraceObject> sortedTraceList;
@@ -89,9 +87,6 @@ public class JSExecutionTracer {
 	 */
 	public JSExecutionTracer(String filename) {
 		traceFilename = filename;
-		traceObjects = new ArrayList<TraceObject>();
-		//		sortedTraceList = new ArrayList<TraceObject>();
-		//		episodeList = new ArrayList<Episode>();
 	}
 
 	/**

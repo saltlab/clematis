@@ -1,8 +1,5 @@
 package com.metis.core.trace;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 public class Trace {
 /*
 	private ArrayList<TraceObject> domEventTraces;

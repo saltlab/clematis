@@ -4,8 +4,6 @@ import org.codehaus.jackson.annotate.JsonSetter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.metis.core.episode.EpisodeSource;
-
 public class DOMEventTrace extends TraceObject/* implements EpisodeSource */{
 	private String eventType;
 	private String eventHandler;
@@ -22,7 +20,11 @@ public class DOMEventTrace extends TraceObject/* implements EpisodeSource */{
 		this.eventType = eventType;
 	}
 	public String getEventHandler() {
-		return eventHandler;
+		if (eventHandler == "") {
+			return "anonymous";
+		} else {
+			return eventHandler;
+		}
 	}
 	public void setEventHandler(String eventHandler) {
 		this.eventHandler = eventHandler;
@@ -36,8 +38,24 @@ public class DOMEventTrace extends TraceObject/* implements EpisodeSource */{
 			e.printStackTrace();
 		}
 	}
-	public JSONObject getTargetElement() {
-		return targetElement;
+
+	public String getTargetElement() {
+		//System.out.println(targetElement);
+		return targetElement.toString().replaceAll("\"", "");
 	}
 
+	public String getTargetElementAttributes() {
+		try {
+			if (targetElement.get("attributes").toString().replaceAll("\"", "").length() > 22) {
+				// If there are too many attributes for the target element, print a shorter version 
+				// This is specific to the pic2plot sequence diagram as the comment box is not very big
+				return targetElement.get("attributes").toString().replaceAll("\"", "").substring(0, 19)+"...";
+			} else {
+				return targetElement.get("attributes").toString().replaceAll("\"", "");
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
 }

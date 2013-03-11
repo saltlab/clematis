@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.apache.commons.exec.TimeoutObserver;
-
 import com.metis.core.trace.TimeoutCallback;
 import com.metis.core.trace.TimeoutSet;
 import com.metis.core.trace.TraceObject;
