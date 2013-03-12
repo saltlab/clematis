@@ -10,33 +10,24 @@ for i in `cat list`
 do 
 
 size=`grep -c "message" ${i}.pic`
-echo $size
 
 if [ $size -gt 120 ]; then
     pic2plot --font-size 1pt --line-width 0 -Tps "$i".pic > "$i".ps
-    echo 1pt
 else 
-    echo not 1pt
 	if [ $size -gt 80 ]; then
     	pic2plot --font-size 2pt --line-width 0 -Tps "$i".pic > "$i".ps
-    echo 2pt
 	else
 		if [ $size -gt 40 ]; then
     		pic2plot --font-size 3pt --line-width 0 -Tps "$i".pic > "$i".ps
-    echo 3pt
 		else
 			if [ $size -gt 40 ]; then
     			pic2plot --font-size 5pt --line-width 0 -Tps "$i".pic > "$i".ps
-    echo 5pt
 			else
     			pic2plot --font-size 8pt --line-width 0 -Tps "$i".pic > "$i".ps
-    echo 8pt
 			fi
 		fi
 	fi
 fi 
-
-echo ""
 
 done
 
@@ -55,6 +46,9 @@ do
 
 sed 's/digraph G {/digraph G {\
 \
+  size="10,8.5";\
+  rotate=90;\
+  center=true;\
   compound=true;\
   rankdir="LR";\
   ranksep=1\.25;\

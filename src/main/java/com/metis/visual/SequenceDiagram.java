@@ -12,6 +12,9 @@ import com.metis.core.trace.FunctionEnter;
 import com.metis.core.trace.TimeoutSet;
 import com.metis.core.trace.TimingTrace;
 import com.metis.core.trace.TraceObject;
+import com.metis.core.trace.XMLHttpRequestOpen;
+import com.metis.core.trace.XMLHttpRequestResponse;
+import com.metis.core.trace.XMLHttpRequestSend;
 import com.metis.core.trace.XMLHttpRequestTrace;
 
 public class SequenceDiagram {
@@ -130,23 +133,25 @@ public class SequenceDiagram {
 
 	private void addDOMEventInfo(TraceObject to) {
 		DOMEventTrace deto = (DOMEventTrace) to;
-		System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.5 ht .5 \\");
+		System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.8 ht .6 \\");
 		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
 		System.out.println("\"Event Type: "+deto.getEventType()+"\" \\");
-		System.out.println("\"Handler: "+deto.getEventHandler()+"\")");
+		System.out.println("\"Handler: "+deto.getEventHandler()+"\" \\");
+		System.out.println("\"Target: "+deto.getTargetElementAttributes()+"\")");
 	}
 
 	private void addTimeoutInfo(TraceObject to) {
 		TimingTrace ttto = (TimingTrace) to;
-		System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.5 ht .5 \\");
-		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
-		System.out.println("\"Timing ID: "+ttto.getId()+"\" \\");
 		if (to.getClass().toString().contains("TimeoutSet")) {
 			// Only TimeoutSet stores 'delay', TimeoutCallback does not
 			TimeoutSet tsto = (TimeoutSet) to;	
+			System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.5 ht .7 \\");
+			System.out.println("\"Timing ID: "+ttto.getId()+"\" \\");
 			System.out.println("\"Callback: "+ttto.getCallbackFunction()+"\" \\");
 			System.out.println("\"Delay: "+tsto.getDelay()+"\")");	
 		} else {
+			System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.5 ht .6 \\");
+			System.out.println("\"Timing ID: "+ttto.getId()+"\" \\");
 			System.out.println("\"Callback: "+ttto.getCallbackFunction()+"\")");	
 		}
 	}
@@ -154,9 +159,21 @@ public class SequenceDiagram {
 	private void addXMLHttpRequestInfo(TraceObject to) {
 		XMLHttpRequestTrace xhrto = (XMLHttpRequestTrace) to;
 		System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 1.2 ht .5 \\");
-		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
 		System.out.println("\"XHR ID: "+xhrto.getId()+"\" \\");
-		System.out.println("\"Message Type: "+xhrto.getMessageType()+"\")");		
+
+		if (to.getClass().toString().contains("XMLHttpRequestOpen")) {
+			// Open
+			XMLHttpRequestOpen xoto = (XMLHttpRequestOpen) to;
+			System.out.println("\"Method Type: "+xoto.getMethodType()+"\")");	
+		} else if (to.getClass().toString().contains("XMLHttpRequestSend")) {
+			// Send
+			XMLHttpRequestSend xoso = (XMLHttpRequestSend) to;
+			System.out.println("\"Message: "+xoso.getMessage()+"\")");
+		} else {
+			// Response
+			XMLHttpRequestResponse xoro = (XMLHttpRequestResponse) to;
+			System.out.println("\"Response: "+xoro.getResponse()+"\")");
+		}
 	}
 
 	public void createMessages() {
@@ -277,7 +294,7 @@ public class SequenceDiagram {
 
 		if (feto.getArgs() != null) {
 			System.out.println("message("+fromID+","
-					+getDiagramIdentifier(to)+",\""+feto.getArgsString()+"\");");
+					+getDiagramIdentifier(to)+",\"args: "+feto.getArgsString()+"\");");
 		} else {
 			// No arguments
 			System.out.println("message("+fromID+","
@@ -303,8 +320,7 @@ public class SequenceDiagram {
 	}
 
 	private void addFunctionInfo(String object, FunctionEnter fe) {
-		System.out.println("comment("+object+",C, up, wid 1.2 ht .5 \\");
-	//	System.out.println("comment("+object+",C, up,");
+		System.out.println("comment("+object+",C, up, wid 1.6 ht .5 \\");
 		System.out.println("\"File: "+fe.getScopeName()+"\" \\");
 		System.out.println("\"Line Number: "+fe.getLineNo()+"\")");
 	}

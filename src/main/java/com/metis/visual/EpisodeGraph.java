@@ -2,7 +2,6 @@ package com.metis.visual;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -14,9 +13,7 @@ import org.jgrapht.graph.DirectedMultigraph;
 
 import com.crawljax.util.Helper;
 import com.metis.core.episode.Episode;
-import com.metis.core.trace.TimingTrace;
 import com.metis.core.trace.TraceObject;
-import com.metis.core.trace.XMLHttpRequestTrace;
 
 public class EpisodeGraph {
 
@@ -103,6 +100,7 @@ public class EpisodeGraph {
 								addEdge("E"+currentEpisode.getSource().getCounter(), 
 										"E"+otherEpisode.getSource().getCounter(), 
 										to2);
+								break;
 							} else if (to2.getClass().toString().contains("TimeoutSet")
 									&& to.getClass().toString().contains("TimeoutCallback")
 									&& to.getId() == to2.getId()){
@@ -110,6 +108,7 @@ public class EpisodeGraph {
 								addEdge("E"+currentEpisode.getSource().getCounter(), 
 										"E"+otherEpisode.getSource().getCounter(), 
 										to2);
+								break;
 							}
 						}
 

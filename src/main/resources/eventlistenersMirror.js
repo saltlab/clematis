@@ -435,6 +435,7 @@ var innerHTMLdescriptor = {
 function generateDescriptor(key, type) {
   type = key.substring(2);
   key = "__em__"+key;
+
   return {
     configurable: true, enumerable: false
   , get: function getOn() {
@@ -460,6 +461,7 @@ function oOwOn_empty(object) {
  *
  */
 function oOwOn_full(object) {
+
   // 0) object has already been processed
   if (object.hasOwnProperty("__em__ow")) {
     return object;
@@ -480,11 +482,13 @@ function oOwOn_full(object) {
   }
   // 2) get the array of onkeys
   var j, onkey, object_onkey, onkeys=getOnkeys(object), hasOwn;
+
   // 3) modify onkeys
   for (j=onkeys.length; j--;) {
     onkey = onkeys[j];
     hasOwn = object.hasOwnProperty(onkey);		
 	object_onkey = object[onkey];
+
 	if (object_onkey && onkey !== "onload") {
 	  object[onkey] = null;
 	}
@@ -536,10 +540,10 @@ function elms_onload() {
     objectOverwriteOn(all[i]);
   }
 }; // end of elms_onload()
-// Call the overwrite function on the actual document, before wrapping its elements
-objectOverwriteOn(document);
 // When webpage has loaded replace all listeners
 document.addEventListener("DOMContentLoaded", elms_onload, false);
+// Call the overwrite function on the actual document, before wrapping its elements
+objectOverwriteOn(document);
 
 XMLHttpRequest.name = "XMLHttpRequest";
 window.Window = window.constructor;

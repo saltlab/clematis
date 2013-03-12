@@ -11,7 +11,11 @@ public class TimingTrace extends TraceObject {
 		this.timeoutId = timeoutId;
 	}
 	public String getCallbackFunction() {
-		return callbackFunction;
+		if (callbackFunction == "") {
+			return "anonymous";
+		} else {
+			return callbackFunction;
+		}
 	}
 	public void setCallbackFunction(String callbackFunction) {
 		this.callbackFunction = callbackFunction;
