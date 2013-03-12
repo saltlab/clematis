@@ -36,6 +36,7 @@ var MsgConstants = {
 	msgType_xhrSend : 'XHR_SEND',
 	msgType_xhrResponse : 'XHR_RESPONSE',
 	msgType_domMutation : 'DOM_MUTATION',
+	msgType_domElementValue : 'DOM_ELEMENT_VALUE',
 	url : 'URL',
 	year : 'YEAR',
 	month : 'MONTH',
@@ -59,8 +60,13 @@ var MsgConstants = {
 	mutationType: 'MUTATION_TYPE',
 	data : 'DATA',
 	nodeName : 'NODE_NAME',
+	nodeType : 'NODE_TYPE',
 	nodeValue : 'NODE_VALUE',
-	parentNodeValue : 'PARENT_NODE_VALUE'
+	parentNodeValue : 'PARENT_NODE_VALUE',
+	elementId : 'ELEMENT_ID',
+	elementType : 'ELEMENT_TYPE',
+	oldValue : 'OLD_VALUE',
+	newValue : 'NEW_VALUE'
 	
 }
 
@@ -222,7 +228,7 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 		jml = JSON.stringify(jml);
     	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
 	}
-	//checkValues();
+	checkValues();
 	logger.logDOMMutation();
 };
 
@@ -245,7 +251,7 @@ logger.logDOMMutation = function() {
 			console.log("Node value is " + removed.nodeValue);
 			console.log("Parent node value is " + removed.parentNodeValue);
 			
-			send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: removed.data, nodeName: removed.nodeName, nodeValue: removed.nodeValue, parentNodeValue: removed.parentNodeValue, counter: traceCounter++}));
+			send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: removed.data, nodeName: removed.nodeName, nodeType: removed.nodeType, nodeValue: removed.nodeValue, parentNodeValue: removed.parentNodeValue, counter: traceCounter++}));
 		}
 
 		added = mutationArray[i].added;
@@ -256,9 +262,8 @@ logger.logDOMMutation = function() {
 			console.log("Node value is " + added.nodeValue);
 			console.log("Parent node value is " + added.parentNodeValue);
 			
-			send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
+			send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeType: added.nodeType, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
 
-			//send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: data, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue, counter: traceCounter++}));
 		}	
 
 	}		
@@ -293,7 +298,7 @@ logger.logDOMMutation = function() {
 			nodeName = changedElem.nodeName;
 		}
 		
-    	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, elementID: id, elementType: type, nodeType: nodeType, nodeName: nodeName, oldValue: oldVal, newValue: newVal }));
+    	send(JSON.stringify({messageType: "DOM_ELEMENT_VALUE", timeStamp: date, elementId: id, elementType: type, nodeType: nodeType, nodeName: nodeName, oldValue: oldVal, newValue: newVal }));
 				
 };
 

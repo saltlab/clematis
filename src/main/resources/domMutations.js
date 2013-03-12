@@ -176,7 +176,7 @@ function handleSummaryLeftover(summaries) {
 	// call the mutations
 	logger.logDOMMutation();
 	// check for changed element values
-	//checkValues();
+	checkValues();
 }
 
 var all = []; 
@@ -205,6 +205,7 @@ function checkValues() {
 	for (var i=0, max=all.length; i < max; i++) {
 		if (all[i].value != oldValues[i]) {
 			logger.logElementValueChange(all[i], oldValues[i], all[i].value);
+			oldValues[i] = all[i].value;
 		}	
 	}
 	

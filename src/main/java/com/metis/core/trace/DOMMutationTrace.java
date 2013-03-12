@@ -7,6 +7,7 @@ public class DOMMutationTrace extends TraceObject/* implements EpisodeSource */{
 	private String data;
 	private String nodeName;
 	private String nodeValue;
+	private String nodeType;
 	private String parentNodeValue;
 
 	public DOMMutationTrace() {
@@ -44,6 +45,14 @@ public class DOMMutationTrace extends TraceObject/* implements EpisodeSource */{
 
 	public void setNodeValue(String nodeValue) {
 		this.nodeValue = nodeValue;
+	}
+  
+	public String getNodeType() {
+		return nodeType;
+	}
+
+	public void setNodeType(String nodeType) {
+		this.nodeType = nodeType;
 	}
 
 	public String getParentNodeValue() {
