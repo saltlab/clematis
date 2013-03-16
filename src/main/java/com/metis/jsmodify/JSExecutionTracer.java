@@ -45,6 +45,7 @@ import com.metis.core.episode.Story;
 //import com.metis.core.trace.Trace;
 import com.metis.core.trace.TraceObject;
 import com.metis.visual.EpisodeGraph;
+import com.metis.visual.JSUml2Story;
 import com.metis.visual.SequenceDiagram;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -232,19 +233,6 @@ public class JSExecutionTracer {
 			EpisodeGraph eg = new EpisodeGraph(getOutputFolder(), story.getEpisodes());
 			eg.createGraph();
 
-			String line;
-			Runtime rt = Runtime.getRuntime();
-			File f = new File("metis-output/ftrace/sequence_diagrams/");
-
-			Process p = rt.exec("pwd", null, f);
-
-			p = rt.exec("./../../../src/main/resources/createStory.sh", null, f);
-			BufferedReader in = new BufferedReader(
-					new InputStreamReader(p.getInputStream()) );
-			while ((line = in.readLine()) != null) {
-				System.out.println(line);
-			}
-			in.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -254,10 +242,15 @@ public class JSExecutionTracer {
 		// Given an episode (source, trace included), a pic file will be created
 		// in metis-output/ftrace/sequence_diagrams
 
-		SequenceDiagram sd = new SequenceDiagram(getOutputFolder(), e);
+		/*SequenceDiagram sd = new SequenceDiagram(getOutputFolder(), e);
 		sd.createComponents();
 		sd.createMessages();
-		sd.close();
+		sd.close();*/
+		
+		JSUml2Story jsu2story = new JSUml2Story(getOutputFolder(), e);
+		jsu2story.createComponents();
+		jsu2story.createMessages();
+		jsu2story.close();
 	}
 
 	/**
