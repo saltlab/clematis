@@ -1,4 +1,5 @@
 var loggedIn = false;
+/*
 document.getElementById("submitButton").addEventListener('click', submitForm2);
 
 function submitForm2() {
@@ -19,7 +20,7 @@ function submitForm2() {
 	
 	loggedIn = true;
 }
-
+*/
 document.getElementById("changeContentButton").addEventListener('click', changeContentHandler);
 
 function changeContentHandler() {
