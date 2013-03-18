@@ -87,6 +87,8 @@ var DOMEventTrace = EpisodeComponent.extend({
   },
   createDiagramObject:  function(x_pos, y_pos) {
     this.visual = new UMLActor({ x : x_pos, y: y_pos});
+    this.visual.setName('DOM Event: ' + this.getEventType());
+    this.visual.notifyChange();
   },
   getDiagramObject: function(){
     return this.visual;
@@ -125,6 +127,9 @@ var TimingTrace = EpisodeComponent.extend({
   },
   createDiagramObject:  function(x_pos, y_pos) {
     this.visual = new UMLActor({ x : x_pos, y: y_pos});
+    //this.visual = new UMLLifeline({ x : x_pos, y: y_pos});
+    this.visual.setName('TID: ' + this.getTimeoutId().toString());
+    this.visual.notifyChange();
   },
   getDiagramObject: function(){
     return this.visual;
@@ -148,6 +153,8 @@ var XHREvent = EpisodeComponent.extend({
   },
   createDiagramObject:  function(x_pos, y_pos) {
     this.visual = new UMLActor({ x : x_pos, y: y_pos});
+    this.visual.setName('XHR ID: ' + this.getXHRId().toString());
+    this.visual.notifyChange();
   },
   getDiagramObject: function(){
     return this.visual;
@@ -217,6 +224,8 @@ var FunctionTrace = EpisodeComponent.extend({
   },
   createDiagramObject:  function(x_pos, y_pos) {
     this.visual = new UMLLifeline({ x : x_pos, y: y_pos});
+    this.visual.setName(this.getName());
+    this.visual.notifyChange();
   },
   getDiagramObject: function(){
     return this.visual;
@@ -227,6 +236,8 @@ function Episode () {
   this.internalMessages = [];
   this.internalComponents = [];
   this.dom = null;
+  //this.sequenceDiagram = new UMLSequenceDiagram({backgroundNodes: '#FF9900'});
+  this.sequenceDiagram = null;
 
   this.getSource = function() {
     return this.internalComponents[0];
@@ -246,5 +257,62 @@ function Episode () {
 
   this.getMessages = function () {
     return this.internalMessages;
+  };
+
+  this.createDiagram = function (zero, div, mainContext, motionContext, width, height) {
+    var initialX = 30; 
+    var initialY = 60; 
+
+    this.sequenceDiagram = new UMLSequenceDiagram({backgroundNodes: '#FF9900'});
+    this.sequenceDiagram.initialize(zero, div, mainContext, motionContext, width, height);
+
+    // Add the components into the UMLSequenceDiagram
+    for (var i = 0; i<this.internalComponents.length; i++){
+      this.sequenceDiagram.addElement(this.internalComponents[i].getDiagramObject());
+    }
+    
+    // Add the messages into the UMLSequenceDiagram
+    for (var j = 0; j<this.internalMessages.length; j++){
+
+      if (this.internalMessages[j]._elemB == this.internalMessages[j]._elemA) {
+        // Add a TimeInterval to the diagram to show the function's execution
+        var ti = new TimeInterval();
+        ti._x = this.internalMessages[j]._elemB._x + this.internalMessages[j]._elemB._width/2 -5;
+        ti._y = this.internalMessages[j]._y;
+        this.sequenceDiagram.addElement(ti);
+        continue;
+      }
+
+      // Source of message is an actor (not lifeline)
+      if (this.internalMessages[j]._points[0]._x == undefined) {
+        if (this.internalMessages[j]._elemA._x < this.internalMessages[j]._elemB._x) {
+          // Arrow going right
+          this.internalMessages[j]._points[0].setX(this.internalMessages[j]._elemA._x + 20);
+        } else {
+          // Arrow going left
+          this.internalMessages[j]._points[0].setX(this.internalMessages[j]._elemA._x + 20);
+        }
+        this.internalMessages[j]._objA = this.internalMessages[j]._objB;
+      }
+
+      // Destination of message is an actor (not lifeline)
+      if (this.internalMessages[j]._points[1]._x == undefined) {
+        if (this.internalMessages[j]._elemB._x < this.internalMessages[j]._elemA._x) {
+          // Arrow going left
+          this.internalMessages[j]._points[1].setX(this.internalMessages[j]._elemB._x + 20);
+        } else {
+          // Arrow going right
+          this.internalMessages[j]._points[1].setX(this.internalMessages[j]._elemB._x + 20);
+        }
+        this.internalMessages[j]._objB = this.internalMessages[j]._objA;
+      }
+      // Add message to sequence diagram
+      this.sequenceDiagram.addElement(this.internalMessages[j]);
+    }
+    return this.sequenceDiagram;
+  };
+  
+  this.getSequenceDiagram = function(){
+    return this.sequenceDiagram;
   };
 }

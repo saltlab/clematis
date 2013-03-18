@@ -60,6 +60,9 @@ public class JSUml2Story {
 		System.out.println("// Components");
 		functionTraceObjects.add(0, episodeSource);
 
+		int initialX = 50;
+		int initialY = 60;
+
 		for (TraceObject to: functionTraceObjects) {
 			if (!to.getClass().toString().contains("FunctionEnter") &&
 					!to.getClass().toString().contains("XMLHttpRequest") &&
@@ -73,6 +76,7 @@ public class JSUml2Story {
 			} else {
 				components.add(getDiagramIdentifier(to));
 			}
+			initialY = 30;
 
 			if (to.getClass().toString().contains("FunctionEnter")) {
 				// Create components in the sequence diagram for developer-defined functions
@@ -80,11 +84,12 @@ public class JSUml2Story {
 				System.out.println("var "+getDiagramIdentifier(to)+" = new FunctionTrace('"+feto.getTargetFunction()+"');");
 				System.out.println(getDiagramIdentifier(to)+".setFileName('"+feto.getScopeName()+"');");
 				System.out.println(getDiagramIdentifier(to)+".setLineNo("+feto.getLineNo()+");");
+				initialY = 60;
 			} else if (to.getClass().toString().contains("XMLHttpRequest")) {
 				// Create actor for XMLHttpRequests
 				XMLHttpRequestTrace xhtto = (XMLHttpRequestTrace) to;
 				System.out.println("var "+getDiagramIdentifier(to)+" = new XHREvent(false);");
-				System.out.println(getDiagramIdentifier(to)+".setFileName('"+xhtto.getId()+"');");
+				System.out.println(getDiagramIdentifier(to)+".setXHRId('"+xhtto.getId()+"');");
 			} else if (to.getClass().toString().contains("Timeout")) {
 				// Create actors for child timing events, that is, timing events that spawned as a result of the origin event
 				TimingTrace ttto = (TimingTrace) to;
@@ -99,9 +104,10 @@ public class JSUml2Story {
 				System.out.println(getDiagramIdentifier(to)+".setEventHandler('"+deto.getEventHandler()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setTargetElement('"+deto.getTargetElement()+"');");		
 			}
-			System.out.println(getDiagramIdentifier(to)+".createDiagramObject(100, 100);");
+			System.out.println(getDiagramIdentifier(to)+".createDiagramObject("+initialX+", "+initialY+");");
 			System.out.println("episode"+episodeSource.getCounter()+".addComponent("+getDiagramIdentifier(to)+");");
 			System.out.println("");
+			initialX += 200;
 		}
 		push(components.get(0));
 
@@ -184,6 +190,8 @@ public class JSUml2Story {
 	public void createMessages() {
 		System.setOut(output);
 
+		int initialY = 60;
+
 		System.out.println("// Message sequences");
 		for (int i=1; i<functionTraceObjects.size(); i++) {
 			TraceObject to = functionTraceObjects.get(i);
@@ -193,38 +201,32 @@ public class JSUml2Story {
 						functionTraceObjects.get(i-1).getClass().toString().contains("TimeoutCallback") ||
 						functionTraceObjects.get(i-1).getClass().toString().contains("XMLHttpRequestResponse") ||
 						functionTraceObjects.get(i-1).getClass().toString().contains("FunctionCall")) {
-					functionEnterMessage(functionTraceObjects.get(i-1), to);
-				} 
-				// Set new function as active
-				functionEnter(to);
-				numOfMessages++;
+					functionEnterMessage(functionTraceObjects.get(i-1), to, initialY);
+				} else {
+					// Set new function as active
+					functionEnter(to, initialY);
+				}
+				initialY += 60;
 			} else if (to.getClass().toString().contains("FunctionExit")) {
 				// Function ends execution, not return statement
-				functionExitMessage();
-				numOfMessages++;
-
+				functionExitMessage(initialY);
 			} else if (to.getClass().toString().contains("ReturnStatement")) {
 				// Return to previous function
-				functionReturnMessage();
-				numOfMessages++;
-
+				functionReturnMessage(initialY);
+				initialY += 60;
 			} else if (to.getClass().toString().contains("XMLHttpRequestOpen")) {
 				// XMLHttpRequest is open, recursive call 'open'
-				XHROpenMessage(to);
-				numOfMessages++;
-
+				XHROpenMessage(to, initialY);
+				initialY += 60;
 			} else if (to.getClass().toString().contains("XMLHttpRequestSend")) {
-				XHRSendMessage(to);
-				numOfMessages++;
-
+				XHRSendMessage(to, initialY);
+				initialY += 60;
 			} else if (to.getClass().toString().contains("XMLHttpRequestResponse")) {
-				XHRResponseMessage(to);
-				numOfMessages++;
-
+				XHRResponseMessage(to, initialY);
+				initialY += 60;
 			} else if (to.getClass().toString().contains("TimeoutSet")) {
-				TimeoutSetMessage(functionTraceObjects.get(i-1), to);
-				numOfMessages++;
-
+				TimeoutSetMessage(functionTraceObjects.get(i-1), to, initialY);
+				initialY += 60;
 			} else if (to.getClass().toString().contains("TimeoutCallback")) {
 				//TODO
 			} 
@@ -232,61 +234,59 @@ public class JSUml2Story {
 		System.setOut(oldOut);
 	}
 
-	private void TimeoutSetMessage(TraceObject before, TraceObject to) {
+	private void TimeoutSetMessage(TraceObject before, TraceObject to, int y) {
 		if (before.getClass().toString().contains("FunctionCall")) {
 			FunctionCall fcto = (FunctionCall) before;
 			if (fcto.getTargetFunction().contains("setTimeout")) {
 				// Timeout was set from the executing function	
-				System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCreateMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
-						"b : "+getDiagramIdentifier(to)+", " +
-						"y : 30}));");		
+				System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
+						"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+						"y : "+y+"}));");		
 				//System.out.println("setTimeout()");
 			}
 		} else {	
 			// Not sure where the timeout was set from...
-			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCreateMessage({a : "+getDiagramIdentifier(to)+", " +
-					"b : "+getDiagramIdentifier(to)+", " +
-					"y : 30}));");	
+			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+					"y : "+y+"}));");	
 		}
 	}
 
-	private void XHROpenMessage(TraceObject to) {
+	private void XHROpenMessage(TraceObject to, int y) {
 
 		push(getDiagramIdentifier(to));	
-		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCreateMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+", " +
-				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
-				"y : 30}));");
+		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+".getDiagramObject(), " +
+				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
+				"y : "+y+"}));");
 		//System.out.println("setName(open)");
 		pop();
 	}
 
-	private void XHRSendMessage(TraceObject to) {
+	private void XHRSendMessage(TraceObject to, int y) {
 		push(getDiagramIdentifier(to));
-		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCreateMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+", " +
-				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
-				"y : 30}));");		
+		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+".getDiagramObject(), " +
+				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
+				"y : "+y+"}));");		
 		//System.out.println("setName(open)");
 		pop();
 	}
 
-	private void XHRResponseMessage(TraceObject to) {
+	private void XHRResponseMessage(TraceObject to, int y) {
 		push(getDiagramIdentifier(to));
-		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCreateMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
-				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
-				"y : 30}));");		
+		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
+				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
+				"y : "+y+"}));");		
 		//System.out.println("setName(response)");
 		pop();
 	}
 
-	public void functionExitMessage() {
-		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLReplyMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
-				"b : "+functionHeirarchy.get(functionHeirarchy.size()-2)+", " +
-				"y : 30}));");
+	public void functionExitMessage(int y) {
+
 		pop();
 		//System.out.println("step();");
 	}
 
-	private void functionEnterMessage(TraceObject from, TraceObject to) {
+	private void functionEnterMessage(TraceObject from, TraceObject to, int y) {
 		FunctionEnter feto = (FunctionEnter) to;
 		String fromID;
 
@@ -297,28 +297,32 @@ public class JSUml2Story {
 		}
 
 		if (feto.getArgs() != null) {
-			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+fromID+", " +
-					"b : "+getDiagramIdentifier(to)+", " +
-					"y : 30}));");
+			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+fromID+".getDiagramObject(), " +
+					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+					"y : "+y+"}));");
 			//System.out.println(UMLCallMessage.setName(feto.getArgsString());
 		} else {
 			// No arguments
-			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+fromID+", " +
-					"b : "+getDiagramIdentifier(to)+", " +
-					"y : 30}));");;
+			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+fromID+".getDiagramObject(), " +
+					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+					"y : "+y+"}));");;
 		}
+		push(getDiagramIdentifier(to));
 
 	}
 
-	private void functionEnter(TraceObject to) {		
+	private void functionEnter(TraceObject to, int y) {	
+		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+				"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+				"y : "+y+"}));");;
 		push(getDiagramIdentifier(to));
 	}
 
-	private void functionReturnMessage() {
-		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLReplyMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
-				"b : "+functionHeirarchy.get(functionHeirarchy.size()-2)+", " +
-				"y : 30}));");
-//		System.out.println("step();");
+	private void functionReturnMessage(int y) {
+		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLReplyMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
+				"b : "+functionHeirarchy.get(functionHeirarchy.size()-2)+".getDiagramObject(), " +
+				"y :"+y+"}));");
+		//		System.out.println("step();");
 		pop();
 	}
 
