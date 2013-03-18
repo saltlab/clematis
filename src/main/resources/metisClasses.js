@@ -269,6 +269,13 @@ function Episode () {
     // Add the components into the UMLSequenceDiagram
     for (var i = 0; i<this.internalComponents.length; i++){
       this.sequenceDiagram.addElement(this.internalComponents[i].getDiagramObject());
+      if (this.internalComponents[i].getDiagramObject() instanceof Actor) {
+        var dottedLine = new UMLLifeline({x:this.internalComponents[i].getDiagramObject()._x+25, y:this.internalComponents[i].getDiagramObject()._y+35});
+        dottedLine.setName("");
+        dottedLine._heightSmallRectangle = -1;
+        dottedLine._width = 0;
+        this.sequenceDiagram.addElement(dottedLine);
+      }
     }
     
     // Add the messages into the UMLSequenceDiagram
@@ -287,10 +294,10 @@ function Episode () {
       if (this.internalMessages[j]._points[0]._x == undefined) {
         if (this.internalMessages[j]._elemA._x < this.internalMessages[j]._elemB._x) {
           // Arrow going right
-          this.internalMessages[j]._points[0].setX(this.internalMessages[j]._elemA._x + 20);
+          this.internalMessages[j]._points[0].setX(this.internalMessages[j]._elemA._x + 23);
         } else {
           // Arrow going left
-          this.internalMessages[j]._points[0].setX(this.internalMessages[j]._elemA._x + 20);
+          this.internalMessages[j]._points[0].setX(this.internalMessages[j]._elemA._x + 23);
         }
         this.internalMessages[j]._objA = this.internalMessages[j]._objB;
       }
@@ -299,10 +306,10 @@ function Episode () {
       if (this.internalMessages[j]._points[1]._x == undefined) {
         if (this.internalMessages[j]._elemB._x < this.internalMessages[j]._elemA._x) {
           // Arrow going left
-          this.internalMessages[j]._points[1].setX(this.internalMessages[j]._elemB._x + 20);
+          this.internalMessages[j]._points[1].setX(this.internalMessages[j]._elemB._x + 23);
         } else {
           // Arrow going right
-          this.internalMessages[j]._points[1].setX(this.internalMessages[j]._elemB._x + 20);
+          this.internalMessages[j]._points[1].setX(this.internalMessages[j]._elemB._x + 23);
         }
         this.internalMessages[j]._objB = this.internalMessages[j]._objA;
       }
