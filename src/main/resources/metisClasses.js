@@ -84,6 +84,12 @@ var DOMEventTrace = EpisodeComponent.extend({
   },
   getTargetElement: function(){
     return this.targetElement;
+  },
+  createDiagramObject:  function(x_pos, y_pos) {
+    this.visual = new UMLActor({ x : x_pos, y: y_pos});
+  },
+  getDiagramObject: function(){
+    return this.visual;
   }
 });
 
@@ -116,6 +122,12 @@ var TimingTrace = EpisodeComponent.extend({
   },
   getDelay: function(){
     return this.timeoutDelay;
+  },
+  createDiagramObject:  function(x_pos, y_pos) {
+    this.visual = new UMLActor({ x : x_pos, y: y_pos});
+  },
+  getDiagramObject: function(){
+    return this.visual;
   }
 });
 
@@ -133,6 +145,12 @@ var XHREvent = EpisodeComponent.extend({
   },
   getXHRId: function(){
     return this.XHRId;
+  },
+  createDiagramObject:  function(x_pos, y_pos) {
+    this.visual = new UMLActor({ x : x_pos, y: y_pos});
+  },
+  getDiagramObject: function(){
+    return this.visual;
   }
 });
 
@@ -196,6 +214,12 @@ var FunctionTrace = EpisodeComponent.extend({
   },
   getLineNo: function() {
     return this.lineNo;
+  },
+  createDiagramObject:  function(x_pos, y_pos) {
+    this.visual = new UMLLifeline({ x : x_pos, y: y_pos});
+  },
+  getDiagramObject: function(){
+    return this.visual;
   }
 });
 
@@ -211,6 +235,10 @@ function Episode () {
   this.addComponent = function (newComponent) {
     this.internalComponents.push(newComponent);
   };
+  
+  this.getComponents = function () {
+    return this.internalComponents;
+  };
 
   this.addMessage = function(newMessage) {
     this.internalMessages.push(newMessage);
@@ -219,5 +247,4 @@ function Episode () {
   this.getMessages = function () {
     return this.internalMessages;
   };
-
 }
