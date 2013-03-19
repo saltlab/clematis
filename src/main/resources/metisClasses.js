@@ -323,3 +323,5 @@ function Episode () {
     return this.sequenceDiagram;
   };
 }
+
+var allEpisodes = []; 
