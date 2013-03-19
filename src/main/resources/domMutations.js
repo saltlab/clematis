@@ -9,6 +9,12 @@
 var observerSummary;
 var mutationArray = new Array();
 
+window.addEventListener("DOMContentLoaded", function() {
+	// Once the DOM is loaded, start the mutation summary observer and initialize the arrays for ElementValueChange 
+	startObserver();
+	initializeValues();
+}, false);
+	
 // Start the mutation summary observer
 function startObserver() {
 	observerSummary = new MutationSummary({
@@ -27,7 +33,6 @@ function stopObserver() {
 	
 //Add the new summary to the mutationArray
 function handleSummary(summaries) {
-	//var mutation = { date : Date.now(), summaries : summaries };
 
 	var added, removed;
 	if (summaries[0].added.length>0) {
