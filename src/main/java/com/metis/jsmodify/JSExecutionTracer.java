@@ -22,6 +22,7 @@ package com.metis.jsmodify;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -211,34 +212,37 @@ public class JSExecutionTracer {
 			Collection<TraceObject> functionTraces = traceMap
 					.get("FunctionTrace");
 
-			//			trace = new Trace(domEventTraces, functionTraces, timingTraces, XHRTraces);
 			story = new Story(domEventTraces, functionTraces, timingTraces, XHRTraces);
 			story.setOrderedTraceList(sortTraceObjects());
-			//			sortedTraceList = sortTraceObjects();
-			//			episodeList = buildEpisodes();
 			story.setEpisodes(buildEpisodes());
 
-			//			System.out.println("# of trace objects: " + sortedTraceList.size());
 			System.out.println("# of trace objects: " + story.getOrderedTraceList().size());
 			System.out.println("# of episodes: " + story.getEpisodes().size());
 
+			// JavaScript episodes for JSUML2
+			Helper.directoryCheck(outputFolder+ "/sequence_diagrams/");
+			PrintStream JSepisodes = new PrintStream(outputFolder+"/sequence_diagrams/allEpisodes.js");
+			
 			for (Episode e:story.getEpisodes()) {
 				// Create pic files for each episode's sequence diagram
-				designSequenceDiagram(e);
+				designSequenceDiagram(e, JSepisodes);
 			}
 
+			// Once all episodes have been saved to JS file, close
+			JSepisodes.close();
+			
 			// Create graph containing all episodes with embedded sequence diagrams
-			//Helper.directoryCheck(getOutputFolder() + "sequence_diagrams/");
-			//			EpisodeGraph eg = new EpisodeGraph(getOutputFolder(), episodeList);
 			EpisodeGraph eg = new EpisodeGraph(getOutputFolder(), story.getEpisodes());
 			eg.createGraph();
+			
+
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void designSequenceDiagram(Episode e) {
+	private void designSequenceDiagram(Episode e, PrintStream jSepisodes) {
 		// Given an episode (source, trace included), a pic file will be created
 		// in metis-output/ftrace/sequence_diagrams
 
@@ -246,11 +250,22 @@ public class JSExecutionTracer {
 		sd.createComponents();
 		sd.createMessages();
 		sd.close();*/
-		
-		JSUml2Story jsu2story = new JSUml2Story(getOutputFolder(), e);
-		jsu2story.createComponents();
-		jsu2story.createMessages();
-		jsu2story.close();
+
+		try {
+			JSUml2Story jsu2story = new JSUml2Story(jSepisodes, e);
+			jsu2story.createComponents();
+			jsu2story.createMessages();
+			jsu2story.close();
+
+		} catch (FileNotFoundException e1) {
+			System.out.println("Error initializing print stream for allEpisodes.js");
+			e1.printStackTrace();
+		} catch (IOException e2) {
+			System.out.println("IOException while printing episodes to JS.");
+			e2.printStackTrace();
+		}
+
+
 	}
 
 	/**

@@ -30,26 +30,22 @@ public class JSUml2Story {
 	static TraceObject episodeSource = null;
 	static int numOfMessages = 0;
 
-	public JSUml2Story (String outputFolder, Episode e) {
-		// Constructor
-		try {
-			// Create pic file fore sequence diagram description
-			Helper.directoryCheck(outputFolder+ "sequence_diagrams/");
-			output = new PrintStream(outputFolder+"sequence_diagrams/"+e.getSource().getCounter()+".js");
-			episodeSource = e.getSource();
-			components = new ArrayList<String>();
-			comments = new ArrayList<String>();
+	public JSUml2Story (PrintStream fileForAllEpisodes, Episode e) throws IOException {
+		// Create pic file fore sequence diagram description
+		//output = new PrintStream(outputFolder+"sequence_diagrams/"+e.getSource().getCounter()+".js");
+		output = fileForAllEpisodes;
+		episodeSource = e.getSource();
+		components = new ArrayList<String>();
+		comments = new ArrayList<String>();
 
-			// Print initializing lines
-			oldOut = System.out;
-			System.setOut(output);
-			System.out.println("var episode"+e.getSource().getCounter()+" = new Episode();");
-			System.setOut(oldOut);
+		// Print initializing lines
+		oldOut = System.out;
+		System.setOut(output);
+		System.out.println("// Episode " + episodeSource.getCounter());
+		System.out.println("var episode"+e.getSource().getCounter()+" = new Episode();");
+		System.setOut(oldOut);
 
-			functionTraceObjects = e.getTrace().getTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		functionTraceObjects = e.getTrace().getTrace();
 
 	}
 
@@ -57,7 +53,7 @@ public class JSUml2Story {
 
 		System.setOut(output);
 		System.out.println("");
-		System.out.println("// Components");
+		System.out.println("// Episode");
 		functionTraceObjects.add(0, episodeSource);
 
 		int initialX = 50;
@@ -110,33 +106,7 @@ public class JSUml2Story {
 			initialX += 200;
 		}
 		push(components.get(0));
-
-		/*		for (TraceObject to2: functionTraceObjects) {
-			// Iterate through again to add comment boxes with additional info
-			// i.e. line numbers, xhr ids, etc.
-			// Must be done after all components have been declared (umlgraph bug?)
-
-			if (comments.contains(getDiagramIdentifier(to2))) {
-				// Comment box already created for component
-				continue;
-			} else {
-				comments.add(getDiagramIdentifier(to2));
-			}
-
-			if (to2.getClass().toString().contains("FunctionEnter")) {
-				FunctionEnter feto = (FunctionEnter) to2;
-				addFunctionInfo(feto.getTargetFunction().toUpperCase()+feto.getLineNo(), feto);
-
-			} else if (to2.getClass().toString().contains("XMLHttpRequest")) {
-				addXMLHttpRequestInfo(to2);
-			} else if (to2.getClass().toString().contains("Timeout")) {
-				addTimeoutInfo(to2);
-			} else if (to2.getClass().toString().contains("DOMEventTrace")) {
-				addDOMEventInfo(to2);
-			}
-		}*/
 		System.setOut(oldOut);
-
 	}
 
 	@SuppressWarnings("unused")
@@ -315,7 +285,7 @@ public class JSUml2Story {
 		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
 				"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
 				"y : "+y+"}));");;
-		push(getDiagramIdentifier(to));
+				push(getDiagramIdentifier(to));
 	}
 
 	private void functionReturnMessage(int y) {
@@ -334,7 +304,10 @@ public class JSUml2Story {
 	}
 
 	public void close() {
-		output.close();
+		System.setOut(output);
+		System.out.println("allEpisodes.push(episode"+episodeSource.getCounter()+");");
+		System.setOut(oldOut);
+		//output.close();
 	}
 
 	private static String pop() {
@@ -351,21 +324,19 @@ public class JSUml2Story {
 		if (tObject.getClass().toString().contains("FunctionEnter")) {
 			// Create components in the sequence diagram for developer-defined functions
 			FunctionEnter feto = (FunctionEnter) tObject;
-			return feto.getTargetFunction()+feto.getLineNo();
+			return feto.getTargetFunction()+feto.getLineNo()+"_"+episodeSource.getCounter();
 		} else if (tObject.getClass().toString().contains("XMLHttpRequest")) {
 			// Create actor for XMLHttpRequests
 			XMLHttpRequestTrace xhtto = (XMLHttpRequestTrace) tObject;
-			return "XMLHttpRequest"+xhtto.getId();
+			return "XMLHttpRequest"+xhtto.getId()+"_"+episodeSource.getCounter();
 		} else if (tObject.getClass().toString().contains("Timeout")) {
 			// Create actors for child timing events, that is, timing events that spawned as a result of the origin event
 			TimingTrace ttto = (TimingTrace) tObject;
-			return "Timeout"+ttto.getId();
-
+			return "Timeout"+ttto.getId()+"_"+episodeSource.getCounter();
 		} else if (tObject.getClass().toString().contains("DOMEventTrace")) {
 			// Create actors for child DOM events
-			// TODO: Might need better identifier for DOM events
 			DOMEventTrace deto = (DOMEventTrace) tObject;
-			return "DOMEvent"+deto.getEventType();
+			return "DOMEvent"+deto.getEventType()+"_"+episodeSource.getCounter();
 		}
 		return null;
 	}
