@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import com.metis.core.trace.DOMEventTrace;
+import com.metis.core.trace.DOMMutationTrace;
 import com.metis.core.trace.TimeoutCallback;
 import com.metis.core.trace.TimeoutSet;
 import com.metis.core.trace.TraceObject;
@@ -24,6 +26,8 @@ public class Story {
 	private HashMap<Integer, XMLHttpRequestOpen> xhrOpens;
 	private HashMap<Integer, XMLHttpRequestSend> xhrSends;
 	private HashMap<Integer, XMLHttpRequestResponse> xhrResponses;
+	private HashMap<Integer, DOMEventTrace> domEvents;
+	private HashMap<Integer, DOMMutationTrace> domMutations;
 	
 //	private HashMap<TraceObject, Episode> traceObjectToEpisodeMap;
 	
@@ -43,6 +47,20 @@ public class Story {
 		xhrSends = new HashMap<Integer, XMLHttpRequestSend>();
 		xhrResponses = new HashMap<Integer, XMLHttpRequestResponse>();
 		linkXhrComponents();
+		
+		domEvents = new HashMap<Integer, DOMEventTrace>();
+		domMutations = new HashMap<Integer, DOMMutationTrace>();
+		linkDomComponents();
+		
+		System.out.println(domEvents);
+		System.out.println(domMutations);
+		System.out.println(timeoutSets);
+		System.out.println(timeoutCallbacks);
+		System.out.println(xhrOpens);
+		System.out.println(xhrSends);
+		System.out.println(xhrResponses);
+
+
 	}
 	
 	// Linking different components of timeouts
@@ -185,6 +203,35 @@ public class Story {
 	public void setEpisodes(ArrayList<Episode> episodes) {
 		this.episodes = episodes;
 	}
+
+	public HashMap<Integer, DOMEventTrace> getDomEvents() {
+		return domEvents;
+	}
+
+	public void setDomEvents(HashMap<Integer, DOMEventTrace> domEvents) {
+		this.domEvents = domEvents;
+	}
+
+	public HashMap<Integer, DOMMutationTrace> getDomMutations() {
+		return domMutations;
+	}
+
+	public void setDomMutations(HashMap<Integer, DOMMutationTrace> domMutations) {
+		this.domMutations = domMutations;
+	}
+	
+	// Linking the different DOM components (Events and Mutations)
+	private void linkDomComponents() {
+		for (TraceObject to : domEventTraces) {
+			if (to instanceof DOMEventTrace)
+				domEvents.put(((DOMEventTrace) to).getId(), (DOMEventTrace) to);
+			else if (to instanceof DOMMutationTrace) 
+				domMutations.put(((DOMMutationTrace) to).getId(), (DOMMutationTrace) to);
+			else
+				System.err.println("invalid DOM trace");
+		}
+	}
+
 	
 
 }

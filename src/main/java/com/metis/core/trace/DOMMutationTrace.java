@@ -12,7 +12,7 @@ public class DOMMutationTrace extends TraceObject/* implements EpisodeSource */{
 
 	public DOMMutationTrace() {
 		super();
-		setEpisodeSource(true);
+		setEpisodeSource(false);
 	}
 
 	public String getMutationType() {

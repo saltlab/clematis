@@ -229,7 +229,6 @@ logger.logDOMEvent = function(type, targetEl, callback) {
     	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
 	}
 	checkValues();
-	logger.logDOMMutation();
 };
 
 /**
@@ -298,7 +297,7 @@ logger.logDOMMutation = function() {
 			nodeName = changedElem.nodeName;
 		}
 		
-    	send(JSON.stringify({messageType: "DOM_ELEMENT_VALUE", timeStamp: date, elementId: id, elementType: type, nodeType: nodeType, nodeName: nodeName, oldValue: oldVal, newValue: newVal }));
+    	send(JSON.stringify({messageType: "DOM_ELEMENT_VALUE", timeStamp: date, elementId: id, elementType: type, nodeType: nodeType, nodeName: nodeName, oldValue: oldVal, newValue: newVal, counter: traceCounter++}));
 				
 };
 

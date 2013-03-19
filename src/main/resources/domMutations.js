@@ -98,6 +98,8 @@ function handleSummary(summaries) {
 
 	var mutation = { date : Date.now(), added: added, removed: removed };
 	mutationArray.push(mutation);
+	logger.logDOMMutation();
+
 }
 
 // Functions to call after the Mutation Summary Observer is disconnected

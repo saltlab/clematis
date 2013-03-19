@@ -209,7 +209,8 @@ public class JSExecutionTracer {
 			Collection<TraceObject> XHRTraces = traceMap.get("XHRTrace");
 			Collection<TraceObject> functionTraces = traceMap
 					.get("FunctionTrace");
-
+			
+			System.out.println("Num trace " + domEventTraces.size());
 			//			trace = new Trace(domEventTraces, functionTraces, timingTraces, XHRTraces);
 			story = new Story(domEventTraces, functionTraces, timingTraces, XHRTraces);
 			story.setOrderedTraceList(sortTraceObjects());
@@ -319,6 +320,7 @@ public class JSExecutionTracer {
 			TraceObject sourceTraceObj = story.getOrderedTraceList().get(i);
 
 			if (sourceTraceObj.isEpisodeSource() ){
+				System.out.println("source count " + sourceTraceObj.getCounter());
 				//	&& !(sourceTraceObj.getClass().toString().contains("TimeoutCallback"))
 				//	&& !(sourceTraceObj.getClass().toString().contains("XMLHttpRequestResponse"))) {
 				// Simple case
@@ -349,7 +351,8 @@ public class JSExecutionTracer {
 				previousEpisodeEnd = i;
 
 			} else if (sourceTraceObj.getClass().toString().contains("TimeoutCallback") 
-					|| sourceTraceObj.getClass().toString().contains("XMLHttpRequestResponse")) {
+					|| sourceTraceObj.getClass().toString().contains("XMLHttpRequestResponse")
+					|| sourceTraceObj.getClass().toString().contains("DOMMutationTrace")) {
 				// Special case
 				// TimeoutCallback is triggered after the callback function
 				// of a timeout has completed. Therefore, have to search backwards in
@@ -357,12 +360,14 @@ public class JSExecutionTracer {
 				// e.g. FunctionEnter -> FunctionEnter -> FuntionExit -> FunctionExit -> TimeoutCallback
 				// As opposed to DOMEvent:
 				// DOMEvent -> FunctionEnter -> FunctionEnter -> FuntionExit -> FunctionExit
-
+				System.out.println("EXCEPTION count " + sourceTraceObj.getCounter());
+				
 				Episode episode = new Episode(sourceTraceObj);
 				for (j = previousEpisodeEnd + 1; j<i; j++) {
 					// Iterate from end of last episode to this TimeoutCallback
-
 					TraceObject currentTraceObj = story.getOrderedTraceList().get(j);
+					System.out.println("Episode " + j + " is: " + currentTraceObj.getCounter());
+
 					episode.addToTrace(currentTraceObj);
 				}
 
