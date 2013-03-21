@@ -9,8 +9,7 @@
 
 
     <script type="text/javascript" src="metisClasses.js"></script>
-    <script type="text/javascript" src="allEpisodes.js"></script>
-
+    <script type="text/javascript" src="../../../metis-output/ftrace/sequence_diagrams/allEpisodes.js"></script>
 
 </head>
 
@@ -56,10 +55,10 @@ storyTable.border = "2"; // TODO add CSS for style
 
 var storyTableRow = document.createElement('tr');
 storyTableRow.id = "storyTableRow";
-
+/*
 console.log("++++++++++++++");
 console.log(allEpisodes.length);
-/*
+
 for (var ii = 0; ii < allEpisodes.length; ii ++) {
 	console.log("================");
 	console.log("Episode #", ii);
@@ -184,9 +183,7 @@ for (var m = 0; m < lifeLinesByEpisode.length; m ++) {
 
 	////////////////////
 	var episodeComponents = allEpisodes[m].getComponents();
-	console.log("episode ", m);
 	for (var n = 0; n < episodeComponents.length; n ++) {
-		console.log("component ", n, " - x:", episodeComponents[n].visual.getX());
 		lifeLinesByEpisode[m][n] = episodeComponents[n];
 /*		if (episodeComponents[n] instanceof Actor) {
 			console.log("---------ACTOR---------");
@@ -197,7 +194,6 @@ for (var m = 0; m < lifeLinesByEpisode.length; m ++) {
 */	}
 
 	document.getElementById("trace_div_" + m).addEventListener('click', traceDivClickHandler, false);
-	console.log("trace_div_", m);
 
 }
 
