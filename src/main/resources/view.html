@@ -90,7 +90,8 @@ for (var i = 0; i < episodeCounter; i ++) {
 	var actorType = "DOM_EVENT";
 	
 	// TODO check for empty component list
-	var episodeActor = allEpisodes[i].getComponents(0);
+	var episodeActor = allEpisodes[i].getComponents()[0];
+
 	if (episodeActor instanceof DOMEventTrace) {
 		actorType = "DOM_EVENT";
 	}
