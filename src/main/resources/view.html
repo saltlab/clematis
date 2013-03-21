@@ -1,0 +1,287 @@
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" 
+          href="css/UDStyle.css" media="screen" />
+    <link type="text/css" rel="stylesheet" 
+          href="css/episodeStyle.css" media="screen" />
+    <script type="text/javascript" src="UDCore.js"></script>
+    <script type="text/javascript" src="UDModules.js"></script>
+
+
+    <script type="text/javascript" src="metisClasses.js"></script>
+    <script type="text/javascript" src="allEpisodes.js"></script>
+
+
+</head>
+
+<body>
+
+<div id='wrapper_div' class='storyWrapper'></div>
+<br />
+<table border='2'>
+	<tr>
+		<td width='300'>
+			some info about the lifeline (and the episode?) goes here
+		</td>
+		<td>
+			<div id='code_div' class='episodeCode'>detailed code goes here</div>
+		</td>
+		<td>
+			<div>DOM?</div>
+		</td>
+	</tr>
+</table>
+
+<script>
+var episodeTraces = new Array();
+
+var width = 300;
+var height = 250;
+
+var initialX = 0;
+var initialY = 0;
+
+var episodeCounter = allEpisodes.length;//5;
+
+var lifeLinesByEpisode = new Array();
+var messagesByEpisode = new Array();
+
+</script>
+
+<script>
+
+var storyTable = document.createElement('table');
+storyTable.id = "storyTable";
+storyTable.border = "2"; // TODO add CSS for style
+
+var storyTableRow = document.createElement('tr');
+storyTableRow.id = "storyTableRow";
+
+console.log("++++++++++++++");
+console.log(allEpisodes.length);
+/*
+for (var ii = 0; ii < allEpisodes.length; ii ++) {
+	console.log("================");
+	console.log("Episode #", ii);
+	console.log("Lifelines:");
+	for (var lifelineCounter = 0; lifelineCounter < allEpisodes[ii].getComponents().length; lifelineCounter ++) {
+		console.log(allEpisodes[ii].getComponents()[lifelineCounter]);
+	}
+	console.log("= ", ii);
+	console.log(allEpisodes[ii].getComponents());
+	console.log("=");
+	console.log(allEpisodes[ii].getMessages());
+}
+*/
+
+for (var i = 0; i < episodeCounter; i ++) {
+	var episodeCell = document.createElement('td');
+
+	var episodeTable = document.createElement('table');
+	episodeTable.id = "episodeTable_" + i;
+
+	var episodeTableFirstRow = document.createElement('tr');
+	var episodeTableSecondRow = document.createElement('tr');
+	var episodeSourceCell = document.createElement('td');
+	// TODO add episode source
+
+	var episodeSourceDiv = document.createElement('div');
+	episodeSourceDiv.id = "source_div_" + i;
+	//episodeSourceDiv
+	var actorType = "DOM_EVENT";
+	
+	// TODO check for empty component list
+	var episodeActor = allEpisodes[i].getComponents(0);
+	if (episodeActor instanceof DOMEventTrace) {
+		actorType = "DOM_EVENT";
+	}
+	else if (episodeActor instanceof TimingTrace) {
+		actorType = "TIMING_EVENT";
+	}
+	else if (episodeActor instanceof XHREvent) {
+		actorType = "XHR_EVENT";
+	}
+
+	episodeSourceDiv.appendChild(episodeSourceDiv.ownerDocument.createTextNode(actorType));
+
+	episodeSourceCell.appendChild(episodeSourceDiv);
+
+	var episodeTraceCell = document.createElement('td');
+	episodeTraceCell.rowspan = "2";
+
+	var episodeTraceDiv = document.createElement('div');
+
+	episodeTraceDiv.id = "trace_div_" + i;
+	episodeTraceDiv.setAttribute('class', 'ud_diagram_div');
+	episodeTraceDiv.style.width = width + 'px';
+	episodeTraceDiv.style.height = height + 'px';
+
+
+//////////////////////////////////////////////////
+	// change this to assign the trace class based on the type of the episode trace (dom/timing/xhr)
+	if (actorType == "DOM_EVENT") {
+		episodeCell.setAttribute('class', 'episode_cell_dom');
+	} else if (actorType == "TIMING_EVENT") {
+		episodeCell.setAttribute('class', 'episode_cell_timing');
+	} else if (actorType == "XHR_EVENT") {
+		episodeCell.setAttribute('class', 'episode_cell_xhr');
+	}
+
+//////////////////////////////////////////////////
+
+	episodeTraceCell.appendChild(episodeTraceDiv);
+	//
+	var canvas = document.createElement('canvas');
+	canvas.setAttribute('class', 'ud_diagram_canvas');
+	canvas.width = this.width;
+	canvas.height = this.height;
+	var mainContext = canvas.getContext('2d');
+	episodeTraceDiv.appendChild(canvas);
+
+	canvas = document.createElement('canvas');
+
+	canvas.setAttribute('class', 'ud_diagram_canvas');
+	canvas.width = this.width;
+        canvas.height = this.height;
+        canvas.onmousedown = function() {return false;}
+        var motionContext = canvas.getContext('2d');
+
+/*	var sequenceDiagram = new UMLSequenceDiagram({backgroundNodes: '#FF9900'});
+	sequenceDiagram.initialize(0, episodeTraceDiv, mainContext, motionContext, width, height);
+
+	episodeTraces[i] = sequenceDiagram;
+*/
+	episodeTraces[i] = allEpisodes[i].createDiagram(0, episodeTraceDiv, mainContext, motionContext, width, height);
+
+	lifeLinesByEpisode[i] = new Array();
+	messagesByEpisode[i] = new Array();
+
+	episodeTableFirstRow.appendChild(episodeSourceCell);
+	episodeTableFirstRow.appendChild(episodeTraceCell);
+
+	episodeDomCell = document.createElement('td');
+	episodeTableSecondRow.appendChild(episodeDomCell);
+
+	episodeTable.appendChild(episodeTableFirstRow);
+	episodeTable.appendChild(episodeTableSecondRow);
+
+	episodeCell.appendChild(episodeTable);
+
+	storyTableRow.appendChild(episodeCell);
+}
+
+storyTable.appendChild(storyTableRow);
+
+for (var k = 0; k < episodeTraces.length; k ++) {
+	episodeTraces[k].draw();
+        episodeTraces[k].interaction(true);
+}
+
+document.getElementById("wrapper_div").appendChild(storyTable);
+
+
+for (var m = 0; m < lifeLinesByEpisode.length; m ++) {
+
+	////////////////////
+	var episodeComponents = allEpisodes[m].getComponents();
+	console.log("episode ", m);
+	for (var n = 0; n < episodeComponents.length; n ++) {
+		console.log("component ", n, " - x:", episodeComponents[n].visual.getX());
+		lifeLinesByEpisode[m][n] = episodeComponents[n];
+/*		if (episodeComponents[n] instanceof Actor) {
+			console.log("---------ACTOR---------");
+		}
+		else {
+			lifeLinesByEpisode[m][n] = episodeComponents[n];
+		}
+*/	}
+
+	document.getElementById("trace_div_" + m).addEventListener('click', traceDivClickHandler, false);
+	console.log("trace_div_", m);
+
+}
+
+function traceDivClickHandler(e) {
+	var splitId = this.id.split("_");
+	var episodeNumber = splitId[2];
+
+	var relativeMouseX = e.pageX - this.getBoundingClientRect().left;
+	var relativeMouseY = e.pageY - this.getBoundingClientRect().top;
+/*
+	var relativeMouseX = e.pageX - this.offsetLeft;
+	var relativeMouseY = e.pageY - this.offsetTop;
+*/
+	var clickedOnLifelines = false;
+
+	for (var n = 0; n < lifeLinesByEpisode[episodeNumber].length; n++) {
+
+		// check if the click was on this lifeline
+		var lifelineX = lifeLinesByEpisode[episodeNumber][n].visual.getX();
+		var lifelineY = lifeLinesByEpisode[episodeNumber][n].visual.getY();
+		var lifelineW = lifeLinesByEpisode[episodeNumber][n].visual.getWidth();
+		var lifelineH = lifeLinesByEpisode[episodeNumber][n].visual.getHeight();
+
+		if (relativeMouseX >= lifelineX && relativeMouseX <= lifelineX + lifelineW && relativeMouseY >= lifelineY && relativeMouseY <= lifelineY + lifelineH) {
+			console.log("click on lifeline");
+			viewDetailedCode(lifeLinesByEpisode[episodeNumber][n], "some code");
+			viewEpisodeInfo(); // TODO
+
+			clickedOnLifelines = true;
+		}
+
+	}
+
+	// TODO DO EPISODE STUFF (SHOW CAUSAL LINKS FOR TIMEOUTS / XHRS AND ETC)
+	if (!clickedOnLifelines) {
+		// show general information about the episode
+		// pop up? about timeouts and xhrs and ....
+	}
+}
+
+/*
+console.log("episodeTraces.length: ", episodeTraces.length);
+for (var j = 0; j < episodeTraces.length; j ++) {
+	console.log("j: ", j);
+        var currentDiv = document.getElementById('trace_div_' + j);
+	var currentEpisodeTrace = episodeTraces[j];
+        var interaccionUnClick = function( funcion ) {
+
+                currentEpisodeTrace.interaction( false );
+                var funcionCaptura = function( event ) {
+
+                        var mousex = event.pageX - currentDiv.offsetLeft;
+                        var mousey = event.pageY - currentDiv.offsetTop;
+                        funcion( currentEpisodeTrace, mousex, mousey );
+////////////////////////                        div_0.onclick = false;
+                        currentEpisodeTrace.draw();
+                        currentEpisodeTrace.interaction( true );
+                }
+                currentDiv.onclick = funcionCaptura;
+        }
+
+
+        currentDiv.onclick = function() {
+                function f( d, x, y ) {
+//                      d.addElement( new UMLActor() );
+                        console.log("===========================");
+                }
+                interaccionUnClick( f );
+        }
+}
+*/
+
+function viewEpisodeInfo() {
+	// todo info about episode / set timeouts and xhrs / the callbacks and the links
+}
+
+function viewDetailedCode(lifeline, code) {
+	var div = document.getElementById('code_div');
+	div.innerHTML = code;
+//	div.appendChild(div.ownerDocument.createTextNode(code));
+}
+
+</script>
+
+
+</body>
+</html>
