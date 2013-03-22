@@ -1,15 +1,21 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" 
-          href="css/UDStyle.css" media="screen" />
+          href="../../../src/main/resources/css/UDStyle.css" media="screen" />
     <link type="text/css" rel="stylesheet" 
-          href="css/episodeStyle.css" media="screen" />
-    <script type="text/javascript" src="UDCore.js"></script>
-    <script type="text/javascript" src="UDModules.js"></script>
+          href="../../../src/main/resources/css/episodeStyle.css" media="screen" />
+    <link type="text/css" rel="stylesheet" 
+          href="../../../src/main/resources/prettify.css" />
+    <script type="text/javascript" src="../../../src/main/resources/UDCore.js"></script>
+    <script type="text/javascript" src="../../../src/main/resources/UDModules.js"></script>
 
 
-    <script type="text/javascript" src="metisClasses.js"></script>
-    <script type="text/javascript" src="../../../metis-output/ftrace/sequence_diagrams/allEpisodes.js"></script>
+    <script type="text/javascript" src="../../../src/main/resources/metisClasses.js"></script>
+    <script type="text/javascript" src="allEpisodes.js"></script>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+
+    <script type="text/javascript" src="../../../src/main/resources/prettify.js"></script>
+    <script type="text/javascript" src="jquery.scrollTo.min.js"></script>
 
 </head>
 
@@ -19,11 +25,15 @@
 <br />
 <table border='2'>
 	<tr>
-		<td width='400'>
+		<td width='300'>
 			some info about the lifeline (and the episode?) goes here
 		</td>
 		<td>
-			<div id='code_div' class='episodeCode'>detailed code goes here</div>
+            <div id='filename_div'></div>
+            <pre id='code_pre' class="prettyprint lang-java">
+                <code id='code_code' class="language-java">
+                </code>
+            </pre>
 		</td>
 		<td>
 			<div>DOM?</div>
@@ -34,8 +44,8 @@
 <script>
 var episodeTraces = new Array();
 
-var width = 400;
-var height = 250;
+var width = 900;
+var height = 500;
 
 var initialX = 0;
 var initialY = 0;
@@ -220,7 +230,8 @@ function traceDivClickHandler(e) {
 
 		if (relativeMouseX >= lifelineX && relativeMouseX <= lifelineX + lifelineW && relativeMouseY >= lifelineY && relativeMouseY <= lifelineY + lifelineH) {
 			console.log("click on lifeline");
-			viewDetailedCode(lifeLinesByEpisode[episodeNumber][n], "some code");
+
+			viewDetailedCode(lifeLinesByEpisode[episodeNumber][n]);
 			viewEpisodeInfo(); // TODO
 
 			clickedOnLifelines = true;
@@ -271,14 +282,32 @@ function viewEpisodeInfo() {
 	// todo info about episode / set timeouts and xhrs / the callbacks and the links
 }
 
-function viewDetailedCode(lifeline, code) {
-	var div = document.getElementById('code_div');
-	div.innerHTML = code;
-//	div.appendChild(div.ownerDocument.createTextNode(code));
+function viewDetailedCode(lifeline) {
+
+     var xmlhttp = new XMLHttpRequest();
+
+     xmlhttp.onreadystatechange = function() {
+         if (xmlhttp.readyState==4/* && xmlhttp.status==200*/) {
+             var codeToPrint = xmlhttp.responseText.replace("<", "&lt", "gi");
+             codeToPrint = codeToPrint.replace(">", "&gt", "gi");
+             document.getElementById('code_code').innerHTML = codeToPrint;
+             document.getElementById('code_pre').className="prettyprint lang-js codeWrapper";
+             prettyPrint();
+           
+             var jumpToPixels = (lifeline.getLineNo()-1) * 14.05;
+
+             $('#code_pre')._scrollable(); // When scrolling the window
+             $('#code_pre').scrollTo({ top: 0, left:0 });;
+             $('#code_pre').scrollTo({ top: jumpToPixels, left:0 });;
+
+             document.getElementById('filename_div').innerHTML = '<strong>'+lifeline.getFileName()+'</strong>';
+         }
+     }
+     xmlhttp.open("GET",lifeline.getFileName(),true);
+     xmlhttp.send();
 }
 
 </script>
-
 
 </body>
 </html>

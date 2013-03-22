@@ -10,6 +10,12 @@ div.storyWrapper {
   overflow-x: scroll;
 }
 
+pre.codeWrapper {
+  overflow: auto; 
+  width: 800px;
+  height: 800px;
+}
+
 td {
   padding: 10px;
   vertical-align: top;
