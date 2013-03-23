@@ -316,6 +316,10 @@ function Episode () {
       // Add message to sequence diagram
       this.sequenceDiagram.addElement(this.internalMessages[j]);
     }
+
+console.log(this.internalComponents[i-1].getDiagramObject()._x + 70);
+this.sequenceDiagram._width = this.internalComponents[i-1].getDiagramObject()._x + 140; 
+
     return this.sequenceDiagram;
   };
   
