@@ -54,7 +54,6 @@ public class JSUml2Story {
 		System.setOut(output);
 		System.out.println("");
 		System.out.println("// Components");
-		functionTraceObjects.add(0, episodeSource);
 
 		int initialX = 90;
 		int initialY = 60;
@@ -160,10 +159,11 @@ public class JSUml2Story {
 	public void createMessages() {
 		System.setOut(output);
 
-		int initialY = 60;
-
+		int initialY = 60;		
+		
 		System.out.println("// Message sequences");
 		for (int i=1; i<functionTraceObjects.size(); i++) {
+			
 			TraceObject to = functionTraceObjects.get(i);
 			if (to.getClass().toString().contains("FunctionEnter")) {
 				// Message entering next function
@@ -192,6 +192,7 @@ public class JSUml2Story {
 				XHRSendMessage(to, initialY);
 				initialY += 60;
 			} else if (to.getClass().toString().contains("XMLHttpRequestResponse")) {
+				System.out.println("// " + functionTraceObjects.size());
 				XHRResponseMessage(to, initialY);
 				initialY += 60;
 			} else if (to.getClass().toString().contains("TimeoutSet")) {
