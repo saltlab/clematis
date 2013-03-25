@@ -53,10 +53,10 @@ public class JSUml2Story {
 
 		System.setOut(output);
 		System.out.println("");
-		System.out.println("// Episode");
+		System.out.println("// Components");
 		functionTraceObjects.add(0, episodeSource);
 
-		int initialX = 50;
+		int initialX = 90;
 		int initialY = 60;
 
 		for (TraceObject to: functionTraceObjects) {
@@ -267,9 +267,12 @@ public class JSUml2Story {
 		}
 
 		if (feto.getArgs() != null) {
-			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+fromID+".getDiagramObject(), " +
+			System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+fromID+".getDiagramObject(), " +
 					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
-					"y : "+y+"}));");
+					"y : "+y+"});");
+			System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"args: "+feto.getArgsString()+"\");");
+			System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+			System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
 			//System.out.println(UMLCallMessage.setName(feto.getArgsString());
 		} else {
 			// No arguments
@@ -306,6 +309,7 @@ public class JSUml2Story {
 	public void close() {
 		System.setOut(output);
 		System.out.println("allEpisodes.push(episode"+episodeSource.getCounter()+");");
+		System.out.println("");
 		System.setOut(oldOut);
 		//output.close();
 	}

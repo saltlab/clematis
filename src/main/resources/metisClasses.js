@@ -87,7 +87,7 @@ var DOMEventTrace = EpisodeComponent.extend({
   },
   createDiagramObject:  function(x_pos, y_pos) {
     this.visual = new UMLActor({ x : x_pos, y: y_pos});
-    this.visual.setName('DOM Event: ' + this.getEventType());
+    this.visual.setName('Event type:' + this.getEventType() +'\nTarget:' + this.getTargetElement() + '\nHandler:'+this.getEventHandler());
     this.visual.notifyChange();
   },
   getDiagramObject: function(){

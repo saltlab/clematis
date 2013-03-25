@@ -41,7 +41,12 @@ public class DOMEventTrace extends TraceObject/* implements EpisodeSource */{
 
 	public String getTargetElement() {
 		//System.out.println(targetElement);
-		return targetElement.toString().replaceAll("\"", "");
+		try {
+			return targetElement.getString("attributes").replaceAll("\"", "");
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	public String getTargetElementAttributes() {
