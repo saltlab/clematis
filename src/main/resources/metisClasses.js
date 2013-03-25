@@ -317,9 +317,12 @@ function Episode () {
       this.sequenceDiagram.addElement(this.internalMessages[j]);
     }
 
-console.log(this.internalComponents[i-1].getDiagramObject()._x + 70);
-this.sequenceDiagram._width = this.internalComponents[i-1].getDiagramObject()._x + 140; 
-
+    this.sequenceDiagram._width = this.internalComponents[i-1].getDiagramObject()._x + 140; 
+    if (j>0) {
+      this.sequenceDiagram._height = this.internalMessages[j-1]._y + 120; 
+    } else {
+      this.sequenceDiagram._height = 300; 
+    }
     return this.sequenceDiagram;
   };
   

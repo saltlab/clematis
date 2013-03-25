@@ -48,6 +48,7 @@ div.ud_diagram_div {
   float: left;
   background: #ffffff;
   border: 1px solid black;
+  overflow-y: scroll;
 }
 /*
 div.ud_diagram_div_dom {
