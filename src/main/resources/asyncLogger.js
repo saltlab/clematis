@@ -111,6 +111,9 @@ logger.logSetTimeout = function(func, delay, params) {
 
         send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: date, id: func.id, callbackFunction: func.name, delay: delay, args: argsJSONObject, counter: traceCounter++}));
     }
+    
+	checkValues();
+
 };
 
 /**
@@ -135,6 +138,8 @@ logger.logTimeoutCallback = function(func) {
 	}
 
     send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func.name, counter: traceCounter++}));
+
+    checkValues();
 };
 
 /**
@@ -154,6 +159,8 @@ logger.logXHROpen = function(xhr, method, url, async) {
 	console.log(" + Async: ", async);
 
     send(JSON.stringify({messageType: "XHR_OPEN", timeStamp: date, id: xhr.id, methodType: method, url: url, async: async, counter: traceCounter++}));
+
+	checkValues();
 };
 
 /**
@@ -170,6 +177,8 @@ logger.logXHRSend = function(xhr, str) {
 	var date = Date.now();
 
     send(JSON.stringify({messageType: "XHR_SEND", timeStamp: date, id: xhr.id, message: str, counter: traceCounter++}));
+
+	checkValues();
 };
 
 /**
@@ -204,6 +213,7 @@ logger.logXHRResponse = function(xhr) {
     } else {
         send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: date, id: xhr.id, callbackFunction: "", response: xhr.response, counter: traceCounter++}));
 	}
+    checkValues();
 };
 
 /**
@@ -267,7 +277,9 @@ logger.logDOMMutation = function() {
 
 	}		
 //	Reset the array
-	mutationArray.length = 0;	
+	mutationArray.length = 0;
+	
+	checkValues();
 };
 
 /**

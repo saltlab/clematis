@@ -232,7 +232,7 @@ function checkValue(i) {
 function checkValues() {
 	for (var i=0, max=all.length; i < max; i++) {
 		if (all[i].value != oldValues[i]) {
-			logger.logElementValueChange(all[i], all.length, i);
+			logger.logElementValueChange(all[i], oldValues[i], all[i].value);
 			oldValues[i] = all[i].value;
 		}	
 	}
