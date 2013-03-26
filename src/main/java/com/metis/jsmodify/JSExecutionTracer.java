@@ -255,11 +255,11 @@ public class JSExecutionTracer {
 		// Given an episode (source, trace included), a pic file will be created
 		// in metis-output/ftrace/sequence_diagrams
 
-		SequenceDiagram sd = new SequenceDiagram(getOutputFolder(), e);
+	/*	SequenceDiagram sd = new SequenceDiagram(getOutputFolder(), e);
 		sd.createComponents();
 		sd.createMessages();
 		sd.close();
-
+*/
 		try {
 			JSUml2Story jsu2story = new JSUml2Story(jSepisodes, e);
 			jsu2story.createComponents();
