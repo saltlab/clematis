@@ -216,6 +216,15 @@ public class JSExecutionTracer {
 			story.setOrderedTraceList(sortTraceObjects());
 			story.setEpisodes(buildEpisodes());
 
+			
+			System.out.println("Episodes size is " + story.getEpisodes().size());
+			for (Episode ep : story.getEpisodes()){
+				System.out.println("Episode Source is " + ep.getSource().getCounter() );
+				for (int i = 0; i < ep.getTrace().getTrace().size(); i++){
+					System.out.println("Counter " + i + " is " + ep.getTrace().getTrace().get(i).getCounter());
+				}
+			}
+
 			System.out.println("# of trace objects: " + story.getOrderedTraceList().size());
 			System.out.println("# of episodes: " + story.getEpisodes().size());
 
@@ -333,7 +342,9 @@ public class JSExecutionTracer {
 				// If the TraceObject is the beginning of an episode
 				// i.e. DOMEvent, XHRRequest, create an episode
 				Episode episode = new Episode(sourceTraceObj);
-
+				
+				System.out.println("Episode start is " + sourceTraceObj.getCounter()); // REMOVE THIS LINE, this is for testing purposes only
+				
 				for (j = i+1; j < story.getOrderedTraceList().size(); j++ ) {
 					// Go through the succeeding TraceObjects looking for the
 					// end of the episode (as indicated by another episode starter
@@ -357,8 +368,7 @@ public class JSExecutionTracer {
 				previousEpisodeEnd = i;
 
 			} else if (sourceTraceObj.getClass().toString().contains("TimeoutCallback") 
-					|| sourceTraceObj.getClass().toString().contains("XMLHttpRequestResponse")
-					|| sourceTraceObj.getClass().toString().contains("DOMMutationTrace")) {
+					|| sourceTraceObj.getClass().toString().contains("XMLHttpRequestResponse")) {
 				// Special case
 				// TimeoutCallback is triggered after the callback function
 				// of a timeout has completed. Therefore, have to search backwards in
@@ -368,6 +378,9 @@ public class JSExecutionTracer {
 				// DOMEvent -> FunctionEnter -> FunctionEnter -> FuntionExit -> FunctionExit
 				
 				Episode episode = new Episode(sourceTraceObj);
+				
+				System.out.println("Exception " + sourceTraceObj.getCounter()); // REMOVE THIS LINE, this is for testing purposes only
+
 				for (j = previousEpisodeEnd + 1; j<i; j++) {
 					// Iterate from end of last episode to this TimeoutCallback
 					TraceObject currentTraceObj = story.getOrderedTraceList().get(j);

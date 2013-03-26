@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import com.metis.core.trace.DOMElementValueTrace;
 import com.metis.core.trace.DOMEventTrace;
 import com.metis.core.trace.DOMMutationTrace;
 import com.metis.core.trace.TimeoutCallback;
@@ -28,6 +29,8 @@ public class Story {
 	private HashMap<Integer, XMLHttpRequestResponse> xhrResponses;
 	private HashMap<Integer, DOMEventTrace> domEvents;
 	private HashMap<Integer, DOMMutationTrace> domMutations;
+	private HashMap<Integer, DOMElementValueTrace> domElementValues;
+	
 	
 //	private HashMap<TraceObject, Episode> traceObjectToEpisodeMap;
 	
@@ -50,17 +53,19 @@ public class Story {
 		
 		domEvents = new HashMap<Integer, DOMEventTrace>();
 		domMutations = new HashMap<Integer, DOMMutationTrace>();
+		domElementValues = new HashMap<Integer, DOMElementValueTrace>();
 		linkDomComponents();
 		
 		System.out.println(domEvents);
 		System.out.println(domMutations);
+		System.out.println(domElementValues);
 		System.out.println(timeoutSets);
 		System.out.println(timeoutCallbacks);
 		System.out.println(xhrOpens);
 		System.out.println(xhrSends);
 		System.out.println(xhrResponses);
-
-
+		
+		
 	}
 	
 	// Linking different components of timeouts
@@ -227,6 +232,8 @@ public class Story {
 				domEvents.put(((DOMEventTrace) to).getId(), (DOMEventTrace) to);
 			else if (to instanceof DOMMutationTrace) 
 				domMutations.put(((DOMMutationTrace) to).getId(), (DOMMutationTrace) to);
+			else if (to instanceof DOMElementValueTrace) 
+				domElementValues.put(((DOMElementValueTrace) to).getId(), (DOMElementValueTrace) to);
 			else
 				System.err.println("invalid DOM trace");
 		}
