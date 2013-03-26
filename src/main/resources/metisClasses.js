@@ -87,7 +87,7 @@ var DOMEventTrace = EpisodeComponent.extend({
   },
   createDiagramObject:  function(x_pos, y_pos) {
     this.visual = new UMLActor({ x : x_pos, y: y_pos});
-    this.visual.setName('DOM Event: ' + this.getEventType());
+    this.visual.setName('Event type:' + this.getEventType() +'\nTarget:' + this.getTargetElement() + '\nHandler:'+this.getEventHandler());
     this.visual.notifyChange();
   },
   getDiagramObject: function(){
@@ -315,6 +315,13 @@ function Episode () {
       }
       // Add message to sequence diagram
       this.sequenceDiagram.addElement(this.internalMessages[j]);
+    }
+
+    this.sequenceDiagram._width = this.internalComponents[i-1].getDiagramObject()._x + 165; 
+    if (j>0) {
+      this.sequenceDiagram._height = this.internalMessages[j-1]._y + 120; 
+    } else {
+      this.sequenceDiagram._height = 300; 
     }
     return this.sequenceDiagram;
   };

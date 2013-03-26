@@ -1,0 +1,317 @@
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" 
+          href="../../../src/main/resources/css/UDStyle.css" media="screen" />
+    <link type="text/css" rel="stylesheet" 
+          href="../../../src/main/resources/css/episodeStyle.css" media="screen" />
+    <link type="text/css" rel="stylesheet" 
+          href="../../../src/main/resources/prettify.css" />
+
+    <script type="text/javascript" src="../../../src/main/resources/UDCore.js"></script>
+    <script type="text/javascript" src="../../../src/main/resources/UDModules.js"></script>
+    <script type="text/javascript" src="../../../src/main/resources/metisClasses.js"></script>
+    <script type="text/javascript" src="allEpisodes.js"></script>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="../../../src/main/resources/prettify.js"></script>
+    <script type="text/javascript" src="../../../src/main/resources/jquery.scrollTo.min.js"></script>
+</head>
+
+<body>
+
+<div id='wrapper_div' class='storyWrapper'></div>
+<br />
+<table border='2'>
+	<tr>
+		<td width='300'>
+			some info about the lifeline (and the episode?) goes here
+		</td>
+		<td>
+            <div id='filename_div'></div>
+            <pre id='code_pre' class="prettyprint lang-java">
+                <code id='code_code' class="language-java">
+                </code>
+            </pre>
+		</td>
+		<td>
+			<div>DOM?</div>
+		</td>
+	</tr>
+</table>
+
+<script>
+var episodeTraces = new Array();
+
+var width = 1200;
+var height = 400;
+
+var initialX = 0;
+var initialY = 0;
+
+var episodeCounter = allEpisodes.length;//5;
+
+var lifeLinesByEpisode = new Array();
+var messagesByEpisode = new Array();
+
+</script>
+
+<script>
+
+var storyTable = document.createElement('table');
+storyTable.id = "storyTable";
+storyTable.border = "2"; // TODO add CSS for style
+
+var storyTableRow = document.createElement('tr');
+storyTableRow.id = "storyTableRow";
+/*
+console.log("++++++++++++++");
+console.log(allEpisodes.length);
+
+for (var ii = 0; ii < allEpisodes.length; ii ++) {
+	console.log("================");
+	console.log("Episode #", ii);
+	console.log("Lifelines:");
+	for (var lifelineCounter = 0; lifelineCounter < allEpisodes[ii].getComponents().length; lifelineCounter ++) {
+		console.log(allEpisodes[ii].getComponents()[lifelineCounter]);
+	}
+	console.log("= ", ii);
+	console.log(allEpisodes[ii].getComponents());
+	console.log("=");
+	console.log(allEpisodes[ii].getMessages());
+}
+*/
+
+for (var i = 0; i < episodeCounter; i ++) {
+	var episodeCell = document.createElement('td');
+
+	var episodeTable = document.createElement('table');
+	episodeTable.id = "episodeTable_" + i;
+
+	var episodeTableFirstRow = document.createElement('tr');
+	var episodeTableSecondRow = document.createElement('tr');
+	var episodeSourceCell = document.createElement('td');
+	// TODO add episode source
+
+	var episodeSourceDiv = document.createElement('div');
+	episodeSourceDiv.id = "source_div_" + i;
+	//episodeSourceDiv
+	var actorType = "DOM_EVENT";
+	
+	// TODO check for empty component list
+	var episodeActor = allEpisodes[i].getComponents()[0];
+
+	if (episodeActor instanceof DOMEventTrace) {
+		actorType = "DOM_EVENT";
+	}
+	else if (episodeActor instanceof TimingTrace) {
+		actorType = "TIMING_EVENT";
+	}
+	else if (episodeActor instanceof XHREvent) {
+		actorType = "XHR_EVENT";
+	}
+
+	episodeSourceDiv.appendChild(episodeSourceDiv.ownerDocument.createTextNode(actorType));
+
+	episodeSourceCell.appendChild(episodeSourceDiv);
+
+	var episodeTraceCell = document.createElement('td');
+	episodeTraceCell.rowspan = "2";
+
+	var episodeTraceDiv = document.createElement('div');
+
+	episodeTraceDiv.id = "trace_div_" + i;
+	episodeTraceDiv.setAttribute('class', 'ud_diagram_div');
+	episodeTraceDiv.style.width = width + 'px';
+	episodeTraceDiv.style.height = height + 'px';
+
+
+//////////////////////////////////////////////////
+	// change this to assign the trace class based on the type of the episode trace (dom/timing/xhr)
+	if (actorType == "DOM_EVENT") {
+		episodeCell.setAttribute('class', 'episode_cell_dom');
+	} else if (actorType == "TIMING_EVENT") {
+		episodeCell.setAttribute('class', 'episode_cell_timing');
+	} else if (actorType == "XHR_EVENT") {
+		episodeCell.setAttribute('class', 'episode_cell_xhr');
+	}
+
+//////////////////////////////////////////////////
+
+	episodeTraceCell.appendChild(episodeTraceDiv);
+	//
+	var canvas = document.createElement('canvas');
+	canvas.setAttribute('class', 'ud_diagram_canvas');
+	canvas.width = this.width;
+	canvas.height = this.height;
+    canvas.id = "canvas_"+i;
+	var mainContext = canvas.getContext('2d');
+	episodeTraceDiv.appendChild(canvas);
+
+	var canvas2 = document.createElement('canvas');
+	canvas2.setAttribute('class', 'ud_diagram_canvas');
+	canvas2.width = this.width;
+    canvas2.height = this.height;
+    canvas2.id = "canvas_"+i;
+    canvas2.onmousedown = function() {return false;}
+    var motionContext = canvas2.getContext('2d');
+
+/*	var sequenceDiagram = new UMLSequenceDiagram({backgroundNodes: '#FF9900'});
+	sequenceDiagram.initialize(0, episodeTraceDiv, mainContext, motionContext, width, height);
+
+	episodeTraces[i] = sequenceDiagram;
+*/
+	episodeTraces[i] = allEpisodes[i].createDiagram(0, episodeTraceDiv, mainContext, motionContext, width, height);
+
+    episodeTraceDiv.style.width = episodeTraces[i]._width + 30;
+    canvas.width = episodeTraces[i]._width;
+    canvas.height = episodeTraces[i]._height;
+
+	lifeLinesByEpisode[i] = new Array();
+	messagesByEpisode[i] = new Array();
+
+	episodeTableFirstRow.appendChild(episodeSourceCell);
+	episodeTableFirstRow.appendChild(episodeTraceCell);
+
+	episodeDomCell = document.createElement('td');
+	episodeTableSecondRow.appendChild(episodeDomCell);
+
+	episodeTable.appendChild(episodeTableFirstRow);
+	episodeTable.appendChild(episodeTableSecondRow);
+
+
+	episodeCell.appendChild(episodeTable);
+
+	storyTableRow.appendChild(episodeCell);
+
+}
+
+storyTable.appendChild(storyTableRow);
+
+for (var k = 0; k < episodeTraces.length; k ++) {
+	episodeTraces[k].draw();
+        episodeTraces[k].interaction(true);
+}
+
+document.getElementById("wrapper_div").appendChild(storyTable);
+
+
+for (var m = 0; m < lifeLinesByEpisode.length; m ++) {
+
+	////////////////////
+	var episodeComponents = allEpisodes[m].getComponents();
+	for (var n = 0; n < episodeComponents.length; n ++) {
+		lifeLinesByEpisode[m][n] = episodeComponents[n];
+/*		if (episodeComponents[n] instanceof Actor) {
+			console.log("---------ACTOR---------");
+		}
+		else {
+			lifeLinesByEpisode[m][n] = episodeComponents[n];
+		}
+*/	}
+
+	document.getElementById("trace_div_" + m).addEventListener('click', traceDivClickHandler, false);
+
+}
+
+function traceDivClickHandler(e) {
+	var splitId = this.id.split("_");
+	var episodeNumber = splitId[2];
+
+	var relativeMouseX = e.pageX - this.getBoundingClientRect().left;
+	var relativeMouseY = e.pageY - this.getBoundingClientRect().top;
+/*
+	var relativeMouseX = e.pageX - this.offsetLeft;
+	var relativeMouseY = e.pageY - this.offsetTop;
+*/
+	var clickedOnLifelines = false;
+
+	for (var n = 0; n < lifeLinesByEpisode[episodeNumber].length; n++) {
+
+		// check if the click was on this lifeline
+		var lifelineX = lifeLinesByEpisode[episodeNumber][n].visual.getX();
+		var lifelineY = lifeLinesByEpisode[episodeNumber][n].visual.getY();
+		var lifelineW = lifeLinesByEpisode[episodeNumber][n].visual.getWidth();
+		var lifelineH = lifeLinesByEpisode[episodeNumber][n].visual.getHeight();
+
+		if (relativeMouseX >= lifelineX && relativeMouseX <= lifelineX + lifelineW && relativeMouseY >= lifelineY && relativeMouseY <= lifelineY + lifelineH) {
+			console.log("click on lifeline");
+
+			viewDetailedCode(lifeLinesByEpisode[episodeNumber][n]);
+			viewEpisodeInfo(); // TODO
+
+			clickedOnLifelines = true;
+		}
+
+	}
+
+	// TODO DO EPISODE STUFF (SHOW CAUSAL LINKS FOR TIMEOUTS / XHRS AND ETC)
+	if (!clickedOnLifelines) {
+		// show general information about the episode
+		// pop up? about timeouts and xhrs and ....
+	}
+}
+
+/*
+console.log("episodeTraces.length: ", episodeTraces.length);
+for (var j = 0; j < episodeTraces.length; j ++) {
+	console.log("j: ", j);
+        var currentDiv = document.getElementById('trace_div_' + j);
+	var currentEpisodeTrace = episodeTraces[j];
+        var interaccionUnClick = function( funcion ) {
+
+                currentEpisodeTrace.interaction( false );
+                var funcionCaptura = function( event ) {
+
+                        var mousex = event.pageX - currentDiv.offsetLeft;
+                        var mousey = event.pageY - currentDiv.offsetTop;
+                        funcion( currentEpisodeTrace, mousex, mousey );
+////////////////////////                        div_0.onclick = false;
+                        currentEpisodeTrace.draw();
+                        currentEpisodeTrace.interaction( true );
+                }
+                currentDiv.onclick = funcionCaptura;
+        }
+
+
+        currentDiv.onclick = function() {
+                function f( d, x, y ) {
+//                      d.addElement( new UMLActor() );
+                        console.log("===========================");
+                }
+                interaccionUnClick( f );
+        }
+}
+*/
+
+function viewEpisodeInfo() {
+	// todo info about episode / set timeouts and xhrs / the callbacks and the links
+}
+
+function viewDetailedCode(lifeline) {
+
+     var xmlhttp = new XMLHttpRequest();
+
+     xmlhttp.onreadystatechange = function() {
+         if (xmlhttp.readyState==4/* && xmlhttp.status==200*/) {
+             var codeToPrint = xmlhttp.responseText.replace("<", "&lt", "gi");
+             codeToPrint = codeToPrint.replace(">", "&gt", "gi");
+             document.getElementById('code_code').innerHTML = codeToPrint;
+             document.getElementById('code_pre').className="prettyprint lang-js codeWrapper";
+             prettyPrint();
+           
+             var jumpToPixels = (lifeline.getLineNo()-1) * 14.05;
+
+             $('#code_pre')._scrollable(); // When scrolling the window
+             $('#code_pre').scrollTo({ top: 0, left:0 });;
+             $('#code_pre').scrollTo({ top: jumpToPixels, left:0 });;
+
+             document.getElementById('filename_div').innerHTML = '<strong>'+lifeline.getFileName()+'</strong>';
+         }
+     }
+     xmlhttp.open("GET",lifeline.getFileName(),true);
+     xmlhttp.send();
+}
+
+</script>
+
+</body>
+</html>

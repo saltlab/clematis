@@ -18,7 +18,7 @@ public class FunctionEnter extends FunctionTrace {
 	}
 
 	public String getTargetFunction() {
-		return TargetFunction.replaceAll(" ", "");
+		return TargetFunction.trim().replaceAll(" ", "");
 	}
 
 	public void setTargetFunction(String targetFunction) {

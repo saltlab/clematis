@@ -1,0 +1,43 @@
+div.episodeCode {
+  position: relative;
+  float: left;
+  background: #ffffff;
+  width: 700px;
+}
+
+div.storyWrapper {
+  background: #ffffff;
+  overflow-x: scroll;
+}
+
+pre.codeWrapper {
+  overflow: auto; 
+  width: 800px;
+  height: 800px;
+}
+
+td {
+  padding: 10px;
+  vertical-align: top;
+}
+/*
+td.domEvent {
+  border: 1px solid #00CED1;
+  background-color: #E0FFFF;
+}
+*/
+
+td.episode_cell_dom {
+  border: 1px solid #00CED1;
+  background-color: #E0FFFF;
+}
+
+td.episode_cell_timing {
+  border: 1px solid #B8860B;
+  background-color: #FFF8DC;
+}
+
+td.episode_cell_xhr {
+  border: 1px solid #FF6347;
+  background-color: #FFE4E1;
+}

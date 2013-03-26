@@ -53,10 +53,9 @@ public class JSUml2Story {
 
 		System.setOut(output);
 		System.out.println("");
-		System.out.println("// Episode");
-		functionTraceObjects.add(0, episodeSource);
+		System.out.println("// Components");
 
-		int initialX = 50;
+		int initialX = 90;
 		int initialY = 60;
 
 		for (TraceObject to: functionTraceObjects) {
@@ -159,11 +158,16 @@ public class JSUml2Story {
 
 	public void createMessages() {
 		System.setOut(output);
-
-		int initialY = 60;
+		
+		int initialY = 80;		
+		if (functionTraceObjects.get(0).getClass().toString().contains("DOMEventTrace")) {
+			// Leave extra space for DOM event information
+			initialY += 80;		
+		}
 
 		System.out.println("// Message sequences");
 		for (int i=1; i<functionTraceObjects.size(); i++) {
+
 			TraceObject to = functionTraceObjects.get(i);
 			if (to.getClass().toString().contains("FunctionEnter")) {
 				// Message entering next function
@@ -192,6 +196,7 @@ public class JSUml2Story {
 				XHRSendMessage(to, initialY);
 				initialY += 60;
 			} else if (to.getClass().toString().contains("XMLHttpRequestResponse")) {
+				System.out.println("// " + functionTraceObjects.size());
 				XHRResponseMessage(to, initialY);
 				initialY += 60;
 			} else if (to.getClass().toString().contains("TimeoutSet")) {
@@ -223,37 +228,40 @@ public class JSUml2Story {
 	}
 
 	private void XHROpenMessage(TraceObject to, int y) {
-
 		push(getDiagramIdentifier(to));	
-		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+".getDiagramObject(), " +
+		System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+".getDiagramObject(), " +
 				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
-				"y : "+y+"}));");
-		//System.out.println("setName(open)");
+				"y : "+y+"});");
+		System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"open\");");
+		System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+		System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
 		pop();
 	}
 
 	private void XHRSendMessage(TraceObject to, int y) {
 		push(getDiagramIdentifier(to));
-		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+".getDiagramObject(), " +
+		System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+".getDiagramObject(), " +
 				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
-				"y : "+y+"}));");		
-		//System.out.println("setName(open)");
+				"y : "+y+"});");
+		System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"send\");");
+		System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+		System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
 		pop();
 	}
 
 	private void XHRResponseMessage(TraceObject to, int y) {
 		push(getDiagramIdentifier(to));
-		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
+		System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
 				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
-				"y : "+y+"}));");		
-		//System.out.println("setName(response)");
+				"y : "+y+"});");
+		System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"response\");");
+		System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+		System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
 		pop();
 	}
 
 	public void functionExitMessage(int y) {
-
 		pop();
-		//System.out.println("step();");
 	}
 
 	private void functionEnterMessage(TraceObject from, TraceObject to, int y) {
@@ -267,10 +275,21 @@ public class JSUml2Story {
 		}
 
 		if (feto.getArgs() != null) {
-			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+fromID+".getDiagramObject(), " +
+			System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+fromID+".getDiagramObject(), " +
 					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
-					"y : "+y+"}));");
-			//System.out.println(UMLCallMessage.setName(feto.getArgsString());
+					"y : "+y+"});");
+			System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"args: "+feto.getArgsString()+"\");");
+			System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+			System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
+		} else if (from.getClass().toString().contains("XMLHttpRequestResponse")) {
+
+			System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+fromID+".getDiagramObject(), " +
+					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+					"y : "+y+"});");
+			System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"response\");");
+			System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+			System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
+
 		} else {
 			// No arguments
 			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+fromID+".getDiagramObject(), " +
@@ -306,8 +325,8 @@ public class JSUml2Story {
 	public void close() {
 		System.setOut(output);
 		System.out.println("allEpisodes.push(episode"+episodeSource.getCounter()+");");
+		System.out.println("");
 		System.setOut(oldOut);
-		//output.close();
 	}
 
 	private static String pop() {
