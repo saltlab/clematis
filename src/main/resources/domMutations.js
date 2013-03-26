@@ -13,6 +13,7 @@ window.addEventListener("DOMContentLoaded", function() {
 	// Once the DOM is loaded, start the mutation summary observer and initialize the arrays for ElementValueChange 
 	startObserver();
 	initializeValues();
+	//addValueListeners();
 }, false);
 	
 // Start the mutation summary observer
@@ -204,14 +205,34 @@ function initializeValues() {
 			}
 		}
 	}
-	
 }
+
+/*function addValueListeners() {
+	for (var i=0; i < all.length; i+=1) { 
+		 
+	    (function (i) { 
+	 
+	        all[i].onchange = function () { 
+	 
+	             //checkValue(i); 
+	             checkValues();
+	        }; 
+	    }) (i); 
+	}
+}
+
+//Check elements for a change in value. Log all changes.
+function checkValue(i) {
+		logger.logElementValueChange(all[i], oldValues[i], all[i].value);
+		oldValues[i] = all[i].value;
+	
+}*/
 
 // Check elements for a change in value. Log all changes.
 function checkValues() {
 	for (var i=0, max=all.length; i < max; i++) {
 		if (all[i].value != oldValues[i]) {
-			logger.logElementValueChange(all[i], oldValues[i], all[i].value);
+			logger.logElementValueChange(all[i], all.length, i);
 			oldValues[i] = all[i].value;
 		}	
 	}
