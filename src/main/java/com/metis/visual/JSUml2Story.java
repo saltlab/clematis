@@ -54,8 +54,9 @@ public class JSUml2Story {
 		System.setOut(output);
 		System.out.println("");
 		System.out.println("// Components");
-
-		int initialX = 90;
+		functionTraceObjects.add(0, episodeSource);
+		
+		int initialX = 110;
 		int initialY = 60;
 
 		for (TraceObject to: functionTraceObjects) {
@@ -76,7 +77,7 @@ public class JSUml2Story {
 			if (to.getClass().toString().contains("FunctionEnter")) {
 				// Create components in the sequence diagram for developer-defined functions
 				FunctionEnter feto = (FunctionEnter) to;
-				System.out.println("var "+getDiagramIdentifier(to)+" = new FunctionTrace('"+feto.getTargetFunction()+"');");
+				System.out.println("var "+getDiagramIdentifier(to)+" = new FunctionTrace('"+feto.getTargetFunction()+"("+feto.getArgsLabels()+")');");
 				System.out.println(getDiagramIdentifier(to)+".setFileName('"+feto.getScopeName()+"');");
 				System.out.println(getDiagramIdentifier(to)+".setLineNo("+feto.getLineNo()+");");
 				initialY = 60;
@@ -159,7 +160,7 @@ public class JSUml2Story {
 	public void createMessages() {
 		System.setOut(output);
 		
-		int initialY = 80;		
+		int initialY = 20;		
 		if (functionTraceObjects.get(0).getClass().toString().contains("DOMEventTrace")) {
 			// Leave extra space for DOM event information
 			initialY += 80;		
@@ -171,6 +172,7 @@ public class JSUml2Story {
 			TraceObject to = functionTraceObjects.get(i);
 			if (to.getClass().toString().contains("FunctionEnter")) {
 				// Message entering next function
+				initialY += 60;
 				if (functionTraceObjects.get(i-1).getClass().toString().contains("DOMEventTrace") ||
 						functionTraceObjects.get(i-1).getClass().toString().contains("TimeoutCallback") ||
 						functionTraceObjects.get(i-1).getClass().toString().contains("XMLHttpRequestResponse") ||
@@ -180,28 +182,26 @@ public class JSUml2Story {
 					// Set new function as active
 					functionEnter(to, initialY);
 				}
-				initialY += 60;
 			} else if (to.getClass().toString().contains("FunctionExit")) {
 				// Function ends execution, not return statement
 				functionExitMessage(initialY);
 			} else if (to.getClass().toString().contains("ReturnStatement")) {
 				// Return to previous function
+				initialY += 40;
 				functionReturnMessage(initialY);
-				initialY += 60;
 			} else if (to.getClass().toString().contains("XMLHttpRequestOpen")) {
 				// XMLHttpRequest is open, recursive call 'open'
+				initialY += 60;
 				XHROpenMessage(to, initialY);
-				initialY += 60;
 			} else if (to.getClass().toString().contains("XMLHttpRequestSend")) {
+				initialY += 60;
 				XHRSendMessage(to, initialY);
-				initialY += 60;
 			} else if (to.getClass().toString().contains("XMLHttpRequestResponse")) {
-				System.out.println("// " + functionTraceObjects.size());
+				initialY += 60;
 				XHRResponseMessage(to, initialY);
-				initialY += 60;
 			} else if (to.getClass().toString().contains("TimeoutSet")) {
-				TimeoutSetMessage(functionTraceObjects.get(i-1), to, initialY);
 				initialY += 60;
+				TimeoutSetMessage(functionTraceObjects.get(i-1), to, initialY);
 			} else if (to.getClass().toString().contains("TimeoutCallback")) {
 				//TODO
 			} 
