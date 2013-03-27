@@ -283,11 +283,11 @@ function Episode () {
 
       if (this.internalMessages[j]._elemB == this.internalMessages[j]._elemA) {
         // Add a TimeInterval to the diagram to show the function's execution
-        var ti = new TimeInterval();
-        ti._x = this.internalMessages[j]._elemB._x + this.internalMessages[j]._elemB._width/2 -5;
-        ti._y = this.internalMessages[j]._y;
-        this.sequenceDiagram.addElement(ti);
-        continue;
+        //var ti = new TimeInterval();
+        //ti._x = this.internalMessages[j]._elemB._x + this.internalMessages[j]._elemB._width/2 -5;
+        //ti._y = this.internalMessages[j]._y;
+        //this.sequenceDiagram.addElement(ti);
+        this.internalMessages[j]._objB._visible = false;
       }
 
       // Source of message is an actor (not lifeline)

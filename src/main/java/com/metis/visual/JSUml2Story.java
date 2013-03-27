@@ -184,10 +184,11 @@ public class JSUml2Story {
 				}
 			} else if (to.getClass().toString().contains("FunctionExit")) {
 				// Function ends execution, not return statement
+				initialY += 30;
 				functionExitMessage(initialY);
 			} else if (to.getClass().toString().contains("ReturnStatement")) {
 				// Return to previous function
-				initialY += 40;
+				initialY += 30;
 				functionReturnMessage(initialY);
 			} else if (to.getClass().toString().contains("XMLHttpRequestOpen")) {
 				// XMLHttpRequest is open, recursive call 'open'

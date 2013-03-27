@@ -1,12 +1,13 @@
 package com.metis.core.trace;
 
 import org.codehaus.jackson.annotate.JsonSetter;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class FunctionEnter extends FunctionTrace {
 	private String TargetFunction;
-	private JSONObject args;
+	private JSONArray args;
 	String scopeName;
 
 	public String getScopeName() {
@@ -25,14 +26,14 @@ public class FunctionEnter extends FunctionTrace {
 		TargetFunction = targetFunction;
 	}
 
-	public JSONObject getArgs() {
+	public JSONArray getArgs() {
 		return args;
 	}
 
 	@JsonSetter("args")
 	public void setArgs(String args_string) {
 		try {
-			this.args = new JSONObject(args_string);			
+			this.args = new JSONArray(args_string);			
 		} catch (JSONException e) {
 			System.out.println("Exception constructing JSONObject from string " + args_string);
 			e.printStackTrace();
@@ -41,15 +42,13 @@ public class FunctionEnter extends FunctionTrace {
 
 	public String getArgsString() {
 
-		String[] labels = JSONObject.getNames(getArgs());
 		String arguments = "";
 
-		for (int i=0; i<labels.length; i++) {
+		for (int i=0; i<getArgs().length();i++) {
 			try {
-				arguments += ", " + getArgs().get(labels[i]).toString().replaceAll("\"", "");
+				String labels[] = JSONObject.getNames(getArgs().getJSONObject(i));
+				arguments += ", " + getArgs().getJSONObject(i).get(labels[0]).toString().replaceAll("\"", "");
 			} catch (JSONException e) {
-				System.setOut(System.out);
-				System.out.println("Error translating arguments into String.");
 				e.printStackTrace();
 			}	
 		}
@@ -61,11 +60,15 @@ public class FunctionEnter extends FunctionTrace {
 		if (getArgs() == null) {
 			return "";
 		} else {
-			String[] labels = JSONObject.getNames(getArgs());
 			String argumentLabels = "";
 
-			for (int i=0; i<labels.length; i++) {
-				argumentLabels += ", " + labels[i].replaceAll("\"", "");	
+			for (int i=0; i<getArgs().length();i++) {
+				try {
+					String labels[] = JSONObject.getNames(getArgs().getJSONObject(i));
+					argumentLabels += ", " + labels[0].toString().replaceAll("\"", "");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}	
 			}
 
 			return argumentLabels.replaceFirst(", ", "");
