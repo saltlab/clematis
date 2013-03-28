@@ -59,7 +59,7 @@
   };
 })();
 
-// DOM Trace
+// DOM Event Trace
 var DOMEventTrace = EpisodeComponent.extend({
   init: function(isEpisodeSource){
     this.episodeSource = isEpisodeSource;
@@ -88,6 +88,60 @@ var DOMEventTrace = EpisodeComponent.extend({
   createDiagramObject:  function(x_pos, y_pos) {
     this.visual = new UMLActor({ x : x_pos, y: y_pos});
     this.visual.setName('Event type:' + this.getEventType() +'\nTarget:' + this.getTargetElement() + '\nHandler:'+this.getEventHandler());
+    this.visual.notifyChange();
+  },
+  getDiagramObject: function(){
+    return this.visual;
+  }
+});
+
+// DOM Mutation Trace
+var DOMMutationTrace = EpisodeComponent.extend({
+  init: function(isEpisodeSource){
+    this.episodeSource = isEpisodeSource;
+  },
+  isEpisodeSource: function(){
+    return this.episodeSource;
+  },
+  setMutationType: function(mutationType){
+    this.mutationType = mutationType;
+  },
+  getMutationType: function(){
+    return this.mutationType;
+  },
+  setData: function(data){
+	    this.data = data;
+  },
+  getData: function(){
+    return this.data;
+  },
+  setNodeName: function(nodeName){
+	    this.nodeName = nodeName;
+  },
+  getNodeName: function(){
+	  return this.nodeName;
+  },
+  setNodeValue: function(nodeValue){
+	    this.nodeValue = nodeValue;
+  },
+  getNodeValue: function(){
+	  return this.nodeValue;
+  },
+  setNodeType: function(nodeType){
+    this.nodeType = nodeType;
+  },
+  getNodeType: function(){
+    return this.nodeType;
+  },
+  setParentNodeValue: function(parentNodeValue){
+    this.parentNodeValue = parentNodeValue;
+  },
+  getParentNodeValue: function(){
+    return this.parentNodeValue;
+  },
+  createDiagramObject:  function(x_pos, y_pos) {
+    this.visual = new UMLActor({ x : x_pos, y: y_pos});
+    this.visual.setName('Element ID:' + this.getParentNodeValue() +'\nMutation Type:' + this.getMutationType());
     this.visual.notifyChange();
   },
   getDiagramObject: function(){

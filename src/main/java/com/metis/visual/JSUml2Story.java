@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import com.crawljax.util.Helper;
 import com.metis.core.episode.Episode;
 import com.metis.core.trace.DOMEventTrace;
+import com.metis.core.trace.DOMMutationTrace;
 import com.metis.core.trace.FunctionCall;
 import com.metis.core.trace.FunctionEnter;
 import com.metis.core.trace.TimeoutSet;
@@ -63,8 +64,9 @@ public class JSUml2Story {
 			if (!to.getClass().toString().contains("FunctionEnter") &&
 					!to.getClass().toString().contains("XMLHttpRequest") &&
 					!to.getClass().toString().contains("Timeout") &&
-					!to.getClass().toString().contains("DOMEventTrace")){
-				// Only want to create components for a subset of TraceObjects
+					!to.getClass().toString().contains("DOMEventTrace") &&
+					!to.getClass().toString().contains("DOMMutationTrace")){  // probably don't want DOM Mutations to be part of this
+				// Only want to create components for a subset of TraceObjects 
 				continue;
 			} else if (components.contains(getDiagramIdentifier(to))) {
 				// Component already created for TraceObject to
@@ -91,7 +93,7 @@ public class JSUml2Story {
 				TimingTrace ttto = (TimingTrace) to;
 				System.out.println("var "+getDiagramIdentifier(to)+" = new TimingTrace(false);");
 				System.out.println(getDiagramIdentifier(to)+".setTimeoutId("+ttto.getId()+");");		
-				System.out.println(getDiagramIdentifier(to)+".setCallbackFunction('"+ttto.getCallbackFunction()+"');");		
+				System.out.println(getDiagramIdentifier(to)+".setCallbackFunction('"+ttto.getCallbackFunction()+"');");
 			} else if (to.getClass().toString().contains("DOMEventTrace")) {
 				// Create actors for child DOM events
 				DOMEventTrace deto = (DOMEventTrace) to;
@@ -99,8 +101,18 @@ public class JSUml2Story {
 				System.out.println(getDiagramIdentifier(to)+".setEventType('"+deto.getEventType()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setEventHandler('"+deto.getEventHandler()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setTargetElement('"+deto.getTargetElement()+"');");		
+			} else if (to.getClass().toString().contains("DOMMutationTrace")) {
+				// Create actors for child DOM Mutations
+				DOMMutationTrace dmto = (DOMMutationTrace) to;
+				System.out.println("var "+getDiagramIdentifier(to)+" = new DOMMutationTrace(false);");
+				System.out.println(getDiagramIdentifier(to)+".setMutationType('"+dmto.getMutationType()+"');");		
+				System.out.println(getDiagramIdentifier(to)+".setData('"+dmto.getData()+"');");		
+				System.out.println(getDiagramIdentifier(to)+".setNodeName('"+dmto.getNodeName()+"');");
+				System.out.println(getDiagramIdentifier(to)+".setNodeValue('"+dmto.getNodeValue()+"');");		
+				System.out.println(getDiagramIdentifier(to)+".setNodeType('"+dmto.getNodeType()+"');");		
+				System.out.println(getDiagramIdentifier(to)+".setParentNodeValue('"+dmto.getParentNodeValue()+"');");	
 			}
-			System.out.println(getDiagramIdentifier(to)+".createDiagramObject("+initialX+", "+initialY+");");
+			System.out.println(getDiagramIdentifier(to)+".createDiagramObject("+initialX+", "+initialY+");"); // don't call diagram, just add component
 			System.out.println("episode"+episodeSource.getCounter()+".addComponent("+getDiagramIdentifier(to)+");");
 			System.out.println("");
 			initialX += 200;
@@ -117,6 +129,19 @@ public class JSUml2Story {
 		System.out.println("\"Event Type: "+deto.getEventType()+"\" \\");
 		System.out.println("\"Handler: "+deto.getEventHandler()+"\" \\");
 		System.out.println("\"Target: "+deto.getTargetElementAttributes()+"\")");
+	}
+	
+	@SuppressWarnings("unused")
+	private void addDOMMutationInfo(TraceObject to) {
+		DOMMutationTrace dmto = (DOMMutationTrace) to;
+		System.out.println("comment("+getDiagramIdentifier(to)+",C, up, wid 2.0 ht .8 \\");
+		//System.out.println("comment("+getDiagramIdentifier(to)+",C, up,");
+		System.out.println("\"Mutation Type: "+dmto.getMutationType()+"\" \\");
+		System.out.println("\"Data: "+dmto.getData()+"\" \\");
+		System.out.println("\"Node Name: "+dmto.getNodeName()+"\")");
+		System.out.println("\"Node Value: "+dmto.getNodeValue()+"\" \\");
+		System.out.println("\"Node Type: "+dmto.getNodeType()+"\" \\");
+		System.out.println("\"Parent Element: "+dmto.getParentNodeValue()+"\")");
 	}
 
 	@SuppressWarnings("unused")
@@ -165,6 +190,11 @@ public class JSUml2Story {
 			// Leave extra space for DOM event information
 			initialY += 80;		
 		}
+		
+		if (functionTraceObjects.get(0).getClass().toString().contains("DOMMutationTrace")) {
+			// Leave extra space for DOM event information
+			initialY += 100;		
+		}
 
 		System.out.println("// Message sequences");
 		for (int i=1; i<functionTraceObjects.size(); i++) {
@@ -202,6 +232,9 @@ public class JSUml2Story {
 			} else if (to.getClass().toString().contains("TimeoutSet")) {
 				initialY += 60;
 				TimeoutSetMessage(functionTraceObjects.get(i-1), to, initialY);
+			} else if (to.getClass().toString().contains("DOMMutationTrace")) {
+				initialY += 60;
+				DOMMutationMessage(functionTraceObjects.get(i-1), to, initialY);
 			} else if (to.getClass().toString().contains("TimeoutCallback")) {
 				//TODO
 			} 
@@ -221,6 +254,23 @@ public class JSUml2Story {
 			}
 		} else {	
 			// Not sure where the timeout was set from...
+			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+					"y : "+y+"}));");	
+		}
+	}
+	
+	private void DOMMutationMessage(TraceObject before, TraceObject to, int y) {
+		if (before.getClass().toString().contains("FunctionCall")) {
+			FunctionCall fcto = (FunctionCall) before;
+			if (fcto.getTargetFunction().contains("setTimeout")) {
+				// DOM MUtation was triggered by the executing function	
+				System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
+						"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+						"y : "+y+"}));");		
+			}
+		} else {	
+			// Not sure what triggered the mutation
 			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
 					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
 					"y : "+y+"}));");	
@@ -356,6 +406,14 @@ public class JSUml2Story {
 			// Create actors for child DOM events
 			DOMEventTrace deto = (DOMEventTrace) tObject;
 			return "DOMEvent"+deto.getEventType()+"_"+episodeSource.getCounter();
+		} else if (tObject.getClass().toString().contains("DOMEventTrace")) {
+			// Create actors for child DOM events
+			DOMEventTrace deto = (DOMEventTrace) tObject;
+			return "DOMEvent"+deto.getEventType()+"_"+episodeSource.getCounter();
+		} else if (tObject.getClass().toString().contains("DOMMutationTrace")) {
+			// Create actors for child DOM mutations
+			DOMMutationTrace dmto = (DOMMutationTrace) tObject;
+			return "DOMMutation"+dmto.getParentNodeValue()+"_"+episodeSource.getCounter();
 		}
 		return null;
 	}
