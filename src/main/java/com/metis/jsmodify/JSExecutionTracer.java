@@ -438,7 +438,7 @@ public class JSExecutionTracer {
 
 				if (buffer.getJSONObject(i).has("args") && ((String) buffer.getJSONObject(i).get("messageType")).contains("FUNCTION_ENTER")) {
 					try {
-						JSONObject args = (JSONObject) buffer.getJSONObject(i).get("args");
+						JSONArray args = (JSONArray) buffer.getJSONObject(i).get("args");
 						String newValue = args.toString();				
 						buffer.getJSONObject(i).remove("args");
 						buffer.getJSONObject(i).put("args", newValue);
