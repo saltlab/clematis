@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import com.crawljax.util.Helper;
 import com.metis.core.episode.Episode;
+import com.metis.core.trace.DOMElementValueTrace;
 import com.metis.core.trace.DOMEventTrace;
 import com.metis.core.trace.DOMMutationTrace;
 import com.metis.core.trace.FunctionCall;
@@ -70,8 +71,21 @@ public class JSUml2Story {
 				System.out.println(getDiagramIdentifier(to)+".setNodeValue('"+dmto.getNodeValue()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setNodeType('"+dmto.getNodeType()+"');");	
 				System.out.println(getDiagramIdentifier(to)+".setParentNodeValue('"+dmto.getParentNodeValue()+"');");
-				
+
 				System.out.println("episode"+episodeSource.getCounter()+".addMutations("+getDiagramIdentifier(to)+");");
+				System.out.println("");
+				continue; 
+			} else if (to.getClass().toString().contains("DOMElementValueTrace")) {
+				DOMElementValueTrace evto = (DOMElementValueTrace) to;
+				System.out.println("var "+getDiagramIdentifier(to)+" = new DOMElementValueTrace(false);");
+				System.out.println(getDiagramIdentifier(to)+".setElementId('"+evto.getElementId()+"');");
+				System.out.println(getDiagramIdentifier(to)+".setOldValue('"+evto.getOldValue()+"');");		
+				System.out.println(getDiagramIdentifier(to)+".setNewValue('"+evto.getNewValue()+"');");		
+				System.out.println(getDiagramIdentifier(to)+".setNodeName('"+evto.getNodeName()+"');");
+				System.out.println(getDiagramIdentifier(to)+".setElementType('"+evto.getElementType()+"');");		
+				System.out.println(getDiagramIdentifier(to)+".setNodeType('"+evto.getNodeType()+"');");	
+
+				System.out.println("episode"+episodeSource.getCounter()+".addElementValueTraces("+getDiagramIdentifier(to)+");");
 				System.out.println("");
 				continue;
 			} else if (!to.getClass().toString().contains("FunctionEnter") &&
@@ -385,9 +399,11 @@ public class JSUml2Story {
 			DOMEventTrace deto = (DOMEventTrace) tObject;
 			return "DOMEvent"+deto.getEventType()+"_"+episodeSource.getCounter();
 		} else if (tObject.getClass().toString().contains("DOMMutationTrace")) {
-			// Create actors for child DOM mutations
 			DOMMutationTrace dmto = (DOMMutationTrace) tObject;
-			return "DOMMutation"+dmto.getParentNodeValue()+"_"+episodeSource.getCounter();
+			return "DOMMutation"+dmto.getMutationType()+"_"+episodeSource.getCounter();
+		} else if (tObject.getClass().toString().contains("DOMElementValueTrace")) {
+			DOMElementValueTrace evto = (DOMElementValueTrace) tObject;
+			return "DOMElementValueTrace"+evto.getElementId()+"_"+episodeSource.getCounter();
 		}
 		return null;
 	}

@@ -139,9 +139,60 @@ var DOMMutationTrace = EpisodeComponent.extend({
   getParentNodeValue: function(){
     return this.parentNodeValue;
   },
-  getMutationSummary: function(){
+  getSummary: function(){
 	var summary = "Type: " + this.getMutationType() + "\nElement ID: " + this.getParentNodeValue() + "\nData " + this.getNodeValue() + "\nNode Type: " + 
 	this.getNodeName() + " (type " + this.getNodeType() + ")";
+    return summary;
+  }
+});
+
+//DOM Element Value Trace
+var DOMElementValueTrace = EpisodeComponent.extend({
+  init: function(isEpisodeSource){
+    this.episodeSource = isEpisodeSource;
+  },
+  isEpisodeSource: function(){
+    return this.episodeSource;
+  },
+  setElementId: function(elementId){
+    this.elementId = elementId;
+  },
+  getElementId: function(){
+    return this.elementId;
+  },
+  setElementType: function(elementType){
+	  this.elementType = elementType;
+  },
+  getElementType: function(){
+	  return this.elementType;
+  },
+  setNodeName: function(nodeName){
+	    this.nodeName = nodeName;
+  },
+  getNodeName: function(){
+	  return this.nodeName;
+  },
+  setNodeType: function(nodeType){
+    this.nodeType = nodeType;
+  },
+  getNodeType: function(){
+    return this.nodeType;
+  },
+  setNewValue: function(newValue){
+	    this.newValue = newValue;
+  },
+  getNewValue: function(){
+	  return this.newValue;
+  },
+  setOldValue: function(oldValue){
+	  this.oldValue = oldValue;
+  },
+  getOldValue: function(){
+	  return this.oldValue;
+  },
+  getSummary: function(){
+	var summary = "Element ID : " + this.getElementId() + "\nOld Value: " + this.getOldValue() + "\nNew Value " + this.getNewValue() + "\nElement Type: "
+	+ this.getElementType() + "\nNode Type: " + this.getNodeName() + " (type " + this.getNodeType() + ")";
     return summary;
   }
 });
@@ -287,6 +338,7 @@ function Episode () {
   this.internalMessages = [];
   this.internalComponents = [];
   this.domComponents = [];
+  this.elementValueChanges = [];
   this.dom = null;
   //this.sequenceDiagram = new UMLSequenceDiagram({backgroundNodes: '#FF9900'});
   this.sequenceDiagram = null;
@@ -309,6 +361,14 @@ function Episode () {
   
   this.getMutations = function () {
 	  return this.domComponents;
+  };
+  
+  this.addElementValueTraces = function (elementValueTraces) {
+	  this.elementValueChanges.push(elementValueTraces);
+  };
+  
+  this.getElementValueTraces = function () {
+	  return this.elementValueChanges;
   };
 
   this.addMessage = function(newMessage) {
