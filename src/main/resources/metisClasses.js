@@ -139,13 +139,10 @@ var DOMMutationTrace = EpisodeComponent.extend({
   getParentNodeValue: function(){
     return this.parentNodeValue;
   },
-  createDiagramObject:  function(x_pos, y_pos) {
-    this.visual = new UMLActor({ x : x_pos, y: y_pos});
-    this.visual.setName('Element ID:' + this.getParentNodeValue() +'\nMutation Type:' + this.getMutationType());
-    this.visual.notifyChange();
-  },
-  getDiagramObject: function(){
-    return this.visual;
+  getMutationSummary: function(){
+	var summary = "Type: " + this.getMutationType() + "\nElement ID: " + this.getParentNodeValue() + "\nData " + this.getNodeValue() + "\nNode Type: " + 
+	this.getNodeName() + " (type " + this.getNodeType() + ")";
+    return summary;
   }
 });
 
@@ -289,6 +286,7 @@ var FunctionTrace = EpisodeComponent.extend({
 function Episode () {
   this.internalMessages = [];
   this.internalComponents = [];
+  this.domComponents = [];
   this.dom = null;
   //this.sequenceDiagram = new UMLSequenceDiagram({backgroundNodes: '#FF9900'});
   this.sequenceDiagram = null;
@@ -303,6 +301,14 @@ function Episode () {
   
   this.getComponents = function () {
     return this.internalComponents;
+  };
+  
+  this.addMutations = function (mutation) {
+	  this.domComponents.push(mutation);
+  };
+  
+  this.getMutations = function () {
+	  return this.domComponents;
   };
 
   this.addMessage = function(newMessage) {

@@ -61,11 +61,23 @@ public class JSUml2Story {
 		int initialY = 60;
 
 		for (TraceObject to: functionTraceObjects) {
-			if (!to.getClass().toString().contains("FunctionEnter") &&
+			if (to.getClass().toString().contains("DOMMutationTrace")) {
+				DOMMutationTrace dmto = (DOMMutationTrace) to;
+				System.out.println("var "+getDiagramIdentifier(to)+" = new DOMMutationTrace(false);");
+				System.out.println(getDiagramIdentifier(to)+".setMutationType('"+dmto.getMutationType()+"');");		
+				System.out.println(getDiagramIdentifier(to)+".setData('"+dmto.getData()+"');");		
+				System.out.println(getDiagramIdentifier(to)+".setNodeName('"+dmto.getNodeName()+"');");
+				System.out.println(getDiagramIdentifier(to)+".setNodeValue('"+dmto.getNodeValue()+"');");		
+				System.out.println(getDiagramIdentifier(to)+".setNodeType('"+dmto.getNodeType()+"');");	
+				System.out.println(getDiagramIdentifier(to)+".setParentNodeValue('"+dmto.getParentNodeValue()+"');");
+				
+				System.out.println("episode"+episodeSource.getCounter()+".addMutations("+getDiagramIdentifier(to)+");");
+				System.out.println("");
+				continue;
+			} else if (!to.getClass().toString().contains("FunctionEnter") &&
 					!to.getClass().toString().contains("XMLHttpRequest") &&
 					!to.getClass().toString().contains("Timeout") &&
-					!to.getClass().toString().contains("DOMEventTrace") &&
-					!to.getClass().toString().contains("DOMMutationTrace")){  // probably don't want DOM Mutations to be part of this
+					!to.getClass().toString().contains("DOMEventTrace")){ 
 				// Only want to create components for a subset of TraceObjects 
 				continue;
 			} else if (components.contains(getDiagramIdentifier(to))) {
@@ -101,18 +113,8 @@ public class JSUml2Story {
 				System.out.println(getDiagramIdentifier(to)+".setEventType('"+deto.getEventType()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setEventHandler('"+deto.getEventHandler()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setTargetElement('"+deto.getTargetElement()+"');");		
-			} else if (to.getClass().toString().contains("DOMMutationTrace")) {
-				// Create actors for child DOM Mutations
-				DOMMutationTrace dmto = (DOMMutationTrace) to;
-				System.out.println("var "+getDiagramIdentifier(to)+" = new DOMMutationTrace(false);");
-				System.out.println(getDiagramIdentifier(to)+".setMutationType('"+dmto.getMutationType()+"');");		
-				System.out.println(getDiagramIdentifier(to)+".setData('"+dmto.getData()+"');");		
-				System.out.println(getDiagramIdentifier(to)+".setNodeName('"+dmto.getNodeName()+"');");
-				System.out.println(getDiagramIdentifier(to)+".setNodeValue('"+dmto.getNodeValue()+"');");		
-				System.out.println(getDiagramIdentifier(to)+".setNodeType('"+dmto.getNodeType()+"');");		
-				System.out.println(getDiagramIdentifier(to)+".setParentNodeValue('"+dmto.getParentNodeValue()+"');");	
 			}
-			System.out.println(getDiagramIdentifier(to)+".createDiagramObject("+initialX+", "+initialY+");"); // don't call diagram, just add component
+			System.out.println(getDiagramIdentifier(to)+".createDiagramObject("+initialX+", "+initialY+");");
 			System.out.println("episode"+episodeSource.getCounter()+".addComponent("+getDiagramIdentifier(to)+");");
 			System.out.println("");
 			initialX += 200;
@@ -190,11 +192,6 @@ public class JSUml2Story {
 			// Leave extra space for DOM event information
 			initialY += 80;		
 		}
-		
-		if (functionTraceObjects.get(0).getClass().toString().contains("DOMMutationTrace")) {
-			// Leave extra space for DOM event information
-			initialY += 100;		
-		}
 
 		System.out.println("// Message sequences");
 		for (int i=1; i<functionTraceObjects.size(); i++) {
@@ -233,9 +230,6 @@ public class JSUml2Story {
 			} else if (to.getClass().toString().contains("TimeoutSet")) {
 				initialY += 60;
 				TimeoutSetMessage(functionTraceObjects.get(i-1), to, initialY);
-			} else if (to.getClass().toString().contains("DOMMutationTrace")) {
-				initialY += 60;
-				DOMMutationMessage(functionTraceObjects.get(i-1), to, initialY);
 			} else if (to.getClass().toString().contains("TimeoutCallback")) {
 				//TODO
 			} 
@@ -261,23 +255,6 @@ public class JSUml2Story {
 		}
 	}
 	
-	private void DOMMutationMessage(TraceObject before, TraceObject to, int y) {
-		if (before.getClass().toString().contains("FunctionCall")) {
-			FunctionCall fcto = (FunctionCall) before;
-			if (fcto.getTargetFunction().contains("setTimeout")) {
-				// DOM MUtation was triggered by the executing function	
-				System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
-						"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
-						"y : "+y+"}));");		
-			}
-		} else {	
-			// Not sure what triggered the mutation
-			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
-					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
-					"y : "+y+"}));");	
-		}
-	}
-
 	private void XHROpenMessage(TraceObject to, int y) {
 		push(getDiagramIdentifier(to));	
 		System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+".getDiagramObject(), " +
@@ -403,10 +380,6 @@ public class JSUml2Story {
 			// Create actors for child timing events, that is, timing events that spawned as a result of the origin event
 			TimingTrace ttto = (TimingTrace) tObject;
 			return "Timeout"+ttto.getId()+"_"+episodeSource.getCounter();
-		} else if (tObject.getClass().toString().contains("DOMEventTrace")) {
-			// Create actors for child DOM events
-			DOMEventTrace deto = (DOMEventTrace) tObject;
-			return "DOMEvent"+deto.getEventType()+"_"+episodeSource.getCounter();
 		} else if (tObject.getClass().toString().contains("DOMEventTrace")) {
 			// Create actors for child DOM events
 			DOMEventTrace deto = (DOMEventTrace) tObject;
