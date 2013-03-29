@@ -2,7 +2,6 @@ div.episodeCode {
   position: relative;
   float: left;
   background: #ffffff;
-  width: 700px;
 }
 
 div.storyWrapper {
@@ -12,7 +11,6 @@ div.storyWrapper {
 
 pre.codeWrapper {
   overflow: auto; 
-  width: 800px;
   height: 800px;
 }
 
@@ -20,6 +18,7 @@ td {
   padding: 10px;
   vertical-align: top;
 }
+
 /*
 td.domEvent {
   border: 1px solid #00CED1;

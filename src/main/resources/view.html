@@ -27,17 +27,17 @@
 <br />
 <table border='2'>
 	<tr>
-		<td width='300'>
+		<td id='first_column' width=10>
 			some info about the lifeline (and the episode?) goes here
 		</td>
-		<td>
+		<td id='second_column' width=10 class="code_column">
             <div id='filename_div'></div>
             <pre id='code_pre' class="prettyprint lang-java">
                 <code id='code_code' class="language-java">
                 </code>
             </pre>
 		</td>
-		<td>
+		<td id='third_column' width=10>
 			<div>DOM?</div>
 		</td>
 	</tr>
@@ -56,6 +56,12 @@ var episodeCounter = allEpisodes.length;//5;
 
 var lifeLinesByEpisode = new Array();
 var messagesByEpisode = new Array();
+
+document.getElementById('first_column').width = window.innerWidth/3;
+document.getElementById('third_column').width = window.innerWidth/3;
+document.getElementById('code_code').width = window.innerWidth/3;
+document.getElementById('filename_div').width = window.innerWidth/3;
+document.getElementById('second_column').width = window.innerWidth/3;
 
 </script>
 
@@ -129,6 +135,7 @@ for (var i = 0; i < episodeCounter; i ++) {
 	episodeTraceDiv.style.height = height + 'px';
 
 
+
 //////////////////////////////////////////////////
 	// change this to assign the trace class based on the type of the episode trace (dom/timing/xhr)
 	if (actorType == "DOM_EVENT") {
@@ -188,6 +195,7 @@ for (var i = 0; i < episodeCounter; i ++) {
 	storyTableRow.appendChild(episodeCell);
 
 }
+console.log('asdasda');
 
 storyTable.appendChild(storyTableRow);
 
@@ -213,8 +221,8 @@ for (var m = 0; m < lifeLinesByEpisode.length; m ++) {
 		}
 */	}
 
-	document.getElementById("trace_div_" + m).addEventListener('click', traceDivClickHandler, false);
 
+	document.getElementById("trace_div_" + m).addEventListener('click', traceDivClickHandler, false);
 }
 
 function traceDivClickHandler(e) {
@@ -322,6 +330,11 @@ function viewDetailedCode(lifeline) {
              lineOfInterest.effect("highlight", {}, 4000);
 
              document.getElementById('filename_div').innerHTML = '<strong>'+lifeline.getFileName()+'</strong>';
+             document.getElementById('second_column').width = 200;
+             document.getElementById('code_code').width = 200;
+             document.getElementById('code_pre').width = window.innerWidth/15;
+
+
          }
      }
      xmlhttp.open("GET",lifeline.getFileName(),true);
@@ -329,7 +342,17 @@ function viewDetailedCode(lifeline) {
 }
 
 function viewEventInformation(lifeline) {
-console.log(lifeline);
+    if (lifeline instanceof DOMEventTrace) {
+        var jjson = lifeline.getTargetElement();
+        var obj = JSON.parse(jjson);
+        document.getElementById('first_column').innerHTML = 'Event type:<br>&nbsp&nbsp&nbsp' + lifeline.getEventType() 
+                                                                +'<br><br>Target:<br>&nbsp&nbsp&nbsp' + JSON.stringify(obj, null, 4) 
+                                                                + '<br><br>Handler: <br>&nbsp&nbsp&nbsp'+lifeline.getEventHandler();
+    } else if (lifeline instanceof TimingTrace) {
+        document.getElementById('first_column').innerHTML = 'Time';
+    } else if (lifeline instanceof XHREvent) {
+        document.getElementById('first_column').innerHTML = 'XHR';
+    }
 }
 
 </script>

@@ -22,8 +22,8 @@ import com.metis.jsmodify.JSModifyProxyPlugin;
 
 public class SimpleExample {
 
-	private static final String URL = "http://localhost:8080/same-game/same-game.html";
-	//private static final String URL = "http://localhost:8080/example_webapplication/index.html";
+	//private static final String URL = "http://localhost:8080/same-game/same-game.html";
+	private static final String URL = "http://localhost:8080/example_webapplication/index.html";
 
 	private static String outputFolder = "";
 	private static WebDriver driver;

@@ -87,7 +87,8 @@ var DOMEventTrace = EpisodeComponent.extend({
   },
   createDiagramObject:  function(x_pos, y_pos) {
     this.visual = new UMLActor({ x : x_pos, y: y_pos});
-    this.visual.setName('Event type:' + this.getEventType() +'\nTarget:' + this.getTargetElement() + '\nHandler:'+this.getEventHandler());
+    //this.visual.setName('Event type:' + this.getEventType() +'\nTarget:' + this.getTargetElement() + '\nHandler:'+this.getEventHandler());
+    this.visual.setName('Event type:' + this.getEventType() + '\nHandler:'+this.getEventHandler());
     this.visual.notifyChange();
   },
   getDiagramObject: function(){
@@ -290,28 +291,22 @@ function Episode () {
         this.internalMessages[j]._objB._visible = false;
       }
 
-      // Source of message is an actor (not lifeline)
-      if (this.internalMessages[j]._points[0]._x == undefined) {
-        if (this.internalMessages[j]._elemA._x < this.internalMessages[j]._elemB._x) {
-          // Arrow going right
+      if (this.internalMessages[j]._points[0]._x == undefined && this.internalMessages[j]._points[1]._x == undefined) {
+        // Recursive call to Actor
+        var dottedLine = new UMLLifeline({x:this.internalMessages[j]._elemA._x+25, y:this.internalMessages[j]._elemA._y+35});
+        dottedLine.setName("");
+        dottedLine._heightSmallRectangle = -1;
+        dottedLine._width = 0;
+        this.internalMessages[j]._elemA = dottedLine;
+        this.internalMessages[j]._elemB = dottedLine;
+      } else if (this.internalMessages[j]._points[0]._x == undefined) {
+          // Source of message is an actor (not lifeline)
           this.internalMessages[j]._points[0].setX(this.internalMessages[j]._elemA._x + 23);
-        } else {
-          // Arrow going left
-          this.internalMessages[j]._points[0].setX(this.internalMessages[j]._elemA._x + 23);
-        }
-        this.internalMessages[j]._objA = this.internalMessages[j]._objB;
-      }
-
-      // Destination of message is an actor (not lifeline)
-      if (this.internalMessages[j]._points[1]._x == undefined) {
-        if (this.internalMessages[j]._elemB._x < this.internalMessages[j]._elemA._x) {
-          // Arrow going left
+          this.internalMessages[j]._objA = this.internalMessages[j]._objB;
+      } else if (this.internalMessages[j]._points[1]._x == undefined) {
+          // Destination of message is an actor (not lifeline)
           this.internalMessages[j]._points[1].setX(this.internalMessages[j]._elemB._x + 23);
-        } else {
-          // Arrow going right
-          this.internalMessages[j]._points[1].setX(this.internalMessages[j]._elemB._x + 23);
-        }
-        this.internalMessages[j]._objB = this.internalMessages[j]._objA;
+          this.internalMessages[j]._objB = this.internalMessages[j]._objA;
       }
       // Add message to sequence diagram
       this.sequenceDiagram.addElement(this.internalMessages[j]);
