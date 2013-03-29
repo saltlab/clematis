@@ -40,3 +40,10 @@ td.episode_cell_xhr {
   border: 1px solid #FF6347;
   background-color: #FFE4E1;
 }
+
+pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+.string { color: green; }
+.number { color: darkorange; }
+.boolean { color: blue; }
+.null { color: magenta; }
+.key { color: red; }

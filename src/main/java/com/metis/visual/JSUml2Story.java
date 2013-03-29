@@ -98,7 +98,7 @@ public class JSUml2Story {
 				System.out.println("var "+getDiagramIdentifier(to)+" = new DOMEventTrace(false);");
 				System.out.println(getDiagramIdentifier(to)+".setEventType('"+deto.getEventType()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setEventHandler('"+deto.getEventHandler()+"');");		
-				System.out.println(getDiagramIdentifier(to)+".setTargetElement('"+deto.getTargetElement()+"');");		
+				System.out.println(getDiagramIdentifier(to)+".setTargetElement("+deto.getTargetElement()+");");		
 			}
 			System.out.println(getDiagramIdentifier(to)+".createDiagramObject("+initialX+", "+initialY+");");
 			System.out.println("episode"+episodeSource.getCounter()+".addComponent("+getDiagramIdentifier(to)+");");
@@ -287,7 +287,7 @@ public class JSUml2Story {
 			System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+fromID+".getDiagramObject(), " +
 					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
 					"y : "+y+"});");
-			System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"response\");");
+			//System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"response\");");
 			System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
 			System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
 

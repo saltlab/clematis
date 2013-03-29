@@ -1,5 +1,6 @@
 <html>
 <head>
+
     <link type="text/css" rel="stylesheet" 
           href="../../../src/main/resources/css/UDStyle.css" media="screen" />
     <link type="text/css" rel="stylesheet" 
@@ -344,15 +345,37 @@ function viewDetailedCode(lifeline) {
 function viewEventInformation(lifeline) {
     if (lifeline instanceof DOMEventTrace) {
         var jjson = lifeline.getTargetElement();
-        var obj = JSON.parse(jjson);
-        document.getElementById('first_column').innerHTML = 'Event type:<br>&nbsp&nbsp&nbsp' + lifeline.getEventType() 
-                                                                +'<br><br>Target:<br>&nbsp&nbsp&nbsp' + JSON.stringify(obj, null, 4) 
+
+document.getElementById('first_column').innerHTML = '';
+document.getElementById('first_column').appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
+/*        document.getElementById('first_column').innerHTML = 'Event type:<br>&nbsp&nbsp&nbsp' + lifeline.getEventType() 
+                                                                +'<br><br>Target:<br>&nbsp&nbsp&nbsp' + JSON.stringify(jjson, null, 4)//.replace("\n", '<br>') 
                                                                 + '<br><br>Handler: <br>&nbsp&nbsp&nbsp'+lifeline.getEventHandler();
-    } else if (lifeline instanceof TimingTrace) {
+ */   } else if (lifeline instanceof TimingTrace) {
         document.getElementById('first_column').innerHTML = 'Time';
     } else if (lifeline instanceof XHREvent) {
         document.getElementById('first_column').innerHTML = 'XHR';
     }
+}
+
+function syntaxHighlight(json) {
+    // For making JSON pretty
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
 }
 
 </script>
