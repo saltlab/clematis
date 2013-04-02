@@ -1,5 +1,8 @@
 package com.metis.core.trace;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.metis.core.episode.EpisodeSource;
 
 public class DOMMutationTrace extends TraceObject/* implements EpisodeSource */{
@@ -46,7 +49,7 @@ public class DOMMutationTrace extends TraceObject/* implements EpisodeSource */{
 	public void setNodeValue(String nodeValue) {
 		this.nodeValue = nodeValue;
 	}
-  
+
 	public String getNodeType() {
 		return nodeType;
 	}
@@ -62,6 +65,23 @@ public class DOMMutationTrace extends TraceObject/* implements EpisodeSource */{
 	public void setParentNodeValue(String parentNodeValue) {
 		this.parentNodeValue = parentNodeValue;
 	}
+
 	
+	
+	public JSONObject getMutationAsJSON() {
+		JSONObject returnObject = new JSONObject();
+		
+		try {
+			returnObject.put("mutationtype", this.mutationType);
+			returnObject.put("parentNode", this.parentNodeValue);
+			returnObject.put("nodeType", this.nodeType);
+			returnObject.put("nodeName", this.nodeName);
+			returnObject.put("nodeValue", this.nodeValue);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return returnObject;
+
+	}
 
 }

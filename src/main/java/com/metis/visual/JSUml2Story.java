@@ -65,13 +65,16 @@ public class JSUml2Story {
 			if (to.getClass().toString().contains("DOMMutationTrace")) {
 				DOMMutationTrace dmto = (DOMMutationTrace) to;
 				System.out.println("var "+getDiagramIdentifier(to)+" = new DOMMutationTrace(false);");
-				System.out.println(getDiagramIdentifier(to)+".setMutationType('"+dmto.getMutationType()+"');");		
+		/*		System.out.println(getDiagramIdentifier(to)+".setMutationType('"+dmto.getMutationType()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setData('"+dmto.getData()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setNodeName('"+dmto.getNodeName()+"');");
 				System.out.println(getDiagramIdentifier(to)+".setNodeValue('"+dmto.getNodeValue()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setNodeType('"+dmto.getNodeType()+"');");	
-				System.out.println(getDiagramIdentifier(to)+".setParentNodeValue('"+dmto.getParentNodeValue()+"');");
-
+				System.out.println(getDiagramIdentifier(to)+".setParentNodeValue('"+dmto.getParentNodeValue()+"');");*/
+				
+				System.out.println(getDiagramIdentifier(to)+".setMutationObject("+dmto.getMutationAsJSON()+");");
+						
+						
 				System.out.println("episode"+episodeSource.getCounter()+".addMutations("+getDiagramIdentifier(to)+");");
 				System.out.println("");
 				continue; 

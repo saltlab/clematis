@@ -144,6 +144,12 @@ var DOMMutationTrace = EpisodeComponent.extend({
 	var summary = "Type: " + this.getMutationType() + "\nElement ID: " + this.getParentNodeValue() + "\nData " + this.getNodeValue() + "\nNode Type: " + 
 	this.getNodeName() + " (type " + this.getNodeType() + ")";
     return summary;
+  },
+  setMutationObject: function(targetElement){
+    this.targetElement = targetElement;
+  },
+  getMutationObject: function(){
+     return this.targetElement;
   }
 });
 
