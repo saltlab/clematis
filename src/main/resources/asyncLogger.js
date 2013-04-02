@@ -252,7 +252,7 @@ logger.logDOMMutation = function() {
 		var date = mutationArray[i].date;
 		
 		// Loop through the array of removed nodes in this summary
-		for (var j=0; j<mutationArray.removed.length; j++){
+		for (var j=0; j<mutationArray[i].removed.length; j++){
 			removed = mutationArray[i].removed[j];
 			if (typeof(removed) !== 'undefined' && removed != null) {
 				send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: removed.data, nodeName: removed.nodeName, nodeType: removed.nodeType, nodeValue: removed.nodeValue, parentNodeValue: removed.parentNodeValue, counter: traceCounter++}));
@@ -260,7 +260,7 @@ logger.logDOMMutation = function() {
 		}
 		
 		// Loop through the array of added nodes in this summary
-		for (var k=0; k<mutationArray.added.length; k++){
+		for (var k=0; k<mutationArray[i].added.length; k++){
 			added = mutationArray[i].added[k];
 			if (typeof(added) !== 'undefined' && added != null) {
 				send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeType: added.nodeType, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
