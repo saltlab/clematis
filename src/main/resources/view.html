@@ -12,7 +12,12 @@
     <script type="text/javascript" src="../../../src/main/resources/UDModules.js"></script>
     <script type="text/javascript" src="../../../src/main/resources/metisClasses.js"></script>
     <script type="text/javascript" src="allEpisodes.js"></script>
+
     <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+
+
     <script type="text/javascript" src="../../../src/main/resources/prettify.js"></script>
     <script type="text/javascript" src="../../../src/main/resources/jquery.scrollTo.min.js"></script>
 </head>
@@ -197,7 +202,6 @@ for (var i = 0; i < episodeCounter; i ++) {
 	episodeTableSecondRow.appendChild(episodeDomCell);
 	episodeTableSecondRow.appendChild(episodeDomCell2);
 
-
 	episodeTable.appendChild(episodeTableFirstRow);
 	episodeTable.appendChild(episodeTableSecondRow);
 
@@ -260,7 +264,11 @@ function traceDivClickHandler(e) {
 		if (relativeMouseX >= lifelineX && relativeMouseX <= lifelineX + lifelineW && relativeMouseY >= lifelineY && relativeMouseY <= lifelineY + lifelineH) {
 			console.log("click on lifeline");
 
-			viewDetailedCode(lifeLinesByEpisode[episodeNumber][n]);
+			if (lifeLinesByEpisode[episodeNumber][n].getDiagramObject() instanceof Actor) {
+                viewEventInformation(lifeLinesByEpisode[episodeNumber][n]);
+            } else {
+                viewDetailedCode(lifeLinesByEpisode[episodeNumber][n]);
+            }
 			viewEpisodeInfo(); // TODO
 
 			clickedOnLifelines = true;
@@ -320,14 +328,22 @@ function viewDetailedCode(lifeline) {
              var codeToPrint = xmlhttp.responseText.replace("<", "&lt", "gi");
              codeToPrint = codeToPrint.replace(">", "&gt", "gi");
              document.getElementById('code_code').innerHTML = codeToPrint;
+
              document.getElementById('code_pre').className="prettyprint lang-js codeWrapper";
              prettyPrint();
            
              var jumpToPixels = (lifeline.getLineNo()-1) * 14.05;
 
              $('#code_pre')._scrollable(); // When scrolling the window
-             $('#code_pre').scrollTo({ top: 0, left:0 });;
-             $('#code_pre').scrollTo({ top: jumpToPixels, left:0 });;
+
+             var lineOfInterest = $("#code_code").contents().filter(function(){
+                 if (this.previousSibling != null) 
+                   return this.textContent.contains(' '+lifeline.getName().substring(0,lifeline.getName().indexOf('('))) && (this.previousSibling.textContent.contains('function') || this.previousSibling.textContent.contains('var'));
+             });
+
+             $('#code_pre').scrollTo(lineOfInterest);
+             $('#code_pre').scrollLeft('30px');
+             lineOfInterest.effect("highlight", {}, 4000);
 
              document.getElementById('filename_div').innerHTML = '<strong>'+lifeline.getFileName()+'</strong>';
              document.getElementById('second_column').width = 200;
