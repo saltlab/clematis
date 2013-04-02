@@ -260,6 +260,42 @@ var XHREvent = EpisodeComponent.extend({
   getXHRId: function(){
     return this.XHRId;
   },
+  getUrl: function() {
+    return this.url;
+  },
+  setUrl: function(url) {
+	this.url = url;
+  },
+  getMethodType: function() {
+	return this.methodType;
+  },
+  setMethodType: function(methodType) {
+	this.methodType = methodType;
+  },
+  isAsync: function() {
+	return this.async;
+  },
+  setAsync: function(async) {
+	this.async = async;
+  },
+  setMessage: function(msg) {
+    this.msg = msg;
+  },
+  getMessage: function() {
+    return this.msg;
+  },
+  setCallbackFunction: function(cbfn) {
+    this.cbfn = cbfn;
+  },
+  getCallbackFunction: function() {
+    return this.cbfn;
+  },	
+  setResponse: function(resp) {
+    this.resp = resp;
+  },
+  getResponse: function() {
+    return this.resp;
+  },
   createDiagramObject:  function(x_pos, y_pos) {
     this.visual = new UMLActor({ x : x_pos, y: y_pos});
     this.visual.setName('XHR ID: ' + this.getXHRId().toString());
@@ -291,6 +327,24 @@ var XHROpen = XHREvent.extend({
   },
   setAsync: function(async) {
 	this.async = async;
+  },
+  setMessage: function(msg) {
+    this.msg = msg;
+  },
+  getMessage: function() {
+    return this.msg;
+  },
+  setCallbackFunction: function(cbfn) {
+    this.cbfn = cbfn;
+  },
+  getCallbackFunction: function() {
+    return this.cbfn;
+  },	
+  setResponse: function(resp) {
+    this.resp = resp;
+  },
+  getResponse: function() {
+    return this.resp;
   }	
 });
 

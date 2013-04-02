@@ -11,6 +11,7 @@ import com.metis.core.trace.DOMEventTrace;
 import com.metis.core.trace.DOMMutationTrace;
 import com.metis.core.trace.FunctionCall;
 import com.metis.core.trace.FunctionEnter;
+import com.metis.core.trace.TimeoutCallback;
 import com.metis.core.trace.TimeoutSet;
 import com.metis.core.trace.TimingTrace;
 import com.metis.core.trace.TraceObject;
@@ -57,7 +58,7 @@ public class JSUml2Story {
 		System.out.println("");
 		System.out.println("// Components");
 		functionTraceObjects.add(0, episodeSource);
-		
+
 		int initialX = 110;
 		int initialY = 60;
 
@@ -65,16 +66,7 @@ public class JSUml2Story {
 			if (to.getClass().toString().contains("DOMMutationTrace")) {
 				DOMMutationTrace dmto = (DOMMutationTrace) to;
 				System.out.println("var "+getDiagramIdentifier(to)+" = new DOMMutationTrace(false);");
-		/*		System.out.println(getDiagramIdentifier(to)+".setMutationType('"+dmto.getMutationType()+"');");		
-				System.out.println(getDiagramIdentifier(to)+".setData('"+dmto.getData()+"');");		
-				System.out.println(getDiagramIdentifier(to)+".setNodeName('"+dmto.getNodeName()+"');");
-				System.out.println(getDiagramIdentifier(to)+".setNodeValue('"+dmto.getNodeValue()+"');");		
-				System.out.println(getDiagramIdentifier(to)+".setNodeType('"+dmto.getNodeType()+"');");	
-				System.out.println(getDiagramIdentifier(to)+".setParentNodeValue('"+dmto.getParentNodeValue()+"');");*/
-				
 				System.out.println(getDiagramIdentifier(to)+".setMutationObject("+dmto.getMutationAsJSON()+");");
-						
-						
 				System.out.println("episode"+episodeSource.getCounter()+".addMutations("+getDiagramIdentifier(to)+");");
 				System.out.println("");
 				continue; 
@@ -99,6 +91,16 @@ public class JSUml2Story {
 				continue;
 			} else if (components.contains(getDiagramIdentifier(to))) {
 				// Component already created for TraceObject to
+				if (to.getClass().toString().contains("XMLHttpRequestSend")) {
+					// Update an existing component with additional information
+					XMLHttpRequestSend xhtto = (XMLHttpRequestSend) to;
+					System.out.println(getDiagramIdentifier(to)+".setMessage('"+xhtto.getMessage()+"');");
+				} else if (to.getClass().toString().contains("XMLHttpRequestRespond")) {
+					// Update an existing component with additional information
+					XMLHttpRequestResponse xhtto = (XMLHttpRequestResponse) to;
+					System.out.println(getDiagramIdentifier(to)+".setCallbackFunction('"+xhtto.getCallbackFunction()+"');");
+					System.out.println(getDiagramIdentifier(to)+".setResponse('"+xhtto.getResponse()+"');");
+				}
 				continue;
 			} else {
 				components.add(getDiagramIdentifier(to));
@@ -112,17 +114,36 @@ public class JSUml2Story {
 				System.out.println(getDiagramIdentifier(to)+".setFileName('"+feto.getScopeName()+"');");
 				System.out.println(getDiagramIdentifier(to)+".setLineNo("+feto.getLineNo()+");");
 				initialY = 60;
-			} else if (to.getClass().toString().contains("XMLHttpRequest")) {
+			} else if (to.getClass().toString().contains("XMLHttpRequestOpen")) {
 				// Create actor for XMLHttpRequests
-				XMLHttpRequestTrace xhtto = (XMLHttpRequestTrace) to;
+				XMLHttpRequestOpen xhtto = (XMLHttpRequestOpen) to;
 				System.out.println("var "+getDiagramIdentifier(to)+" = new XHREvent(false);");
 				System.out.println(getDiagramIdentifier(to)+".setXHRId('"+xhtto.getId()+"');");
-			} else if (to.getClass().toString().contains("Timeout")) {
+				System.out.println(getDiagramIdentifier(to)+".setUrl('"+xhtto.getUrl()+"');");
+				System.out.println(getDiagramIdentifier(to)+".setMethodType('"+xhtto.getMethodType()+"');");
+			} else if (to.getClass().toString().contains("XMLHttpRequestSend")) {
+				XMLHttpRequestSend xhtto = (XMLHttpRequestSend) to;
+				System.out.println("var "+getDiagramIdentifier(to)+" = new XHREvent(false);");
+				System.out.println(getDiagramIdentifier(to)+".setXHRId('"+xhtto.getId()+"');");
+				System.out.println(getDiagramIdentifier(to)+".setMessage('"+xhtto.getMessage()+"');");
+			} else if (to.getClass().toString().contains("XMLHttpRequestResponse")) {
+				XMLHttpRequestResponse xhtto = (XMLHttpRequestResponse) to;
+				System.out.println("var "+getDiagramIdentifier(to)+" = new XHREvent(false);");
+				System.out.println(getDiagramIdentifier(to)+".setXHRId('"+xhtto.getId()+"');");
+				System.out.println(getDiagramIdentifier(to)+".setCallbackFunction('"+xhtto.getCallbackFunction()+"');");
+				System.out.println(getDiagramIdentifier(to)+".setResponse('"+xhtto.getResponse()+"');");
+			} else if (to.getClass().toString().contains("TimeoutCallback")) {
 				// Create actors for child timing events, that is, timing events that spawned as a result of the origin event
-				TimingTrace ttto = (TimingTrace) to;
+				TimeoutCallback tcto = (TimeoutCallback) to;
 				System.out.println("var "+getDiagramIdentifier(to)+" = new TimingTrace(false);");
-				System.out.println(getDiagramIdentifier(to)+".setTimeoutId("+ttto.getId()+");");		
-				System.out.println(getDiagramIdentifier(to)+".setCallbackFunction('"+ttto.getCallbackFunction()+"');");
+				System.out.println(getDiagramIdentifier(to)+".setTimeoutId("+tcto.getId()+");");		
+				System.out.println(getDiagramIdentifier(to)+".setCallbackFunction('"+tcto.getCallbackFunction()+"');");
+			} else if (to.getClass().toString().contains("TimeoutSet")) { 
+				TimeoutSet tsto = (TimeoutSet) to;
+				System.out.println("var "+getDiagramIdentifier(to)+" = new TimingTrace(false);");
+				System.out.println(getDiagramIdentifier(to)+".setTimeoutId("+tsto.getId()+");");		
+				System.out.println(getDiagramIdentifier(to)+".setCallbackFunction('"+tsto.getCallbackFunction()+"');");
+				System.out.println(getDiagramIdentifier(to)+".setDelay('"+tsto.getDelay()+"');");
 			} else if (to.getClass().toString().contains("DOMEventTrace")) {
 				// Create actors for child DOM events
 				DOMEventTrace deto = (DOMEventTrace) to;
@@ -140,6 +161,11 @@ public class JSUml2Story {
 		System.setOut(oldOut);
 	}
 
+	private boolean traceObjectContainsSetTimeout() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	@SuppressWarnings("unused")
 	private void addDOMEventInfo(TraceObject to) {
 		DOMEventTrace deto = (DOMEventTrace) to;
@@ -149,7 +175,7 @@ public class JSUml2Story {
 		System.out.println("\"Handler: "+deto.getEventHandler()+"\" \\");
 		System.out.println("\"Target: "+deto.getTargetElementAttributes()+"\")");
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void addDOMMutationInfo(TraceObject to) {
 		DOMMutationTrace dmto = (DOMMutationTrace) to;
@@ -203,7 +229,7 @@ public class JSUml2Story {
 
 	public void createMessages() {
 		System.setOut(output);
-		
+
 		int initialY = 20;		
 		if (functionTraceObjects.get(0).getClass().toString().contains("DOMEventTrace")) {
 			// Leave extra space for DOM event information
@@ -271,7 +297,7 @@ public class JSUml2Story {
 					"y : "+y+"}));");	
 		}
 	}
-	
+
 	private void XHROpenMessage(TraceObject to, int y) {
 		push(getDiagramIdentifier(to));	
 		System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+".getDiagramObject(), " +

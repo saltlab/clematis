@@ -29,7 +29,6 @@
 <table border='2'>
 	<tr>
 		<td id='first_column' width=10>
-			some info about the lifeline (and the episode?) goes here
 		</td>
 		<td id='second_column' width=10 class="code_column">
             <div id='filename_div'></div>
@@ -39,7 +38,7 @@
             </pre>
 		</td>
 		<td id='third_column' width=10>
-			<div>DOM?</div>
+			<div></div>
 		</td>
 	</tr>
 </table>
@@ -64,6 +63,10 @@ document.getElementById('third_column').width = window.innerWidth/3;
 document.getElementById('code_code').width = window.innerWidth/3;
 document.getElementById('filename_div').width = window.innerWidth/3;
 document.getElementById('second_column').width = window.innerWidth/3;
+
+$("#first_column").prepend("DOM/Timing/XHR Event Info.");
+$("#second_column").prepend("JavaScript Source Code");
+$("#third_column").prepend("DOM Mutation Information");
 
 </script>
 
@@ -186,23 +189,7 @@ for (var i = 0; i < episodeCounter; i ++) {
 	episodeTableFirstRow.appendChild(episodeSourceCell);
 	episodeTableFirstRow.appendChild(episodeTraceCell);
 
-	episodeDomCell = document.createElement('td');
-	var cellText = document.createTextNode("DOM MUTATION:"); 
-	episodeDomCell.setAttribute("align","center");        
-	episodeDomCell.appendChild(cellText);	
-	
-	episodeDomCell2 = document.createElement('td');
-	var mutation = "";
-	for (var j=0; j<allEpisodes[i].getMutations().length; j++){
-		mutation = mutation + allEpisodes[i].getMutations()[j].getMutationObject() + '\n';
-	}
-	cellText2 = document.createTextNode(mutation); 
-	episodeDomCell2.setAttribute("align","center");        
-	episodeDomCell2.appendChild(cellText2);	
-	
 	// episodeDomCell = first column, episodeDomCell2 = second column
-	episodeTableSecondRow.appendChild(episodeDomCell);
-	episodeTableSecondRow.appendChild(episodeDomCell2);
 
 	episodeTable.appendChild(episodeTableFirstRow);
 	episodeTable.appendChild(episodeTableSecondRow);
@@ -251,10 +238,16 @@ function printDOMMutation(e) {
 	var episodeNumber = splitId[2];
 
     document.getElementById('third_column').innerHTML = '';
+
+    $("#third_column").prepend("DOM Mutation Information");
+
 	for (var j=0; j<allEpisodes[episodeNumber].getMutations().length; j++){
         var jjson = mutationsByEpisode[episodeNumber][j]; 
         document.getElementById('third_column').appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
 	}
+    if (allEpisodes[episodeNumber].getMutations().length < 1) {
+        document.getElementById('third_column').appendChild(document.createElement('pre')).innerHTML = "";
+    } 
 }
 
 function traceDivClickHandler(e) {
@@ -377,11 +370,18 @@ function viewEventInformation(lifeline) {
     if (lifeline instanceof DOMEventTrace) {
         var jjson = lifeline.getTargetElement();
         document.getElementById('first_column').innerHTML = '';
+        $("#first_column").prepend("DOM Event Target");
         document.getElementById('first_column').appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
     } else if (lifeline instanceof TimingTrace) {
-        document.getElementById('first_column').innerHTML = 'Time';
+        var jjson = {"delay":lifeline.getDelay(), "callback":lifeline.getCallbackFunction(), "TID":lifeline.getTimeoutId()};
+        document.getElementById('first_column').innerHTML = '';
+        $("#first_column").prepend("Timing Event Information:");
+        document.getElementById('first_column').appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
     } else if (lifeline instanceof XHREvent) {
-        document.getElementById('first_column').innerHTML = 'XHR';
+        var jjson = {"XHR ID":lifeline.getXHRId(), "URL":lifeline.getUrl(), "Method Type":lifeline.getMethodType(), "Async":lifeline.isAsync(), "Message": lifeline.getMessage(),"Callback function": lifeline.getCallbackFunction(), "Response":lifeline.getResponse()};
+        document.getElementById('first_column').innerHTML = '';
+        $("#first_column").prepend("XHR Event Information:");
+        document.getElementById('first_column').appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
     }
 }
 
