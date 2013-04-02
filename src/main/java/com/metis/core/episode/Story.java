@@ -56,16 +56,6 @@ public class Story {
 		domElementValues = new HashMap<Integer, DOMElementValueTrace>();
 		linkDomComponents();
 		
-		System.out.println(domEvents);
-		System.out.println(domMutations);
-		System.out.println(domElementValues);
-		System.out.println(timeoutSets);
-		System.out.println(timeoutCallbacks);
-		System.out.println(xhrOpens);
-		System.out.println(xhrSends);
-		System.out.println(xhrResponses);
-		
-		
 	}
 	
 	// Linking different components of timeouts
