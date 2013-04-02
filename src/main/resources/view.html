@@ -187,7 +187,7 @@ for (var i = 0; i < episodeCounter; i ++) {
 	episodeDomCell2 = document.createElement('td');
 	var mutation = "";
 	for (var j=0; j<allEpisodes[i].getMutations().length; j++){
-		mutation = mutation + allEpisodes[i].getMutations()[j].getMutationSummary() + '\n';
+		mutation = mutation + allEpisodes[i].getMutations()[j].getSummary() + '\n';
 	}
 	cellText2 = document.createTextNode(mutation); 
 	episodeDomCell2.setAttribute("align","center");        
