@@ -245,40 +245,32 @@ logger.logDOMEvent = function(type, targetEl, callback) {
  * Prints the contents of the DOM Mutation array and empties the array
  */
 logger.logDOMMutation = function() {
-	if (mutationArray.length == 0) return;
-	var removed, added;
 	
+	// Loop through the array of summaries
 	for (var i=0; i<mutationArray.length; i++) {
+		var removed, added;
 		var date = mutationArray[i].date;
-		var eType = "DOM_MUTATION_GOES_HERE";
 		
-		removed = mutationArray[i].removed;
-		if (typeof(removed) !== 'undefined' && removed != null) {
-			console.log("Removed", removed);
-			console.log("Data is " + removed.data);
-			console.log("Node name is " + removed.nodeName);
-			console.log("Node value is " + removed.nodeValue);
-			console.log("Parent node value is " + removed.parentNodeValue);
-			
-			send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: removed.data, nodeName: removed.nodeName, nodeType: removed.nodeType, nodeValue: removed.nodeValue, parentNodeValue: removed.parentNodeValue, counter: traceCounter++}));
+		// Loop through the array of removed nodes in this summary
+		for (var j=0; j<mutationArray[i].removed.length; j++){
+			removed = mutationArray[i].removed[j];
+			if (typeof(removed) !== 'undefined' && removed != null) {
+				send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: removed.data, nodeName: removed.nodeName, nodeType: removed.nodeType, nodeValue: removed.nodeValue, parentNodeValue: removed.parentNodeValue, counter: traceCounter++}));
+			}
+		}
+		
+		// Loop through the array of added nodes in this summary
+		for (var k=0; k<mutationArray[i].added.length; k++){
+			added = mutationArray[i].added[k];
+			if (typeof(added) !== 'undefined' && added != null) {
+				send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeType: added.nodeType, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
+			}
 		}
 
-		added = mutationArray[i].added;
-		if (typeof(added) !== 'undefined' && added != null) { 
-			console.log("Added", added);
-			console.log("Data is " + added.data);
-			console.log("Node name is " + added.nodeName);
-			console.log("Node value is " + added.nodeValue);
-			console.log("Parent node value is " + added.parentNodeValue);
-			
-			send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeType: added.nodeType, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
-
-		}	
-
 	}		
-//	Reset the array
+	//	Reset the array of summaries
 	mutationArray.length = 0;
-	
+	// Check for element value changes
 	checkValues();
 };
 

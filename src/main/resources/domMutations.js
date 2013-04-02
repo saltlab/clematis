@@ -13,13 +13,13 @@ window.addEventListener("DOMContentLoaded", function() {
 	// Once the DOM is loaded, start the mutation summary observer and initialize the arrays for ElementValueChange 
 	startObserver();
 	initializeValues();
-	//addValueListeners();
 }, false);
 	
-// Start the mutation summary observer
+// Start the mutation summary observer (using the mutation summary library)
 function startObserver() {
 	observerSummary = new MutationSummary({
 	  callback: handleSummary,
+	  oldPreviousSibling: true, //added for testing
 	  queries: [ { all: true } ]
 	});
 }
@@ -31,158 +31,99 @@ function stopObserver() {
 	if (summaries)
 	  handleSummaryLeftover(summaries);
 }
-	
-//Add the new summary to the mutationArray
+
+/*
+ * 
+ */
+//Add the added and removed summaries to the mutationArray
 function handleSummary(summaries) {
+	for (var s=0; s<summaries.length; s++){
 
-	var added, removed;
-	if (summaries[0].added.length>0) {
-		var data = "null";
-		var nodeType = "null";
-		var nodeName = "null";
-		var nodeValue = "null";
-		var parentNodeValue = "null";
+		var added = new Array();
+		var removed = new Array();
 
-		if (typeof(summaries[0].added[0].data) !== 'undefined' && summaries[0].added[0].data != null) {
-			data = summaries[0].added[0].data;
-		}
+		// Loop through all of the element in the removed array
+		for (var i=0; i<summaries[s].added.length; i++){
+			// Set all variables to be null by default, then assign the real value if it is valid
+			var data = "null";
+			var nodeType = "null";
+			var nodeName = "null";
+			var nodeValue = "null";
+			var parentNodeValue = "null";
 
-		if (typeof(summaries[0].added[0].nodeType) !== 'undefined' && summaries[0].added[0].nodeType != null) {
-			nodeType = summaries[0].added[0].nodeType;
-		}
+			// If there is data, set the data field.
+			if (typeof(summaries[s].added[i].data) !== 'undefined' && summaries[s].added[i].data != null) {
+				data = summaries[s].added[i].data;
+			}
 
-		if (typeof(summaries[0].added[0].nodeName) !== 'undefined' && summaries[0].added[0].nodeName != null) {
-			nodeName = summaries[0].added[0].nodeName;
-		}
+			if (typeof(summaries[s].added[i].nodeType) !== 'undefined' && summaries[s].added[i].nodeType != null) {
+				nodeType = summaries[s].added[i].nodeType;
+			}
 
-		if (typeof(summaries[0].added[0].nodeValue) !== 'undefined' && summaries[0].added[0].nodeValue != null) {
-			nodeValue = summaries[0].added[0].nodeValue;
-		}
+			if (typeof(summaries[s].added[i].nodeName) !== 'undefined' && summaries[s].added[i].nodeName != null) {
+				nodeName = summaries[s].added[i].nodeName;
+			}
 
-		if (typeof(summaries[0].added[0].parentElement) !== 'undefined' && summaries[0].added[0].parentElement != null) {
-			if (summaries[0].added[0].parentElement.attributes.length > 0){
-				if (typeof(summaries[0].added[0].parentElement.attributes[0].nodeValue) !== 'undefined' && summaries[0].added[0].parentElement.attributes[0].nodeValue != null) {
-					parentNodeValue = summaries[0].added[0].parentElement.attributes[0].nodeValue;
+			if (typeof(summaries[s].added[i].nodeValue) !== 'undefined' && summaries[s].added[i].nodeValue != null) {
+				nodeValue = summaries[s].added[i].nodeValue;
+			}
+
+			if (typeof(summaries[s].added[i].parentElement) !== 'undefined' && summaries[s].added[i].parentElement != null) {
+				if (summaries[s].added[i].parentElement.attributes.length > 0){
+					if (typeof(summaries[s].added[i].parentElement.attributes[0].nodeValue) !== 'undefined' && summaries[s].added[i].parentElement.attributes[0].nodeValue != null) {
+						parentNodeValue = summaries[s].added[i].parentElement.attributes[0].nodeValue;
+					}
 				}
 			}
-		}
-		added = {data: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue};	
-	}
-
-	if (summaries[0].removed.length>0) {
-		var data = "null";
-		var nodeType = "null";
-		var nodeName = "null";
-		var nodeValue = "null";
-		var parentNodeValue = "null";
-
-		if (typeof(summaries[0].removed[0].data) !== 'undefined' && summaries[0].removed[0].data != null) {
-			data = summaries[0].removed[0].data;
+			added.push({data: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue});	
 		}
 
-		if (typeof(summaries[0].removed[0].nodeType) !== 'undefined' && summaries[0].removed[0].nodeType != null) {
-			nodeType = summaries[0].removed[0].nodeType;
-		}
+		// Loop through all of the element in the removed array
+		for (var i=0; i<summaries[s].removed.length; i++){
+			var data = "null";
+			var nodeType = "null";
+			var nodeName = "null";
+			var nodeValue = "null";
+			var parentNodeValue = "null";
 
-		if (typeof(summaries[0].removed[0].nodeName) !== 'undefined' && summaries[0].removed[0].nodeName != null) {
-			nodeName = summaries[0].removed[0].nodeName;
-		}
+			if (typeof(summaries[s].removed[i].data) !== 'undefined' && summaries[s].removed[i].data != null) {
+				data = summaries[s].removed[i].data;
+			}
 
-		if (typeof(summaries[0].removed[0].nodeValue) !== 'undefined' && summaries[0].removed[0].nodeValue != null) {
-			nodeValue = summaries[0].removed[0].nodeValue;
-		}
+			if (typeof(summaries[s].removed[i].nodeType) !== 'undefined' && summaries[s].removed[i].nodeType != null) {
+				nodeType = summaries[s].removed[i].nodeType;
+			}
 
-		if (typeof(summaries[0].removed[0].parentElement) !== 'undefined' && summaries[0].removed[0].parentElement != null) {
-			if (summaries[0].removed[0].parentElement.attributes.length > 0){
-				if (typeof(summaries[0].removed[0].parentElement.attributes[0].nodeValue) !== 'undefined' && summaries[0].removed[0].parentElement.attributes[0].nodeValue != null) {
-					parentNodeValue = summaries[0].removed[0].parentElement.attributes[0].nodeValue;
+			if (typeof(summaries[s].removed[i].nodeName) !== 'undefined' && summaries[s].removed[i].nodeName != null) {
+				nodeName = summaries[s].removed[i].nodeName;
+			}
+
+			if (typeof(summaries[s].removed[i].nodeValue) !== 'undefined' && summaries[s].removed[i].nodeValue != null) {
+				nodeValue = summaries[s].removed[i].nodeValue;
+			}
+
+			// For removed nodes, we need to get the OldParentNode in order to check its value attributes (the current parent node has been removed)
+			if (typeof(summaries[s].getOldParentNode(summaries[s].removed[i])) !== 'undefined' && summaries[s].getOldParentNode(summaries[s].removed[i]) != null) {
+				if (summaries[s].getOldParentNode(summaries[s].removed[i]).attributes.length > 0){
+					if (typeof(summaries[s].getOldParentNode(summaries[s].removed[i]).attributes[0].nodeValue) !== 'undefined' && summaries[s].getOldParentNode(summaries[s].removed[i]).attributes[0].nodeValue != null) {
+						parentNodeValue = summaries[s].getOldParentNode(summaries[s].removed[i]).attributes[0].nodeValue;
+					}
 				}
 			}
+			removed.push({data: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue});	
 		}
-		removed = {data: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue};	
-	}
 
-	var mutation = { date : Date.now(), added: added, removed: removed };
-	mutationArray.push(mutation);
+		// Push the new added and removed summaries to the mutation array and call the logger
+		var mutation = { date : Date.now(), added: added, removed: removed };
+		mutationArray.push(mutation);
+	}
 	logger.logDOMMutation();
-
 }
 
 // Functions to call after the Mutation Summary Observer is disconnected
 function handleSummaryLeftover(summaries) {
-	var added, removed;
-	if (summaries[0].added.length>0) {
-		var data = "null";
-		var nodeType = "null";
-		var nodeName = "null";
-		var nodeValue = "null";
-		var parentNodeValue = "null";
-
-		if (typeof(summaries[0].added[0].data) !== 'undefined' && summaries[0].added[0].data != null) {
-			data = summaries[0].added[0].data;
-		}
-
-		if (typeof(summaries[0].added[0].nodeType) !== 'undefined' && summaries[0].added[0].nodeType != null) {
-			nodeType = summaries[0].added[0].nodeType;
-		}
-
-		if (typeof(summaries[0].added[0].nodeName) !== 'undefined' && summaries[0].added[0].nodeName != null) {
-			nodeName = summaries[0].added[0].nodeName;
-		}
-
-		if (typeof(summaries[0].added[0].nodeValue) !== 'undefined' && summaries[0].added[0].nodeValue != null) {
-			nodeValue = summaries[0].added[0].nodeValue;
-		}
-
-		if (typeof(summaries[0].added[0].parentElement) !== 'undefined' && summaries[0].added[0].parentElement != null) {
-			if (summaries[0].added[0].parentElement.attributes.length > 0){
-				if (typeof(summaries[0].added[0].parentElement.attributes[0].nodeValue) !== 'undefined' && summaries[0].added[0].parentElement.attributes[0].nodeValue != null) {
-					parentNodeValue = summaries[0].added[0].parentElement.attributes[0].nodeValue;
-				}
-			}
-		}
-		added = {data: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue};	
-	}
-
-	if (summaries[0].removed.length>0) {
-		var data = "null";
-		var nodeType = "null";
-		var nodeName = "null";
-		var nodeValue = "null";
-		var parentNodeValue = "null";
-
-		if (typeof(summaries[0].removed[0].data) !== 'undefined' && summaries[0].removed[0].data != null) {
-			data = summaries[0].removed[0].data;
-		}
-
-		if (typeof(summaries[0].removed[0].nodeType) !== 'undefined' && summaries[0].removed[0].nodeType != null) {
-			nodeType = summaries[0].removed[0].nodeType;
-		}
-
-		if (typeof(summaries[0].removed[0].nodeName) !== 'undefined' && summaries[0].removed[0].nodeName != null) {
-			nodeName = summaries[0].removed[0].nodeName;
-		}
-
-		if (typeof(summaries[0].removed[0].nodeValue) !== 'undefined' && summaries[0].removed[0].nodeValue != null) {
-			nodeValue = summaries[0].removed[0].nodeValue;
-		}
-
-		if (typeof(summaries[0].removed[0].parentElement) !== 'undefined' && summaries[0].removed[0].parentElement != null) {
-			if (summaries[0].removed[0].parentElement.attributes.length > 0){
-				if (typeof(summaries[0].removed[0].parentElement.attributes[0].nodeValue) !== 'undefined' && summaries[0].removed[0].parentElement.attributes[0].nodeValue != null) {
-					parentNodeValue = summaries[0].removed[0].parentElement.attributes[0].nodeValue;
-				}
-			}
-		}
-		removed = {data: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue};	
-	}
-
-	var mutation = { date : Date.now(), added: added, removed: removed };
-	mutationArray.push(mutation);
-	
-	
-	// call the mutations
-	logger.logDOMMutation();
+	// call the original summary handler function
+	handleSummary(summaries);
 	// check for changed element values
 	checkValues();
 }
@@ -191,14 +132,17 @@ var all = [];
 var allElements
 var oldValues = new Array();
 
-// Get a list of elements in the doc, and their initial values
+/*
+ * Create an array of each element in the document that has a value attribute
+ * Create an array with the initial values of each element (when this method was called)
+ */
 function initializeValues() {
 	allElements = document.getElementsByTagName("*");
 	
 	for (var i=0, max=allElements.length; i < max; i++) {
 		if (allElements[i].id) {
 			var tempElem = document.getElementById(allElements[i].id);
-			// Only watch the elements that have a value attribute
+			// Only track the elements that have a value attribute
 			if (tempElem.value != undefined) {
 				all.push(tempElem);
 				oldValues.push(tempElem.value);
@@ -207,6 +151,11 @@ function initializeValues() {
 	}
 }
 
+/* 
+ * Future functionality could allow us to add listeners to each element and then 
+ * only call checkValue() if there was a change to one of the elements. Right now
+ * the listeners will not work for all value changes (won't work on text boxes)
+ */
 /*function addValueListeners() {
 	for (var i=0; i < all.length; i+=1) { 
 		 
@@ -228,7 +177,10 @@ function checkValue(i) {
 	
 }*/
 
-// Check elements for a change in value. Log all changes.
+/*
+ * Checks all elements with a value attribute for a change in value.
+ * Compares all.value (the new values) with oldValues. Logs a change if there is one.
+ */
 function checkValues() {
 	for (var i=0, max=all.length; i < max; i++) {
 		if (all[i].value != oldValues[i]) {
@@ -236,5 +188,4 @@ function checkValues() {
 			oldValues[i] = all[i].value;
 		}	
 	}
-	
 }
