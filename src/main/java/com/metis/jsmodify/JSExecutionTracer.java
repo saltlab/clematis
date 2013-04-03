@@ -216,15 +216,6 @@ public class JSExecutionTracer {
 			story.setOrderedTraceList(sortTraceObjects());
 			story.setEpisodes(buildEpisodes());
 
-			// REMOVE THIS LATER, for testing, this shows all the episodes
-			System.out.println("There are " + story.getEpisodes().size() + " episodes.");
-			for (Episode ep : story.getEpisodes()){
-				System.out.println("Episode Source is " + ep.getSource().getCounter() );
-				for (int i = 0; i < ep.getTrace().getTrace().size(); i++){
-					System.out.println("Episode Counter is " + ep.getTrace().getTrace().get(i).getCounter());
-				}
-			}
-
 			System.out.println("# of trace objects: " + story.getOrderedTraceList().size());
 			System.out.println("# of episodes: " + story.getEpisodes().size());
 

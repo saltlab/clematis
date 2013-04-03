@@ -1,5 +1,8 @@
 package com.metis.core.trace;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.metis.core.episode.EpisodeSource;
 
 public class DOMElementValueTrace extends TraceObject/* implements EpisodeSource */{
@@ -61,6 +64,22 @@ public class DOMElementValueTrace extends TraceObject/* implements EpisodeSource
 
 	public void setNewValue(String newValue) {
 		this.newValue = newValue;
+	}
+	
+	public JSONObject getValueChangeAsJSON() {
+		JSONObject returnObject = new JSONObject();
+
+		try {
+			returnObject.put("elementId", this.elementId);
+			returnObject.put("elementType", this.elementType);
+			//returnObject.put("nodeType", this.nodeType);
+			//returnObject.put("nodeName", this.nodeName);
+			returnObject.put("oldValue", this.oldValue);
+			returnObject.put("newValue", this.newValue);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return returnObject;
 	}
 
 }

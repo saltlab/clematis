@@ -73,12 +73,13 @@ public class JSUml2Story {
 			} else if (to.getClass().toString().contains("DOMElementValueTrace")) {
 				DOMElementValueTrace evto = (DOMElementValueTrace) to;
 				System.out.println("var "+getDiagramIdentifier(to)+" = new DOMElementValueTrace(false);");
-				System.out.println(getDiagramIdentifier(to)+".setElementId('"+evto.getElementId()+"');");
+				System.out.println(getDiagramIdentifier(to)+".setValueChangeObject("+evto.getValueChangeAsJSON()+");");
+				/*System.out.println(getDiagramIdentifier(to)+".setElementId('"+evto.getElementId()+"');");
 				System.out.println(getDiagramIdentifier(to)+".setOldValue('"+evto.getOldValue()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setNewValue('"+evto.getNewValue()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setNodeName('"+evto.getNodeName()+"');");
 				System.out.println(getDiagramIdentifier(to)+".setElementType('"+evto.getElementType()+"');");		
-				System.out.println(getDiagramIdentifier(to)+".setNodeType('"+evto.getNodeType()+"');");	
+				System.out.println(getDiagramIdentifier(to)+".setNodeType('"+evto.getNodeType()+"');");	*/
 
 				System.out.println("episode"+episodeSource.getCounter()+".addElementValueTraces("+getDiagramIdentifier(to)+");");
 				System.out.println("");
