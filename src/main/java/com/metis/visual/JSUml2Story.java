@@ -288,10 +288,14 @@ public class JSUml2Story {
 			FunctionCall fcto = (FunctionCall) before;
 			if (fcto.getTargetFunction().contains("setTimeout")) {
 				// Timeout was set from the executing function	
-				System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
+				System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
 						"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
-						"y : "+y+"}));");		
-				//System.out.println("setTimeout()");
+						"y : "+y+"});");
+				System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"setTimeout\");");
+				System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+				System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
+
+			
 			}
 		} else {	
 			// Not sure where the timeout was set from...
