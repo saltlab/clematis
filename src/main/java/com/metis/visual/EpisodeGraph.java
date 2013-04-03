@@ -2,6 +2,7 @@ package com.metis.visual;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -22,16 +23,19 @@ public class EpisodeGraph {
 	// New states are assigned IDs based on the number of states/vertices present
 	private DirectedMultigraph<String, RelationshipEdge> dirGraph;
 	private DOTExporter dotexporter = null;
+	PrintStream output;
+	PrintStream oldOut;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public EpisodeGraph (String outputFolder, ArrayList<Episode> el) {
 		this.el.addAll(el);
-		Date d = new Date();
 
 		try {
 			// Set directory/output for graph
 			Helper.directoryCheck(outputFolder+ "sequence_diagrams/");
-			this.outputFolder = outputFolder;
+			this.outputFolder = outputFolder+ "sequence_diagrams/";
+			output = new PrintStream(this.outputFolder + "asynchronous_relations.js");
+			oldOut = System.out;
 
 			// Exporting state machine etc.
 			StringNameProvider<String> vertexIDProvider = new StringNameProvider<String>();
@@ -44,6 +48,10 @@ public class EpisodeGraph {
 
 			// Note directed edges are printed as: (<v1>,<v2>)
 			System.out.println("Directed graph initialized: " + dirGraph.toString());
+
+			System.setOut(output);
+			System.out.println("var causalLinks = new Array();");
+			System.setOut(oldOut);
 
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -59,12 +67,7 @@ public class EpisodeGraph {
 			// Populate graph with an edge for each episode
 			addVertex(e);
 		}
-		for (int i = 0; i< el.size()-1; i++) {
-			// Add linear edges between each episode and its successor
-			addEdge("E"+el.get(i).getSource().getCounter(), 
-					"E"+el.get(i+1).getSource().getCounter(), 
-					null);
-		}
+
 		for (int i = 0; i< el.size(); i++) {
 			// Add causal edges between episodes
 			Episode currentEpisode = el.get(i);
@@ -97,16 +100,16 @@ public class EpisodeGraph {
 									&& to2.getClass().toString().contains("XMLHttpRequest")
 									&& to2.getId() == to.getId()){
 								// Found source of XMLHttpRequest
-								addEdge("E"+currentEpisode.getSource().getCounter(), 
-										"E"+otherEpisode.getSource().getCounter(), 
+								addEdge(currentEpisode, 
+										otherEpisode, 
 										to2);
 								break;
 							} else if (to2.getClass().toString().contains("TimeoutSet")
 									&& to.getClass().toString().contains("TimeoutCallback")
 									&& to.getId() == to2.getId()){
 								// Found source of TimingEvent
-								addEdge("E"+currentEpisode.getSource().getCounter(), 
-										"E"+otherEpisode.getSource().getCounter(), 
+								addEdge(currentEpisode, 
+										otherEpisode, 
 										to2);
 								break;
 							}
@@ -116,14 +119,8 @@ public class EpisodeGraph {
 				} // Otherwise no need to add causal link for TraceObject
 			}
 		}
+		output.close();
 
-		// Export DirectedMultigraph as dot file
-		try {
-			fos = new FileWriter(outputFolder+"sequence_diagrams/"+"story_"+d.getTime()+".dot");
-			dotexporter.export(fos, dirGraph);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
 	}
 
 	private String addVertex(Episode e)
@@ -140,7 +137,7 @@ public class EpisodeGraph {
 		return newVertex;
 	}
 
-	public void addEdge(String v1, String v2, TraceObject b1)
+	public void addEdge(Episode v1, Episode v2, TraceObject b1)
 	{
 		if (v1.equals(v2)) {
 			// Loops are not allowed
@@ -148,9 +145,15 @@ public class EpisodeGraph {
 			return;
 		} 
 		try {
-			// Add the vertex
-			dirGraph.addEdge(v1, v2, new RelationshipEdge<String>(v1, v2, b1));
-
+			// Add the edge
+			dirGraph.addEdge("E"+v1.getSource().getCounter(), 
+					"E"+v2.getSource().getCounter(), 
+					new RelationshipEdge<String>("E"+v1.getSource().getCounter(), "E"+v2.getSource().getCounter(), b1));
+			
+			System.setOut(output);
+			System.out.println("var E" +v1.getSource().getCounter()+"_"+v2.getSource().getCounter()+" = " + "["+el.indexOf(v1)+","+el.indexOf(v2)+"]");
+			System.out.println("causalLinks.push(E"+v1.getSource().getCounter()+"_"+v2.getSource().getCounter()+");");
+			System.setOut(oldOut);
 		} catch (Exception eee) {
 			System.out.println("addEdge: Error adding edge to dir. graph.");
 			eee.printStackTrace();

@@ -12,6 +12,7 @@
     <script type="text/javascript" src="../../../src/main/resources/UDModules.js"></script>
     <script type="text/javascript" src="../../../src/main/resources/metisClasses.js"></script>
     <script type="text/javascript" src="allEpisodes.js"></script>
+    <script type="text/javascript" src="asynchronous_relations.js"></script>
 
     <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
   <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
@@ -20,11 +21,13 @@
 
     <script type="text/javascript" src="../../../src/main/resources/prettify.js"></script>
     <script type="text/javascript" src="../../../src/main/resources/jquery.scrollTo.min.js"></script>
+    <script type="text/javascript" src="../../../src/main/resources/jquery.jsPlumb-1.3.16-all-min.js"></script>
 </head>
 
-<body>
-
+<body style="overflow-x:hidden">
 <div id='wrapper_div' class='storyWrapper'></div>
+<br />
+<br />
 <br />
 <table border='2'>
 	<tr>
@@ -67,6 +70,74 @@ document.getElementById('second_column').width = window.innerWidth/3;
 $("#first_column").prepend("DOM/Timing/XHR Event Info.");
 $("#second_column").prepend("JavaScript Source Code");
 $("#third_column").prepend("DOM Mutation Information");
+
+
+function get_random_color() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.round(Math.random() * 15)];
+    }
+    return color;
+}
+
+
+/*
+jsPlumb.bind("ready", function() {
+    jsPlumb.connect({source:'episodeTable_0', target:'episodeTable_5', containment:"wrapper_div"});
+});
+*/
+
+jsPlumb.bind("ready", function(connection, e) {
+
+    jsPlumb.importDefaults({
+        Container:$("#wrapper_div"),
+        // default drag options
+        DragOptions: { cursor: 'pointer', zIndex: 2000 },
+    });
+
+
+for (var i = 0; i<causalLinks.length; i++) {
+
+console.log('episodeTable_'+causalLinks[i][0], 'episodeTable_'+causalLinks[i][1]);
+
+    jsPlumb.addEndpoint('episodeTable_'+causalLinks[i][0], ['BottomCenter']);
+    jsPlumb.addEndpoint('episodeTable_'+causalLinks[i][1], null, ['BottomCenter']);
+
+var randomColour = get_random_color();
+
+    jsPlumb.connect({
+       source: "episodeTable_"+causalLinks[i][0], 
+       target: "episodeTable_"+causalLinks[i][1],
+       connector:[ "Bezier", { curviness: 100 } ], 
+       paintStyle:{ lineWidth:5, strokeStyle:randomColour },
+       endpointStyle:{ fillStyle: randomColour }
+    });
+/*    jsPlumb.addEndpoint('episodeTable_0', ['BottomCenter'], ['BottomCenter']);
+    jsPlumb.addEndpoint('episodeTable_5', ['BottomCenter'], ['BottomCenter']);
+
+    jsPlumb.connect({
+       source: "episodeTable_0", 
+       target: "episodeTable_5",
+       connector:[ "Bezier", { curviness: 100 } ], 
+       paintStyle:{ lineWidth:5, strokeStyle:"maroon" },
+       endpointStyle:{ fillStyle: "maroon" }
+    });*/
+}
+
+});
+
+
+
+
+$('#wrapper_div').scroll(function () {
+                jsPlumb.repaintEverything();
+});
+
+
+
+
+
 
 </script>
 
@@ -200,7 +271,6 @@ for (var i = 0; i < episodeCounter; i ++) {
 	storyTableRow.appendChild(episodeCell);
 
 }
-console.log('asdasda');
 
 storyTable.appendChild(storyTableRow);
 

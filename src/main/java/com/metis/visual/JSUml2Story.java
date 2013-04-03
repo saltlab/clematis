@@ -161,11 +161,6 @@ public class JSUml2Story {
 		System.setOut(oldOut);
 	}
 
-	private boolean traceObjectContainsSetTimeout() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	@SuppressWarnings("unused")
 	private void addDOMEventInfo(TraceObject to) {
 		DOMEventTrace deto = (DOMEventTrace) to;
@@ -229,6 +224,13 @@ public class JSUml2Story {
 
 	public void createMessages() {
 		System.setOut(output);
+
+		for (int j=0; j <functionTraceObjects.size(); j++) {
+			// Remove DOM mutations as they are not related to messages
+			if (functionTraceObjects.get(j).getClass().toString().contains("DOMElementValueTrace") || functionTraceObjects.get(j).getClass().toString().contains("DOMMutationTrace")) {
+				functionTraceObjects.remove(functionTraceObjects.get(j));
+			}
+		}
 
 		int initialY = 20;		
 		if (functionTraceObjects.get(0).getClass().toString().contains("DOMEventTrace")) {
