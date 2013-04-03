@@ -201,6 +201,12 @@ var DOMElementValueTrace = EpisodeComponent.extend({
 	var summary = "Element ID : " + this.getElementId() + "\nOld Value: " + this.getOldValue() + "\nNew Value " + this.getNewValue() + "\nElement Type: "
 	+ this.getElementType() + "\nNode Type: " + this.getNodeName() + " (type " + this.getNodeType() + ")";
     return summary;
+  },
+  setValueChangeObject: function(targetElement){
+	  this.targetElement = targetElement;
+  },
+  getValueChangeObject: function(){
+	  return this.targetElement;
   }
 });
 

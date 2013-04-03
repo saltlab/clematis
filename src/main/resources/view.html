@@ -57,6 +57,7 @@ var episodeCounter = allEpisodes.length;//5;
 var lifeLinesByEpisode = new Array();
 var messagesByEpisode = new Array();
 var mutationsByEpisode = new Array();
+var valueChangesByEpisode = new Array();
 
 document.getElementById('first_column').width = window.innerWidth/3;
 document.getElementById('third_column').width = window.innerWidth/3;
@@ -185,6 +186,7 @@ for (var i = 0; i < episodeCounter; i ++) {
 	lifeLinesByEpisode[i] = new Array();
 	messagesByEpisode[i] = new Array();
 	mutationsByEpisode[i] = new Array();
+	valueChangesByEpisode[i] = new Array();
 
 	episodeTableFirstRow.appendChild(episodeSourceCell);
 	episodeTableFirstRow.appendChild(episodeTraceCell);
@@ -233,6 +235,15 @@ for (var m = 0; m < mutationsByEpisode.length; m ++) {
 	document.getElementById("trace_div_" + m).addEventListener('click', printDOMMutation, false);
 }
 
+for (var m = 0; m < valueChangesByEpisode.length; m ++) {
+
+	for (var j=0; j<allEpisodes[m].getElementValueTraces().length; j++){
+	    valueChangesByEpisode[m][j] = allEpisodes[m].getElementValueTraces()[j].getValueChangeObject();
+	}
+
+	document.getElementById("trace_div_" + m).addEventListener('click', printDOMMutation, false);
+}
+
 function printDOMMutation(e) {
 	var splitId = this.id.split("_");
 	var episodeNumber = splitId[2];
@@ -245,7 +256,11 @@ function printDOMMutation(e) {
         var jjson = mutationsByEpisode[episodeNumber][j]; 
         document.getElementById('third_column').appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
 	}
-    if (allEpisodes[episodeNumber].getMutations().length < 1) {
+	for (var j=0; j<allEpisodes[episodeNumber].getElementValueTraces().length; j++){
+        var jjson = valueChangesByEpisode[episodeNumber][j]; 
+        document.getElementById('third_column').appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
+	}
+    if ((allEpisodes[episodeNumber].getMutations().length < 1) && (allEpisodes[episodeNumber].getElementValueTraces().length < 1)) {
         document.getElementById('third_column').appendChild(document.createElement('pre')).innerHTML = "";
     } 
 }
