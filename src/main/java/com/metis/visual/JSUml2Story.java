@@ -59,7 +59,7 @@ public class JSUml2Story {
 		System.out.println("// Components");
 		functionTraceObjects.add(0, episodeSource);
 
-		int initialX = 110;
+		int initialX = 130;
 		int initialY = 60;
 
 		for (TraceObject to: functionTraceObjects) {

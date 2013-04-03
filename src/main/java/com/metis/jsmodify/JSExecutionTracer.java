@@ -322,6 +322,8 @@ public class JSExecutionTracer {
 		ArrayList<Episode> episodes = new ArrayList<Episode>();
 		int i, j, previousEpisodeEnd = 0;
 
+		if (story == null) return episodes;
+		
 		for (i = 0; i < story.getOrderedTraceList().size(); i++) {
 			// Iterate through all TraceObjects and identify episodes
 			TraceObject sourceTraceObj = story.getOrderedTraceList().get(i);

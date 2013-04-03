@@ -88,7 +88,6 @@ var DOMEventTrace = EpisodeComponent.extend({
   createDiagramObject:  function(x_pos, y_pos) {
     this.visual = new UMLActor({ x : x_pos, y: y_pos});
     //this.visual.setName('Event type:' + this.getEventType() +'\nTarget:' + this.getTargetElement() + '\nHandler:'+this.getEventHandler());
-console.log(this.targetElement);
     this.visual.setName('Event type:' + this.getEventType() + '\nHandler:'+this.getEventHandler()+'\nTarget ID:'+this.targetElement.attributes.id);
     this.visual.notifyChange();
   },
@@ -456,6 +455,13 @@ function Episode () {
 
     // Add the components into the UMLSequenceDiagram
     for (var i = 0; i<this.internalComponents.length; i++){
+
+    if (i>0 && this.internalComponents[i-1].getDiagramObject()._width > 200) {
+        for (var j = i; j<this.internalComponents.length; j++){
+            this.internalComponents[j].getDiagramObject()._x += this.internalComponents[i-1].getDiagramObject()._width/2;
+        }
+    }
+
       this.sequenceDiagram.addElement(this.internalComponents[i].getDiagramObject());
       if (this.internalComponents[i].getDiagramObject() instanceof Actor) {
         var dottedLine = new UMLLifeline({x:this.internalComponents[i].getDiagramObject()._x+25, y:this.internalComponents[i].getDiagramObject()._y+35});

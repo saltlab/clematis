@@ -100,8 +100,6 @@ jsPlumb.bind("ready", function(connection, e) {
 
 for (var i = 0; i<causalLinks.length; i++) {
 
-console.log('episodeTable_'+causalLinks[i][0], 'episodeTable_'+causalLinks[i][1]);
-
     jsPlumb.addEndpoint('episodeTable_'+causalLinks[i][0], ['BottomCenter']);
     jsPlumb.addEndpoint('episodeTable_'+causalLinks[i][1], null, ['BottomCenter']);
 
@@ -347,7 +345,6 @@ function traceDivClickHandler(e) {
 		var lifelineH = lifeLinesByEpisode[episodeNumber][n].visual.getHeight();
 
 		if (relativeMouseX >= lifelineX && relativeMouseX <= lifelineX + lifelineW && relativeMouseY >= lifelineY && relativeMouseY <= lifelineY + lifelineH) {
-			console.log("click on lifeline");
 
 			if (lifeLinesByEpisode[episodeNumber][n].getDiagramObject() instanceof Actor) {
                 viewEventInformation(lifeLinesByEpisode[episodeNumber][n]);
@@ -369,7 +366,6 @@ function traceDivClickHandler(e) {
 }
 
 /*
-console.log("episodeTraces.length: ", episodeTraces.length);
 for (var j = 0; j < episodeTraces.length; j ++) {
 	console.log("j: ", j);
         var currentDiv = document.getElementById('trace_div_' + j);
