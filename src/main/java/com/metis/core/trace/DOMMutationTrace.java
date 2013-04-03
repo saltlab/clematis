@@ -72,11 +72,11 @@ public class DOMMutationTrace extends TraceObject/* implements EpisodeSource */{
 		JSONObject returnObject = new JSONObject();
 		
 		try {
-			returnObject.put("mutationtype", this.mutationType);
-			returnObject.put("parentNode", this.parentNodeValue);
-			returnObject.put("nodeType", this.nodeType);
-			returnObject.put("nodeName", this.nodeName);
-			returnObject.put("nodeValue", this.nodeValue);
+			returnObject.put("Mutation type", this.mutationType);
+			returnObject.put("Node ID", this.parentNodeValue);
+			//returnObject.put("nodeType", this.nodeType);
+			returnObject.put("Type of value changed", this.nodeName.replace("#", ""));
+			returnObject.put("Content changed", this.nodeValue);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

@@ -47,6 +47,8 @@
 </table>
 
 <script>
+
+
 var episodeTraces = new Array();
 
 var width = 1200;
@@ -413,24 +415,51 @@ function viewDetailedCode(lifeline) {
              document.getElementById('code_pre').className="prettyprint lang-js codeWrapper";
              prettyPrint();
            
-             var jumpToPixels = (lifeline.getLineNo()-1) * 14.05;
-
              $('#code_pre')._scrollable(); // When scrolling the window
 
+             var numberOfLines = $("#code_code").find('span').filter(':contains("\n")').size();
+             numberOfLines += $("#code_code").find('span').filter(':contains("\n\n")').size();
+             numberOfLines += $("#code_code").find('span').filter(':contains("\n\n\n")').size();
+             numberOfLines += $("#code_code").find('span').filter(':contains("\n\n\n\n")').size();
+
              var lineOfInterest = $("#code_code").contents().filter(function(){
-                 if (this.previousSibling != null) 
-                   return this.textContent.contains(' '+lifeline.getName().substring(0,lifeline.getName().indexOf('('))) && (this.previousSibling.textContent.contains('function') || this.previousSibling.textContent.contains('var'));
+                 if (this.previousSibling != null) { 
+                   return this.textContent.contains(lifeline.getName().substring(0,lifeline.getName().indexOf('('))) && (this.previousSibling.textContent.contains('function') 
+                              || this.previousSibling.textContent.contains('var') 
+                              || this.previousSibling.textContent.contains('.'));
+                 }
              });
 
-             $('#code_pre').scrollTo(lineOfInterest);
+    function findLineNumber(element) {
+        var endOfLineNodes = $("#code_code").find('span').filter(':contains("\n")');
+        var indexOfOurLineEnd = endOfLineNodes.index($(element).nextAll().filter(':contains("\n")')[0]);
+        var count = 0;
+
+        for (var t=0; t < indexOfOurLineEnd; t++) {
+            count += endOfLineNodes.get(t).innerHTML.split(/[\n]/g).length -1 ;
+        }
+        return count+1;
+    }
+
+    var distance = 999;
+    for (var k = 0; k< lineOfInterest.length; k ++) {
+        if (Math.abs(lifeline.getLineNo() - findLineNumber(lineOfInterest[k]))<distance) {
+            distance = Math.abs(lifeline.getLineNo() - findLineNumber(lineOfInterest[k]));
+            var indexOfReal = k;
+        }
+    }
+
+
+
+
+             $('#code_pre').scrollTo(lineOfInterest[indexOfReal]);
              $('#code_pre').scrollLeft('30px');
-             lineOfInterest.effect("highlight", {}, 8000);
+             $(lineOfInterest[indexOfReal]).effect("highlight", {}, 8000);
 
              document.getElementById('filename_div').innerHTML = '<strong>'+lifeline.getFileName()+'</strong>';
              document.getElementById('second_column').width = 200;
              document.getElementById('code_code').width = 200;
              document.getElementById('code_pre').width = window.innerWidth/15;
-
 
          }
      }

@@ -233,11 +233,7 @@ public class JSUml2Story {
 			}
 		}
 
-		int initialY = 20;		
-		if (functionTraceObjects.get(0).getClass().toString().contains("DOMEventTrace")) {
-			// Leave extra space for DOM event information
-			initialY += 80;		
-		}
+		int initialY = 100;		
 
 		System.out.println("// Message sequences");
 		for (int i=1; i<functionTraceObjects.size(); i++) {
