@@ -261,6 +261,13 @@ for (var i = 0; i < episodeCounter; i ++) {
 	episodeTableFirstRow.appendChild(episodeSourceCell);
 	episodeTableFirstRow.appendChild(episodeTraceCell);
 
+
+    if (allEpisodes[i].getMutations().length > 0) {
+        var mutationNotification = document.createElement('div');
+        mutationNotification.className = 'mutationnotification';
+        mutationNotification.innerHTML="Mutation Present"
+        episodeTableSecondRow.appendChild(mutationNotification);
+    }
 	// episodeDomCell = first column, episodeDomCell2 = second column
 
 	episodeTable.appendChild(episodeTableFirstRow);
