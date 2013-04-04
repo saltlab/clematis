@@ -436,7 +436,7 @@ public class JSUml2Story {
 			return "DOMMutation"+dmto.getMutationType()+"_"+episodeSource.getCounter();
 		} else if (tObject.getClass().toString().contains("DOMElementValueTrace")) {
 			DOMElementValueTrace evto = (DOMElementValueTrace) tObject;
-			return "DOMElementValueTrace"+evto.getElementId()+"_"+episodeSource.getCounter();
+			return "DOMElementValueTrace"+evto.getNodeName()+"_"+episodeSource.getCounter();
 		}
 		return null;
 	}

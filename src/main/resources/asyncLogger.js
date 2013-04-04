@@ -263,6 +263,7 @@ logger.logDOMMutation = function() {
 		for (var k=0; k<mutationArray[i].added.length; k++){
 			added = mutationArray[i].added[k];
 			if (typeof(added) !== 'undefined' && added != null) {
+
 				send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeType: added.nodeType, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
 			}
 		}
@@ -277,7 +278,7 @@ logger.logDOMMutation = function() {
 /**
  * Prints a summary of an element with a changed value
  */
-	logger.logElementValueChange = function(changedElem, oldVal, newVal) {
+	logger.logElementValueChange = function(changedElem, oldVal, newVal, parent) {
 	
 		var date = Date.now();	
 		var id = "null";
@@ -301,8 +302,9 @@ logger.logDOMMutation = function() {
 			nodeName = changedElem.nodeName;
 		}
 		
-    	send(JSON.stringify({messageType: "DOM_ELEMENT_VALUE", timeStamp: date, elementId: id, elementType: type, nodeType: nodeType, nodeName: nodeName, oldValue: oldVal, newValue: newVal, counter: traceCounter++}));
-				
+    	//send(JSON.stringify({messageType: "DOM_ELEMENT_VALUE", timeStamp: date, elementId: id, elementType: type, nodeType: nodeType, nodeName: nodeName, oldValue: oldVal, newValue: newVal, counter: traceCounter++}));
+    	send(JSON.stringify({messageType: "DOM_ELEMENT_VALUE", timeStamp: date, elementId: changedElem, elementType: parent, nodeType: nodeType, nodeName: nodeName, oldValue: oldVal, newValue: newVal, counter: traceCounter++}));
+	
 };
 
 /*******************************************************************************

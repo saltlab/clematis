@@ -68,13 +68,26 @@ function handleSummary(summaries) {
 				nodeValue = summaries[s].added[i].nodeValue;
 			}
 
-			if (typeof(summaries[s].added[i].parentElement) !== 'undefined' && summaries[s].added[i].parentElement != null) {
+			/*if (typeof(summaries[s].added[i].parentElement) !== 'undefined' && summaries[s].added[i].parentElement != null) {
 				if (summaries[s].added[i].parentElement.attributes.length > 0){
 					if (typeof(summaries[s].added[i].parentElement.attributes[0].nodeValue) !== 'undefined' && summaries[s].added[i].parentElement.attributes[0].nodeValue != null) {
 						parentNodeValue = summaries[s].added[i].parentElement.attributes[0].nodeValue;
 					}
 				}
+			}*/
+
+			if (typeof(summaries[s].added[i].parentElement) !== 'undefined' && summaries[s].added[i].parentElement != null) {
+				var jml = JsonML.fromHTML(summaries[s].added[i].parentElement);
+				if (jml) {
+					parentNodeValue = JSON.stringify(jml);
+				}
 			}
+
+			var jml = JsonML.fromHTML(summaries[s].added[i]);
+			if (jml) {
+				nodeValue = JSON.stringify(jml);
+			}
+			
 			added.push({data: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue});	
 		}
 
@@ -103,13 +116,33 @@ function handleSummary(summaries) {
 			}
 
 			// For removed nodes, we need to get the OldParentNode in order to check its value attributes (the current parent node has been removed)
-			if (typeof(summaries[s].getOldParentNode(summaries[s].removed[i])) !== 'undefined' && summaries[s].getOldParentNode(summaries[s].removed[i]) != null) {
+			/*if (typeof(summaries[s].getOldParentNode(summaries[s].removed[i])) !== 'undefined' && summaries[s].getOldParentNode(summaries[s].removed[i]) != null) {
 				if (summaries[s].getOldParentNode(summaries[s].removed[i]).attributes.length > 0){
 					if (typeof(summaries[s].getOldParentNode(summaries[s].removed[i]).attributes[0].nodeValue) !== 'undefined' && summaries[s].getOldParentNode(summaries[s].removed[i]).attributes[0].nodeValue != null) {
 						parentNodeValue = summaries[s].getOldParentNode(summaries[s].removed[i]).attributes[0].nodeValue;
 					}
 				}
+			}*/
+			
+			if (typeof(summaries[s].getOldParentNode(summaries[s].removed[i])) !== 'undefined' && summaries[s].getOldParentNode(summaries[s].removed[i]) != null) {
+				var jml = JsonML.fromHTML(summaries[s].getOldParentNode(summaries[s].removed[i]));
+				if (jml) {
+					parentNodeValue = JSON.stringify(jml);
+				}
 			}
+			
+			if (typeof(summaries[s].removed[i].parentElement) !== 'undefined' && summaries[s].removed[i].parentElement != null) {
+				var jml = JsonML.fromHTML(summaries[s].removed[i].parentElement);
+				if (jml) {
+					parentNodeValue = JSON.stringify(jml);
+				}
+			}
+
+			var jml = JsonML.fromHTML(summaries[s].removed[i]);
+			if (jml) {
+				nodeValue = JSON.stringify(jml);
+			}
+			
 			removed.push({data: data, nodeType: nodeType, nodeName: nodeName, nodeValue: nodeValue, parentNodeValue: parentNodeValue});	
 		}
 
@@ -184,7 +217,23 @@ function checkValue(i) {
 function checkValues() {
 	for (var i=0, max=all.length; i < max; i++) {
 		if (all[i].value != oldValues[i]) {
-			logger.logElementValueChange(all[i], oldValues[i], all[i].value);
+			var element;
+			var parent;
+			var jml = JsonML.fromHTML(all[i]);
+			if (jml) {
+				element = JSON.stringify(jml);
+			} else {
+				element = "null";
+			}
+			
+			var jml2 = JsonML.fromHTML(all[i].parentElement);
+			if (jml2) {
+				parent = JSON.stringify(jml2);
+			} else {
+				parent = "null";
+			}
+
+			logger.logElementValueChange(element, oldValues[i], all[i].value, parent);
 			oldValues[i] = all[i].value;
 		}	
 	}
