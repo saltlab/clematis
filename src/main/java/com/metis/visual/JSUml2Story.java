@@ -229,7 +229,8 @@ public class JSUml2Story {
 		for (int j=0; j <functionTraceObjects.size(); j++) {
 			// Remove DOM mutations as they are not related to messages
 			if (functionTraceObjects.get(j).getClass().toString().contains("DOMElementValueTrace") || functionTraceObjects.get(j).getClass().toString().contains("DOMMutationTrace")) {
-				functionTraceObjects.remove(functionTraceObjects.get(j));
+				functionTraceObjects.remove(j);
+				j--;
 			}
 		}
 

@@ -79,7 +79,7 @@ public class JSExecutionTracer {
 	private static PrintStream output;
 
 	//	private Trace trace;
-	private Story story;
+	private static Story story;
 	//	private ArrayList<TraceObject> sortedTraceList;
 	//	private ArrayList<Episode> episodeList;
 
@@ -97,8 +97,10 @@ public class JSExecutionTracer {
 	 * @param browser
 	 *            The browser.
 	 */
-	public void preCrawling() {
+	public static void preCrawling() {
 		try {
+			points = new JSONArray();
+			
 			Helper.directoryCheck(getOutputFolder());
 			output = new PrintStream(getOutputFolder() + getFilename());
 
@@ -171,7 +173,7 @@ public class JSExecutionTracer {
 		return result;
 	}
 
-	public void postCrawling() {
+	public static void postCrawling() {
 		try {
 			// Add closing bracket
 			PrintStream oldOut = System.out;
@@ -193,7 +195,7 @@ public class JSExecutionTracer {
 	 * This method parses the JSON file containing the trace objects and
 	 * extracts the objects
 	 */
-	private void extraxtTraceObjects() {
+	private static void extraxtTraceObjects() {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			// Register the module that serializes the Guava Multimap
@@ -242,7 +244,7 @@ public class JSExecutionTracer {
 		}
 	}
 
-	private void designSequenceDiagram(Episode e, PrintStream jSepisodes) {
+	private static void designSequenceDiagram(Episode e, PrintStream jSepisodes) {
 		// Given an episode (source, trace included), a pic file will be created
 		// in metis-output/ftrace/sequence_diagrams
 
@@ -271,7 +273,7 @@ public class JSExecutionTracer {
 	/**
 	 * This method sorts all four groups of trace objects into one ordered list of trace objects
 	 */
-	private ArrayList<TraceObject> sortTraceObjects() {
+	private static ArrayList<TraceObject> sortTraceObjects() {
 		ArrayList<TraceObject> sortedTrace = new ArrayList<TraceObject>();
 
 		ArrayList<Collection<TraceObject>> allCollections = new ArrayList<Collection<TraceObject>>();
@@ -318,7 +320,7 @@ public class JSExecutionTracer {
 		return sortedTrace;
 	}
 
-	private ArrayList<Episode> buildEpisodes() {
+	private static ArrayList<Episode> buildEpisodes() {
 		ArrayList<Episode> episodes = new ArrayList<Episode>();
 		int i, j, previousEpisodeEnd = 0;
 

@@ -234,7 +234,7 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 	console.log(" + Handler function: ", arguments[2]);
 
     jml = JsonML.fromHTML(arguments[1]);
-	if (jml) {
+	if (jml && recordingInProgress == true) {
 		jml = JSON.stringify(jml);
     	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
 	}

@@ -188,17 +188,23 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	private Response createResponse(Response response, Request request) {
 		String type = response.getHeader("Content-Type");
 		
+		if (request.getURL().toString().contains("?beginrecord")) {
+			JSExecutionTracer.preCrawling();
+			return response;
+		}
+		
+        if (request.getURL().toString().contains("?stoprecord")) {
+        	JSExecutionTracer.postCrawling();
+			return response;
+		}
+		
+		
 		if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
 			String rawResponse = new String(request.getContent());
 			JSExecutionTracer.addPoint(rawResponse);
 			return response;
 		}
-		
-		if (request.getURL().toString().contains("?sendtester")) {
-			String rawResponse = new String(request.getContent());
-			System.out.println("Send was used: " + rawResponse);
-			return response;
-		}
+
 
 		if (type != null && type.contains("javascript")) {
 
