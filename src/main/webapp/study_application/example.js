@@ -93,7 +93,11 @@ function updateUserInformation() {
 function submitForm() {
 	sendSubmissionToServer();
 	submissionFinalized = true;
-	document.getElementById("submissionFinalizedMessage").innerHTML = "Submission completed. Thanks you!";
+	document.getElementById("submissionFinalizedMessage").innerHTML = "Submission completed.";
+
+	var goodbyeDiv = document.createElement('div');
+    goodbyeDiv.innerHTML = "Thank you!";
+    document.getElementById("submissionFinalizedMessage").appendChild(goodbyeDiv);
 }
 
 function enterContest() {
@@ -103,6 +107,7 @@ function enterContest() {
 	}
 	else {
 		validContestEnter();
+//		document.getElementById("enteredInContestDiv").innterHTML = "You have entered in the contest!";
 	}
 }
 
