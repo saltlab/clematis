@@ -250,21 +250,37 @@ logger.logDOMMutation = function() {
 	for (var i=0; i<mutationArray.length; i++) {
 		var removed, added;
 		var date = mutationArray[i].date;
-		
+
 		// Loop through the array of removed nodes in this summary
 		for (var j=0; j<mutationArray[i].removed.length; j++){
 			removed = mutationArray[i].removed[j];
 			if (typeof(removed) !== 'undefined' && removed != null) {
-				send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: removed.data, nodeName: removed.nodeName, nodeType: removed.nodeType, nodeValue: removed.nodeValue, parentNodeValue: removed.parentNodeValue, counter: traceCounter++}));
-			}
+				if (removed.nodeName == "#text"){
+					// The following line will set the parent node value to be only the first two elements of the JSON parent node array (this should be the type and the ID)
+					removed.parentNodeValue = JSON.stringify(removed.parentNodeValue[0]) + JSON.stringify(removed.parentNodeValue[1]);
+					send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: removed.data, nodeName: removed.nodeName, nodeType: removed.nodeType, nodeValue: removed.nodeValue, parentNodeValue: removed.parentNodeValue, counter: traceCounter++}));
+				} else {
+					// To stringify the entire parentNodeValue (this will be the FULL JSON_ML string)
+					removed.parentNodeValue = JSON.stringify(removed.parentNodeValue);
+					send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: removed.data, nodeName: removed.nodeName, nodeType: removed.nodeType, nodeValue: removed.nodeValue, parentNodeValue: removed.parentNodeValue, counter: traceCounter++}));
+				}
+				}
 		}
-		
+
 		// Loop through the array of added nodes in this summary
 		for (var k=0; k<mutationArray[i].added.length; k++){
 			added = mutationArray[i].added[k];
 			if (typeof(added) !== 'undefined' && added != null) {
+				if (added.nodeName == "#text"){
+					// The following line will set the parent node value to be only the first two elements of the JSON parent node array (this should be the type and the ID)
+					added.parentNodeValue = JSON.stringify(added.parentNodeValue[0]) + JSON.stringify(added.parentNodeValue[1]);
+					send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeType: added.nodeType, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
+				} else {
+					// To stringify the entire parentNodeValue (this will be the FULL JSON_ML string)
+					added.parentNodeValue = JSON.stringify(added.parentNodeValue);
+					send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeType: added.nodeType, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
+				}
 
-				send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeType: added.nodeType, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
 			}
 		}
 
@@ -300,6 +316,10 @@ logger.logDOMMutation = function() {
 		
 		if (typeof(changedElem.nodeName) !== 'undefined' && changedElem.nodeName != null) {
 			nodeName = changedElem.nodeName;
+		}
+		
+		if (type != "text") {
+			parent = "N/A";
 		}
 		
     	//send(JSON.stringify({messageType: "DOM_ELEMENT_VALUE", timeStamp: date, elementId: id, elementType: type, nodeType: nodeType, nodeName: nodeName, oldValue: oldVal, newValue: newVal, counter: traceCounter++}));
