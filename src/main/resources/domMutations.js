@@ -19,7 +19,6 @@ window.addEventListener("DOMContentLoaded", function() {
 function startObserver() {
 	observerSummary = new MutationSummary({
 	  callback: handleSummary,
-	  oldPreviousSibling: true, //added for testing
 	  queries: [ { all: true } ]
 	});
 }
