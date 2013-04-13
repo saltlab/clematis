@@ -12,6 +12,7 @@ public class DOMElementValueTrace extends TraceObject/* implements EpisodeSource
 	private String nodeName;
 	private String oldValue;
 	private String newValue;
+	private String parentNodeValue;
 
 	public DOMElementValueTrace() {
 		super();
@@ -66,20 +67,30 @@ public class DOMElementValueTrace extends TraceObject/* implements EpisodeSource
 		this.newValue = newValue;
 	}
 	
+	public String getParentNodeValue() {
+		return parentNodeValue;
+	}
+
+	public void setParentNodeValue(String parentNodeValue) {
+		this.parentNodeValue = parentNodeValue;
+	}
+	
 	public JSONObject getValueChangeAsJSON() {
 		JSONObject returnObject = new JSONObject();
 
 		try {
 			returnObject.put("elementId", this.elementId);
-			returnObject.put("elementType", this.elementType);
+			//returnObject.put("elementType", this.elementType);
 			//returnObject.put("nodeType", this.nodeType);
 			//returnObject.put("nodeName", this.nodeName);
 			returnObject.put("oldValue", this.oldValue);
 			returnObject.put("newValue", this.newValue);
+			returnObject.put("parentNodeValue", this.parentNodeValue);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return returnObject;
 	}
+
 
 }

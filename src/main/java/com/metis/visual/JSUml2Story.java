@@ -74,6 +74,7 @@ public class JSUml2Story {
 				DOMElementValueTrace evto = (DOMElementValueTrace) to;
 				System.out.println("var "+getDiagramIdentifier(to)+" = new DOMElementValueTrace(false);");
 				System.out.println(getDiagramIdentifier(to)+".setValueChangeObject("+evto.getValueChangeAsJSON()+");");
+				System.out.println(getDiagramIdentifier(to)+".setParentNodeValue('"+evto.getParentNodeValue()+"');");
 				/*System.out.println(getDiagramIdentifier(to)+".setElementId('"+evto.getElementId()+"');");
 				System.out.println(getDiagramIdentifier(to)+".setOldValue('"+evto.getOldValue()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setNewValue('"+evto.getNewValue()+"');");		

@@ -197,9 +197,16 @@ var DOMElementValueTrace = EpisodeComponent.extend({
   getOldValue: function(){
 	  return this.oldValue;
   },
+  setParentNodeValue: function(parentNodeValue){
+	  this.parentNodeValue = parentNodeValue;
+  },
+  getParentNodeValue: function(){
+	  return this.parentNodeValue;
+  },
   getSummary: function(){
-	var summary = "Element ID : " + this.getElementId() + "\nOld Value: " + this.getOldValue() + "\nNew Value " + this.getNewValue() + "\nElement Type: "
-	+ this.getElementType() + "\nNode Type: " + this.getNodeName() + " (type " + this.getNodeType() + ")";
+	/*var summary = "Element ID : " + this.getElementId() + "\nOld Value: " + this.getOldValue() + "\nNew Value " + this.getNewValue() + "\nElement Type: "
+	+ this.getElementType() + "\nNode Type: " + this.getNodeName() + " (type " + this.getNodeType() + ")";*/
+	  var summary = "Element ID : " + this.getElementId() + "Parent : " + this.getParentNodeValue() + "\nOld Value: " + this.getOldValue() + "\nNew Value " + this.getNewValue();
     return summary;
   },
   setValueChangeObject: function(targetElement){

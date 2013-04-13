@@ -256,6 +256,7 @@ logger.logDOMMutation = function() {
 			removed = mutationArray[i].removed[j];
 			if (typeof(removed) !== 'undefined' && removed != null) {
 				if (removed.nodeName == "#text"){
+					// TODO APRIL2013 - add other cases to this to cover types other than #text
 					// The following line will set the parent node value to be only the first two elements of the JSON parent node array (this should be the type and the ID)
 					removed.parentNodeValue = JSON.stringify(removed.parentNodeValue[0]) + JSON.stringify(removed.parentNodeValue[1]);
 					send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: removed.data, nodeName: removed.nodeName, nodeType: removed.nodeType, nodeValue: removed.nodeValue, parentNodeValue: removed.parentNodeValue, counter: traceCounter++}));
@@ -272,6 +273,7 @@ logger.logDOMMutation = function() {
 			added = mutationArray[i].added[k];
 			if (typeof(added) !== 'undefined' && added != null) {
 				if (added.nodeName == "#text"){
+					// TODO APRIL2013 - add other cases to this to cover types other than #text
 					// The following line will set the parent node value to be only the first two elements of the JSON parent node array (this should be the type and the ID)
 					added.parentNodeValue = JSON.stringify(added.parentNodeValue[0]) + JSON.stringify(added.parentNodeValue[1]);
 					send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeType: added.nodeType, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
@@ -302,7 +304,7 @@ logger.logDOMMutation = function() {
 		var nodeType = "null";
 		var nodeName = "null";
 		
-		if (typeof(changedElem.id) !== 'undefined' && changedElem.id != null) {
+		/*if (typeof(changedElem.id) !== 'undefined' && changedElem.id != null) {
 			id = changedElem.id;
 		}
 		
@@ -316,14 +318,21 @@ logger.logDOMMutation = function() {
 		
 		if (typeof(changedElem.nodeName) !== 'undefined' && changedElem.nodeName != null) {
 			nodeName = changedElem.nodeName;
-		}
+		}*/
+		
+		// TODO APRIL2013 - If INPUT, parse the first 3 elements of changedElem, if SUBMIT type take the first 2 elements, etc.
+		// If we only want PART of the element, here we would only stringify certain parts of changedElem i.e. stringify(changeElem[0]) + stringify(changedElem[1])
+		changedElem = JSON.stringify(changedElem);
 		
 		if (type != "text") {
 			parent = "N/A";
+		} else {
+			// If we only want PART of the parent, here we would only stringify certain parts of parent i.e. stringify(parent[0]) + stringify(parent[1])
+			parent - JSON.stringify(parent)
 		}
 		
     	//send(JSON.stringify({messageType: "DOM_ELEMENT_VALUE", timeStamp: date, elementId: id, elementType: type, nodeType: nodeType, nodeName: nodeName, oldValue: oldVal, newValue: newVal, counter: traceCounter++}));
-    	send(JSON.stringify({messageType: "DOM_ELEMENT_VALUE", timeStamp: date, elementId: changedElem, elementType: parent, nodeType: nodeType, nodeName: nodeName, oldValue: oldVal, newValue: newVal, counter: traceCounter++}));
+    	send(JSON.stringify({messageType: "DOM_ELEMENT_VALUE", timeStamp: date, elementId: changedElem, oldValue: oldVal, newValue: newVal, parentNodeValue: parent, counter: traceCounter++}));
 	
 };
 

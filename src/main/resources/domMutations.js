@@ -186,14 +186,14 @@ function checkValues() {
 			var parent;
 			var jml = JsonML.fromHTML(all[i]);
 			if (jml) {
-				element = JSON.stringify(jml);
+				element = jml;
 			} else {
 				element = "null";
 			}
 			
 			var jml2 = JsonML.fromHTML(all[i].parentElement);
 			if (jml2) {
-				parent = JSON.stringify(jml2);
+				parent = jml2;
 			} else {
 				parent = "null";
 			}
