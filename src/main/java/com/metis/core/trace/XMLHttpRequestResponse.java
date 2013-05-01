@@ -18,6 +18,6 @@ public class XMLHttpRequestResponse extends XMLHttpRequestTrace/* implements Epi
 		return response;
 	}
 	public void setResponse(String response) {
-		this.response = response;
+		this.response = response.replace("\n", "").replace("\r", "");
 	}	
 }

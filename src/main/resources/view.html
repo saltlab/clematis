@@ -85,60 +85,47 @@ function get_random_color() {
 }
 
 
-/*
-jsPlumb.bind("ready", function() {
-    jsPlumb.connect({source:'episodeTable_0', target:'episodeTable_5', containment:"wrapper_div"});
-});
-*/
-
 jsPlumb.bind("ready", function(connection, e) {
 
     jsPlumb.importDefaults({
         Container:$("#wrapper_div"),
         // default drag options
-        DragOptions: { cursor: 'pointer', zIndex: 2000 },
+        //DragOptions: { cursor: 'pointer', zIndex: 2000 },
+        DragOptions: {}
     });
 
+    for (var i = 0; i<causalLinks.length; i++) {
 
-for (var i = 0; i<causalLinks.length; i++) {
+        //jsPlumb.addEndpoint('episodeTable_'+causalLinks[i][0], null, endpointOptions);
+        //jsPlumb.addEndpoint('episodeTable_'+causalLinks[i][1], ['BottomCenter']);
 
-    jsPlumb.addEndpoint('episodeTable_'+causalLinks[i][0], ['BottomCenter']);
-    jsPlumb.addEndpoint('episodeTable_'+causalLinks[i][1], null, ['BottomCenter']);
+        var randomColour = get_random_color();
 
-var randomColour = get_random_color();
+        var source = jsPlumb.addEndpoint("episodeTable_"+causalLinks[i][0]);
+        source.setStyle({fillStyle: randomColour});
+        var target = jsPlumb.addEndpoint("episodeTable_"+causalLinks[i][1]);
+        target.setVisible(false);
 
-    jsPlumb.connect({
-       source: "episodeTable_"+causalLinks[i][0], 
-       target: "episodeTable_"+causalLinks[i][1],
-       connector:[ "Bezier", { curviness: 100 } ], 
-       paintStyle:{ lineWidth:5, strokeStyle:randomColour },
-       endpointStyle:{ fillStyle: randomColour }
-    });
-/*    jsPlumb.addEndpoint('episodeTable_0', ['BottomCenter'], ['BottomCenter']);
-    jsPlumb.addEndpoint('episodeTable_5', ['BottomCenter'], ['BottomCenter']);
+        var location = ((i+1)*.40)%1;
 
-    jsPlumb.connect({
-       source: "episodeTable_0", 
-       target: "episodeTable_5",
-       connector:[ "Bezier", { curviness: 100 } ], 
-       paintStyle:{ lineWidth:5, strokeStyle:"maroon" },
-       endpointStyle:{ fillStyle: "maroon" }
-    });*/
-}
-
+        jsPlumb.connect({
+           source: source,
+           target: target,
+           connector:[ "Bezier", { curviness: 100 } ], 
+           paintStyle:{ lineWidth:5, strokeStyle:randomColour },
+           endpointStyle:{ fillStyle: randomColour },
+    	   overlays:[ 
+               ["Arrow", {location:.975, width:35}], 
+               [ "Label", { label:"<br><br>"+causalLinks[i][2], location: location} ]
+           ]
+        });
+    }
 });
-
-
 
 
 $('#wrapper_div').scroll(function () {
-                jsPlumb.repaintEverything();
+    jsPlumb.repaintEverything();
 });
-
-
-
-
-
 
 </script>
 

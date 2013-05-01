@@ -222,8 +222,11 @@ logger.logXHRResponse = function(xhr) {
 logger.logDOMEvent = function(type, targetEl, callback) {
 
 	var jml;
+	console.log("------------------------------------");
+	console.log("DOM EVENT HANDLED");
 
-	if (!recordStarted || arguments[0].toString().indexOf("webdriver-evaluate") >= 0)
+	//if (!recordStarted || arguments[0].toString().indexOf("webdriver-evaluate") >= 0)
+	if (!recordStarted)
 		return;
 	console.log("------------------------------------");
 	console.log("DOM EVENT HANDLED");
@@ -234,7 +237,8 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 	console.log(" + Handler function: ", arguments[2]);
 
     jml = JsonML.fromHTML(arguments[1]);
-	if (jml && recordingInProgress == true) {
+	//if (jml && recordingInProgress == true) {
+	if (jml) {
 		jml = JSON.stringify(jml);
     	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
 	}

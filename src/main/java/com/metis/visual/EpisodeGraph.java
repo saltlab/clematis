@@ -144,14 +144,20 @@ public class EpisodeGraph {
 			System.out.println("No loops allowed!");
 			return;
 		} 
+		String label = null;
+		if (b1.getClass().toString().contains("Timeout")) {
+			label = "TID: " + b1.getId();
+		} else {
+			label = "XHR ID: " + b1.getId();
+		}
 		try {
 			// Add the edge
 			dirGraph.addEdge("E"+v1.getSource().getCounter(), 
 					"E"+v2.getSource().getCounter(), 
 					new RelationshipEdge<String>("E"+v1.getSource().getCounter(), "E"+v2.getSource().getCounter(), b1));
-			
+
 			System.setOut(output);
-			System.out.println("var E" +v1.getSource().getCounter()+"_"+v2.getSource().getCounter()+" = " + "["+el.indexOf(v1)+","+el.indexOf(v2)+"]");
+			System.out.println("var E" +v1.getSource().getCounter()+"_"+v2.getSource().getCounter()+" = " + "["+el.indexOf(v1)+","+el.indexOf(v2)+",\""+label+"\"]");
 			System.out.println("causalLinks.push(E"+v1.getSource().getCounter()+"_"+v2.getSource().getCounter()+");");
 			System.setOut(oldOut);
 		} catch (Exception eee) {

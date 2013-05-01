@@ -26,8 +26,8 @@ public class SimpleExample {
 	//private static final String URL = "http://localhost:8080/example_webapplication/index.html";
 	private static final String URL = "http://localhost:8080/study_application/index.html";
 
-	
-	
+
+
 	private static String outputFolder = "";
 	private static WebDriver driver;
 
@@ -85,6 +85,14 @@ public class SimpleExample {
 				/* use proxy for everything, including localhost */
 				profile.setPreference("network.proxy.no_proxies_on", "");
 			}
+
+
+			/* For enabling Firebug with Clemetis
+			 * Replace '...' with the appropriate path to your Firebug installation
+			 */
+			//File file = new File("/Users/.../Library/Application Support/Firefox/Profiles/zga73n4v.default/extensions/firebug@software.joehewitt.com.xpi");
+			//profile.addExtension(file);
+			//profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup screen
 
 			driver = new FirefoxDriver(profile);
 			WebDriverWait wait = new WebDriverWait(driver, 10);
