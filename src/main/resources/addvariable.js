@@ -6,7 +6,7 @@ var traceCounter = 0;
 var recordButtonClicked = false;
 var stopButtonClicked = false;
 
-var recordingInProgress = false; // Can use this for determining if Metis should be logging or not
+var recordingInProgress = false; // Can use this for determining if Clematis should be logging or not
 
 document.getElementById("recordButton").addEventListener('click', startRecording, false);
 document.getElementById("stopButton").addEventListener('click', stopRecording, false);
@@ -39,7 +39,7 @@ function stopRecording() {
 	document.getElementById("recordButton").style.opacity = 1;
 	document.getElementById("stopButton").style.opacity = 0.5;
 	
-	document.getElementById("visualizationLinkContainer").innerHTML = "<a href='file:///Users/sheldon/metis-dev/metis-output/ftrace/sequence_diagrams/view.html' class='viewLink'>View Story</a>";
+	document.getElementById("visualizationLinkContainer").innerHTML = "<a href='file:///Users/sheldon/clematis/clematis-output/ftrace/sequence_diagrams/view.html' class='viewLink'>View Story</a>";
 
 	// Recording has stopped
     sendRecordStop();
