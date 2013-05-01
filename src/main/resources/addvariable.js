@@ -3,6 +3,48 @@ window.buffer = new Array();
 
 var traceCounter = 0;
 
+var recordButtonClicked = false;
+var stopButtonClicked = false;
+
+var recordingInProgress = false; // Can use this for determining if Clematis should be logging or not
+
+document.getElementById("recordButton").addEventListener('click', startRecording, false);
+document.getElementById("stopButton").addEventListener('click', stopRecording, false);
+
+function startRecording() {
+	if (recordButtonClicked == true)
+		return;
+
+    window.buffer = new Array();
+
+	recordButtonClicked = true;
+	stopButtonClicked = false;
+
+	document.getElementById("recordButton").style.opacity = 0.5;
+	document.getElementById("stopButton").style.opacity = 1;
+
+	document.getElementById("visualizationLinkContainer").innerHTML = "";
+
+	// Recording has started
+    sendRecordStart();
+    
+}
+
+function stopRecording() {
+	if (stopButtonClicked == true)
+		return;
+	stopButtonClicked = true;
+	recordButtonClicked = false;
+
+	document.getElementById("recordButton").style.opacity = 1;
+	document.getElementById("stopButton").style.opacity = 0.5;
+	
+	document.getElementById("visualizationLinkContainer").innerHTML = "<a href='file:///Users/sheldon/clematis/clematis-output/ftrace/sequence_diagrams/view.html' class='viewLink'>View Story</a>";
+
+	// Recording has stopped
+    sendRecordStop();
+}
+
 // Function Call Wrapper
 function FCW() {
 	var date = Date.now();
@@ -35,10 +77,24 @@ function getTimeStamp(date) {
 }
 
 function send(value) {
+
+    // Only record when intended
+    if (!recordingInProgress) return; 
+
 	window.buffer.push(value);
-//	if(window.buffer.length >= 50) {
-//		sendReally();	
-//	}
+}
+
+function sendRecordStart(){
+    recordingInProgress = true;
+    window.xhr.open('POST', document.location.href + '?beginrecord', false);
+    window.xhr.send();
+}
+
+function sendRecordStop(){
+    sendReally();
+    recordingInProgress = false;
+    window.xhr.open('POST', document.location.href + '?stoprecord', false);
+    window.xhr.send();
 }
 
 function sendReally() {

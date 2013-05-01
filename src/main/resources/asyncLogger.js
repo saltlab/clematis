@@ -35,6 +35,8 @@ var MsgConstants = {
 	msgType_xhrOpen : 'XHR_OPEN',
 	msgType_xhrSend : 'XHR_SEND',
 	msgType_xhrResponse : 'XHR_RESPONSE',
+	msgType_domMutation : 'DOM_MUTATION',
+	msgType_domElementValue : 'DOM_ELEMENT_VALUE',
 	url : 'URL',
 	year : 'YEAR',
 	month : 'MONTH',
@@ -54,7 +56,18 @@ var MsgConstants = {
 	xhrUrl : 'XHR_URL',
 	async : 'ASYNC',
 	xhrPostMsg : 'XHR_POST_MSG',
-	response : 'RESPONSE'
+	response : 'RESPONSE',
+	mutationType: 'MUTATION_TYPE',
+	data : 'DATA',
+	nodeName : 'NODE_NAME',
+	nodeType : 'NODE_TYPE',
+	nodeValue : 'NODE_VALUE',
+	parentNodeValue : 'PARENT_NODE_VALUE',
+	elementId : 'ELEMENT_ID',
+	elementType : 'ELEMENT_TYPE',
+	oldValue : 'OLD_VALUE',
+	newValue : 'NEW_VALUE'
+	
 }
 
 /**
@@ -98,6 +111,9 @@ logger.logSetTimeout = function(func, delay, params) {
 
         send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: date, id: func.id, callbackFunction: func.name, delay: delay, args: argsJSONObject, counter: traceCounter++}));
     }
+    
+	checkValues();
+
 };
 
 /**
@@ -122,6 +138,8 @@ logger.logTimeoutCallback = function(func) {
 	}
 
     send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func.name, counter: traceCounter++}));
+
+    checkValues();
 };
 
 /**
@@ -141,6 +159,8 @@ logger.logXHROpen = function(xhr, method, url, async) {
 	console.log(" + Async: ", async);
 
     send(JSON.stringify({messageType: "XHR_OPEN", timeStamp: date, id: xhr.id, methodType: method, url: url, async: async, counter: traceCounter++}));
+
+	checkValues();
 };
 
 /**
@@ -157,6 +177,8 @@ logger.logXHRSend = function(xhr, str) {
 	var date = Date.now();
 
     send(JSON.stringify({messageType: "XHR_SEND", timeStamp: date, id: xhr.id, message: str, counter: traceCounter++}));
+
+	checkValues();
 };
 
 /**
@@ -191,6 +213,7 @@ logger.logXHRResponse = function(xhr) {
     } else {
         send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: date, id: xhr.id, callbackFunction: "", response: xhr.response, counter: traceCounter++}));
 	}
+    checkValues();
 };
 
 /**
@@ -199,8 +222,11 @@ logger.logXHRResponse = function(xhr) {
 logger.logDOMEvent = function(type, targetEl, callback) {
 
 	var jml;
+	console.log("------------------------------------");
+	console.log("DOM EVENT HANDLED");
 
-	if (!recordStarted || arguments[0].toString().indexOf("webdriver-evaluate") >= 0)
+	//if (!recordStarted || arguments[0].toString().indexOf("webdriver-evaluate") >= 0)
+	if (!recordStarted)
 		return;
 	console.log("------------------------------------");
 	console.log("DOM EVENT HANDLED");
@@ -211,11 +237,107 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 	console.log(" + Handler function: ", arguments[2]);
 
     jml = JsonML.fromHTML(arguments[1]);
+	//if (jml && recordingInProgress == true) {
 	if (jml) {
 		jml = JSON.stringify(jml);
     	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
 	}
+	checkValues();
+};
 
+/**
+ * Prints the contents of the DOM Mutation array and empties the array
+ */
+logger.logDOMMutation = function() {
+	
+	// Loop through the array of summaries
+	for (var i=0; i<mutationArray.length; i++) {
+		var removed, added;
+		var date = mutationArray[i].date;
+
+		// Loop through the array of removed nodes in this summary
+		for (var j=0; j<mutationArray[i].removed.length; j++){
+			removed = mutationArray[i].removed[j];
+			if (typeof(removed) !== 'undefined' && removed != null) {
+				if (removed.nodeName == "#text"){
+					// TODO APRIL2013 - add other cases to this to cover types other than #text
+					// The following line will set the parent node value to be only the first two elements of the JSON parent node array (this should be the type and the ID)
+					removed.parentNodeValue = JSON.stringify(removed.parentNodeValue[0]) + JSON.stringify(removed.parentNodeValue[1]);
+					send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: removed.data, nodeName: removed.nodeName, nodeType: removed.nodeType, nodeValue: removed.nodeValue, parentNodeValue: removed.parentNodeValue, counter: traceCounter++}));
+				} else {
+					// To stringify the entire parentNodeValue (this will be the FULL JSON_ML string)
+					removed.parentNodeValue = JSON.stringify(removed.parentNodeValue);
+					send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "removed", data: removed.data, nodeName: removed.nodeName, nodeType: removed.nodeType, nodeValue: removed.nodeValue, parentNodeValue: removed.parentNodeValue, counter: traceCounter++}));
+				}
+				}
+		}
+
+		// Loop through the array of added nodes in this summary
+		for (var k=0; k<mutationArray[i].added.length; k++){
+			added = mutationArray[i].added[k];
+			if (typeof(added) !== 'undefined' && added != null) {
+				if (added.nodeName == "#text"){
+					// TODO APRIL2013 - add other cases to this to cover types other than #text
+					// The following line will set the parent node value to be only the first two elements of the JSON parent node array (this should be the type and the ID)
+					added.parentNodeValue = JSON.stringify(added.parentNodeValue[0]) + JSON.stringify(added.parentNodeValue[1]);
+					send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeType: added.nodeType, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
+				} else {
+					// To stringify the entire parentNodeValue (this will be the FULL JSON_ML string)
+					added.parentNodeValue = JSON.stringify(added.parentNodeValue);
+					send(JSON.stringify({messageType: "DOM_MUTATION", timeStamp: date, mutationType: "added", data: added.data, nodeName: added.nodeName, nodeType: added.nodeType, nodeValue: added.nodeValue, parentNodeValue: added.parentNodeValue, counter: traceCounter++}));
+				}
+
+			}
+		}
+
+	}		
+	//	Reset the array of summaries
+	mutationArray.length = 0;
+	// Check for element value changes
+	checkValues();
+};
+
+/**
+ * Prints a summary of an element with a changed value
+ */
+	logger.logElementValueChange = function(changedElem, oldVal, newVal, parent) {
+	
+		var date = Date.now();	
+		var id = "null";
+		var type = "null";
+		var nodeType = "null";
+		var nodeName = "null";
+		
+		/*if (typeof(changedElem.id) !== 'undefined' && changedElem.id != null) {
+			id = changedElem.id;
+		}
+		
+		if (typeof(changedElem.type) !== 'undefined' && changedElem.type != null) {
+			type = changedElem.type;
+		}
+		
+		if (typeof(changedElem.nodeType) !== 'undefined' && changedElem.nodeType != null) {
+			nodeType = changedElem.nodeType;
+		}
+		
+		if (typeof(changedElem.nodeName) !== 'undefined' && changedElem.nodeName != null) {
+			nodeName = changedElem.nodeName;
+		}*/
+		
+		// TODO APRIL2013 - If INPUT, parse the first 3 elements of changedElem, if SUBMIT type take the first 2 elements, etc.
+		// If we only want PART of the element, here we would only stringify certain parts of changedElem i.e. stringify(changeElem[0]) + stringify(changedElem[1])
+		changedElem = JSON.stringify(changedElem);
+		
+		if (type != "text") {
+			parent = "N/A";
+		} else {
+			// If we only want PART of the parent, here we would only stringify certain parts of parent i.e. stringify(parent[0]) + stringify(parent[1])
+			parent - JSON.stringify(parent)
+		}
+		
+    	//send(JSON.stringify({messageType: "DOM_ELEMENT_VALUE", timeStamp: date, elementId: id, elementType: type, nodeType: nodeType, nodeName: nodeName, oldValue: oldVal, newValue: newVal, counter: traceCounter++}));
+    	send(JSON.stringify({messageType: "DOM_ELEMENT_VALUE", timeStamp: date, elementId: changedElem, oldValue: oldVal, newValue: newVal, parentNodeValue: parent, counter: traceCounter++}));
+	
 };
 
 /*******************************************************************************

@@ -345,7 +345,7 @@ function addElM(__proto__, name, o) {
     return name;
   }
 
-  if (__proto__.hasOwnProperty("addEventListener")) {
+  if (__proto__.hasOwnProperty("addEventListener") || __proto__.addEventListener instanceof Function) {
     // Replace/wrap addEventListener method
 	elms[name] = new ZZEM(__proto__, "addEventListener", "removeEventListener", isLoggingDispatched);	
   }
@@ -607,7 +607,9 @@ if (Node.prototype.hasOwnProperty("addEventListener")) {
   //addElM(Window.prototype, "Window");
 }
 // addEventListener() of Firefox for HTML Object definitions  
-if (Element.prototype.hasOwnProperty("addEventListener")) {
+//if (Element.prototype.hasOwnProperty("addEventListener")) {
+if (isFirefox) {
+
   addElM(HTMLHtmlElement.prototype, "HTMLHtmlElement");
   addElM(HTMLElement.prototype, "HTMLElement");
   addElM(HTMLHeadElement.prototype, "HTMLHeadElement");
@@ -635,6 +637,7 @@ if (Element.prototype.hasOwnProperty("addEventListener")) {
   addElM(HTMLMenuElement.prototype, "HTMLMenuElement");
   addElM(HTMLLIElement.prototype, "HTMLLIElement");
   addElM(HTMLDivElement.prototype, "HTMLDivElement");
+//  addElM(HTMLDivElementPrototype, "HTMLDivElement");
   addElM(HTMLParagraphElement.prototype, "HTMLParagraphElement");
   addElM(HTMLHeadingElement.prototype, "HTMLHeadingElement");
   addElM(HTMLQuoteElement.prototype, "HTMLQuoteElement");

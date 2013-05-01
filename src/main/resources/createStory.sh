@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd metis-output/ftrace/sequence_diagrams/
+cd clematis-output/ftrace/sequence_diagrams/
 cp ../../../src/main/resources/sequence.pic .
 
 ls *.pic > list
@@ -52,7 +52,7 @@ sed 's/digraph G {/digraph G {\
   compound=true;\
   rankdir="LR";\
   ranksep=1\.25;\
-  label="METIS EPISODE RELATIONS";\
+  label="CLEMATIS EPISODE RELATIONS";\
 \
   node \[shape=plaintext\, fontsize=36\];\
 \
