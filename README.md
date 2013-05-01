@@ -15,7 +15,7 @@ In terms of installation, setting up the project is easier than ever. Simply che
 
 Upon checkout, Clematis contains a simple application for testing the tracing process ([src/main/webapp/example\_webapplication](https://github.com/saltlab/clematis/tree/master/src/main/webapp/example_webapplication)). This example application contains some basic synchronous and asynchronous JavaScript events. In order to test your own web-application using Clematis, place the appropriate application files in the [webapp](https://github.com/saltlab/clematis/tree/master/src/main/webapp/) folder in accordance with the [Jetty guidelines](http://wiki.eclipse.org/Jetty/Howto/Deploy_Web_Applications).
 
-In addition to adding your application to the webapp/ folder, you will also need to set your web-application as the target for Clematis. This is done from the [SimpleExample](https://github.com/saltlab/clematis/blob/master/src/main/java/com/metis/core/SimpleExample.java) class (line 26). 
+In addition to adding your application to the webapp/ folder, you will also need to set your web-application as the target for Clematis. This is done from the [SimpleExample](https://github.com/saltlab/clematis/blob/master/src/main/java/com/clematis/core/SimpleExample.java) class (line 26). 
 
 ## Running the Tool 
 
@@ -25,7 +25,7 @@ The Jetty server must be started before running Clematis. First, navigate to the
 mvn jetty:run
 ```
 
-If successful, a notification should appear confirming that the server is up-and-running (``[INFO] Started Jetty Server``). Next, run the Clematis project as a Java application from Eclipse by setting [com.metis.core.SimpleExample](https://github.com/saltlab/clematis/blob/master/src/main/java/com/metis/core/SimpleExample.java) as the Main class. Once a new browser session is started by Clematis, feel free to use your application as you normally would. Quitting Firefox (Cmd+Q) notifies Clematis that your user session is over and the generated trace files can be found in the 'metis-output' directory at the root of clematis.
+If successful, a notification should appear confirming that the server is up-and-running (``[INFO] Started Jetty Server``). Next, run the Clematis project as a Java application from Eclipse by setting [com.clematis.core.SimpleExample](https://github.com/saltlab/clematis/blob/master/src/main/java/com/clematis/core/SimpleExample.java) as the Main class. Once a new browser session is started by Clematis, feel free to use your application as you normally would. Quitting Firefox (Cmd+Q) notifies Clematis that your user session is over and the generated trace files can be found in the 'clematis-output' directory at the root of clematis.
 
 More documentation (and fewer bugs) coming soon.
 
@@ -38,7 +38,7 @@ Your feedback is valued! Please use the [Issue tracker](https://github.com/saltl
 The provided demo application [.../example_webapplication/index.html](https://github.com/saltlab/clematis/blob/master/example_webapplication/index.html) is not fully compatible with Google Chrome. Specifically, an attempt to retrieve data from a local file is made by each of the 3 XMLHttpRequests within the example/demo (GET, POST, Delayed). This type of local access operation is not permitted from Chrome as a seurity feature ([See More](http://renard.github.com/o-blog/faq.html)). Therefore, the following output is expected when attempting to load local files through Chrome: 
 
 ```
-XMLHttpRequest cannot load file://.../metis/example_webapplication/local_url.txt. Cross origin requests are only supported for HTTP.
+XMLHttpRequest cannot load file://.../clematis/example_webapplication/local_url.txt. Cross origin requests are only supported for HTTP.
 Uncaught Error: NETWORK_ERR: XMLHttpRequest Exception 101
 ```
 
