@@ -4,6 +4,10 @@ div.episodeCode {
   background: #ffffff;
 }
 
+div.mutationnotification {
+  background-color: #FF3399;
+}
+
 div.storyWrapper {
   background: #ffffff;
   overflow-x: scroll;
