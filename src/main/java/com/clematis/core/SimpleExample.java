@@ -130,7 +130,6 @@ public class SimpleExample {
 		// Function to check if window has been closed
 
 		w.until(new ExpectedCondition<Boolean>() {
-			@Override
 			public Boolean apply(WebDriver d) {
 				try {
 					return d.getWindowHandles().size() < 1;

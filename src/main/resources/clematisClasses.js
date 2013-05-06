@@ -87,7 +87,6 @@ var DOMEventTrace = EpisodeComponent.extend({
   },
   createDiagramObject:  function(x_pos, y_pos) {
     this.visual = new UMLActor({ x : x_pos, y: y_pos});
-    //this.visual.setName('Event type:' + this.getEventType() +'\nTarget:' + this.getTargetElement() + '\nHandler:'+this.getEventHandler());
     this.visual.setName('Event type:' + this.getEventType() + '\nHandler:'+this.getEventHandler()+'\nTarget ID:'+this.targetElement.attributes.id);
     this.visual.notifyChange();
   },
@@ -249,7 +248,6 @@ var TimingTrace = EpisodeComponent.extend({
   },
   createDiagramObject:  function(x_pos, y_pos) {
     this.visual = new UMLActor({ x : x_pos, y: y_pos});
-    //this.visual = new UMLLifeline({ x : x_pos, y: y_pos});
     this.visual.setName('TID: ' + this.getTimeoutId().toString());
     this.visual.notifyChange();
   },
@@ -524,6 +522,22 @@ function Episode () {
   this.getSequenceDiagram = function(){
     return this.sequenceDiagram;
   };
+}
+
+function callMessage (object) {
+
+  this.a = object.a;
+  this.b = object.b;
+  this.y = object.y;	
+
+  this.setName = function(newName){
+    this.name = newName;
+  };
+  
+  this.getName = function(){
+    return this.name;
+  };
+
 }
 
 var allEpisodes = []; 

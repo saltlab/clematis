@@ -38,7 +38,6 @@ public class TraceObject implements Comparable<TraceObject> {
 	public void setTimeStamp(long timeStamp) {
 		this.timeStamp = timeStamp;
 	}
-	@Override
 	public int compareTo(TraceObject o) {
 		if (counter < o.getCounter())
 			return -1;

@@ -95,17 +95,11 @@ jsPlumb.bind("ready", function(connection, e) {
     });
 
     for (var i = 0; i<causalLinks.length; i++) {
-
-        //jsPlumb.addEndpoint('episodeTable_'+causalLinks[i][0], null, endpointOptions);
-        //jsPlumb.addEndpoint('episodeTable_'+causalLinks[i][1], ['BottomCenter']);
-
         var randomColour = get_random_color();
-
         var source = jsPlumb.addEndpoint("episodeTable_"+causalLinks[i][0]);
         source.setStyle({fillStyle: randomColour});
         var target = jsPlumb.addEndpoint("episodeTable_"+causalLinks[i][1]);
         target.setVisible(false);
-
         var location = ((i+1)*.40)%1;
 
         jsPlumb.connect({
@@ -137,23 +131,6 @@ storyTable.border = "2"; // TODO add CSS for style
 
 var storyTableRow = document.createElement('tr');
 storyTableRow.id = "storyTableRow";
-/*
-console.log("++++++++++++++");
-console.log(allEpisodes.length);
-
-for (var ii = 0; ii < allEpisodes.length; ii ++) {
-	console.log("================");
-	console.log("Episode #", ii);
-	console.log("Lifelines:");
-	for (var lifelineCounter = 0; lifelineCounter < allEpisodes[ii].getComponents().length; lifelineCounter ++) {
-		console.log(allEpisodes[ii].getComponents()[lifelineCounter]);
-	}
-	console.log("= ", ii);
-	console.log(allEpisodes[ii].getComponents());
-	console.log("=");
-	console.log(allEpisodes[ii].getMessages());
-}
-*/
 
 for (var i = 0; i < episodeCounter; i ++) {
 	var episodeCell = document.createElement('td');
@@ -234,8 +211,139 @@ for (var i = 0; i < episodeCounter; i ++) {
 	sequenceDiagram.initialize(0, episodeTraceDiv, mainContext, motionContext, width, height);
 
 	episodeTraces[i] = sequenceDiagram;
-*/
 	episodeTraces[i] = allEpisodes[i].createDiagram(0, episodeTraceDiv, mainContext, motionContext, width, height);
+*/
+
+
+	episodeTraces[i] = (function (zero, div, mainContext, motionContext, width, height) {
+    	var initialX = 30; 
+    	var initialY = 60; 
+
+	    allEpisodes[i].sequenceDiagram = new UMLSequenceDiagram({backgroundNodes: '#FF9900'});
+	    allEpisodes[i].sequenceDiagram.initialize(zero, div, mainContext, motionContext, width, height);
+
+	    // Add the components into the UMLSequenceDiagram
+	    for (var h = 0; h<allEpisodes[i].internalComponents.length; h++){
+
+			if (allEpisodes[i].internalComponents[h] instanceof DOMEventTrace) {
+			// DOM event, Actor should be created for sequence diagram
+    			var newVisual = new UMLActor({ 	x : allEpisodes[i].internalComponents[h].x_pos, 
+												y: allEpisodes[i].internalComponents[h].y_pos});
+    			newVisual.setName('Event type:' + allEpisodes[i].internalComponents[h].getEventType() 
+									+ '\nHandler:'+allEpisodes[i].internalComponents[h].getEventHandler()
+									+'\nTarget ID:'+allEpisodes[i].internalComponents[h].targetElement.attributes.id);
+				newVisual.notifyChange();
+				allEpisodes[i].internalComponents[h].visual = newVisual;
+			} else if (allEpisodes[i].internalComponents[h] instanceof XHREvent) {
+			// XMLHttpRequest, Actor should be created
+    			var newVisual = new UMLActor({ 	x : allEpisodes[i].internalComponents[h].x_pos, 
+												y: allEpisodes[i].internalComponents[h].y_pos});
+			    newVisual.setName('XHR ID: ' + allEpisodes[i].internalComponents[h].getXHRId().toString());
+			    newVisual.notifyChange();
+				allEpisodes[i].internalComponents[h].visual = newVisual;
+			} else if (allEpisodes[i].internalComponents[h] instanceof TimingTrace) {
+			// Timeing event, Actor should be created
+    			var newVisual = new UMLActor({ 	x : allEpisodes[i].internalComponents[h].x_pos, 
+												y: allEpisodes[i].internalComponents[h].y_pos});
+    			newVisual.setName('TID: ' + allEpisodes[i].internalComponents[h].getTimeoutId().toString());
+    			newVisual.notifyChange();
+				allEpisodes[i].internalComponents[h].visual = newVisual;
+			} else {
+			// Function trace, create lifeline
+    			var newVisual = new UMLLifeline({ 	x : allEpisodes[i].internalComponents[h].x_pos, 
+													y: allEpisodes[i].internalComponents[h].y_pos});
+			    newVisual.setName(allEpisodes[i].internalComponents[h].getName());
+			    newVisual.notifyChange();
+				allEpisodes[i].internalComponents[h].visual = newVisual;
+			}
+
+
+	      	allEpisodes[i].sequenceDiagram.addElement(allEpisodes[i].internalComponents[h].getDiagramObject());
+	    }
+
+		// Shift components of sequence diagram to better accomadate longer names
+		// (i.e. long function names overlap with nearby components if not fixed)
+	    for (var h = 1; h<allEpisodes[i].internalComponents.length; h++){
+			if (allEpisodes[i].internalComponents[h-1].getDiagramObject()._width > 200) {
+	 	       for (var j = h; j<allEpisodes[i].internalComponents.length; j++){
+	 	           	allEpisodes[i].internalComponents[j].visual._x += 
+						allEpisodes[i].internalComponents[h-1].getDiagramObject()._width/2;
+					allEpisodes[i].internalComponents[j].visual.notifyChange();
+		        }
+			}
+		}
+
+		// Add dotted lines for actors within sequence diagrams
+		for (var f=0; f<allEpisodes[i].internalComponents.length; f++) {
+	      	if (allEpisodes[i].internalComponents[f].getDiagramObject() instanceof Actor) {
+	        	var dottedLine = new UMLLifeline({x:allEpisodes[i].internalComponents[f].getDiagramObject()._x+25, 
+												y:allEpisodes[i].internalComponents[f].getDiagramObject()._y+35});
+	        	dottedLine.setName("");
+				dottedLine._heightSmallRectangle = -1;
+	      	  	dottedLine._width = 0;
+	        	allEpisodes[i].sequenceDiagram.addElement(dottedLine);
+	      	}
+		}
+
+	    // Add the messages into the UMLSequenceDiagram
+	    for (var j = 0; j<allEpisodes[i].internalMessages.length; j++){
+
+		  var newMessage = new UMLCallMessage({	a: (allEpisodes[i].internalMessages[j].a).visual, 
+												b: (allEpisodes[i].internalMessages[j].b).visual, 
+												y: allEpisodes[i].internalMessages[j].y}); 
+
+	
+	      if (newMessage._elemB == newMessage._elemA) {
+	        newMessage._objB._visible = false;
+	      }
+
+	      if (newMessage._points[0]._x == undefined && 
+				newMessage._points[1]._x == undefined) {
+	        // Recursive call to Actor
+	        var dottedLine = new UMLLifeline({x:newMessage._elemA._x+25, 
+												y:newMessage._elemA._y+35});
+	        dottedLine.setName("");
+	        dottedLine._heightSmallRectangle = -1;
+	        dottedLine._width = 0;
+	        newMessage._elemA = dottedLine;
+	        newMessage._elemB = dottedLine;
+	      } else if (newMessage._points[0]._x == undefined) {
+	          // Source of message is an actor (not lifeline)
+	          newMessage._points[0].setX(newMessage._elemA._x + 23);
+	          newMessage._objA = newMessage._objB;
+	      } else if (newMessage._points[1]._x == undefined) {
+	          // Destination of message is an actor (not lifeline)
+	          newMessage._points[1].setX(newMessage._elemB._x + 23);
+	          newMessage._objB = newMessage._objA;
+	      }
+   	   // Add message to sequence diagram
+	   newMessage.notifyChange();
+   	   allEpisodes[i].sequenceDiagram.addElement(newMessage);
+   	 }
+
+  	  allEpisodes[i].sequenceDiagram._width = allEpisodes[i].internalComponents[h-1].getDiagramObject()._x + 165; 
+  	  if (j>0) {
+  	    allEpisodes[i].sequenceDiagram._height = allEpisodes[i].internalMessages[j-1].y + 120; 
+  	  } else {
+ 	     allEpisodes[i].sequenceDiagram._height = 300; 
+ 	  }
+      return allEpisodes[i].sequenceDiagram;
+
+ 	 })(0, episodeTraceDiv, mainContext, motionContext, width, height);
+
+
+console.log(episodeTraces[i]);
+
+
+
+
+
+
+
+
+
+
+
 
     episodeTraceDiv.style.width = episodeTraces[i]._width + 30;
     canvas.width = episodeTraces[i]._width;

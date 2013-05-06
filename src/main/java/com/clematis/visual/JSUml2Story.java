@@ -154,7 +154,9 @@ public class JSUml2Story {
 				System.out.println(getDiagramIdentifier(to)+".setEventHandler('"+deto.getEventHandler()+"');");		
 				System.out.println(getDiagramIdentifier(to)+".setTargetElement("+deto.getTargetElement()+");");		
 			}
-			System.out.println(getDiagramIdentifier(to)+".createDiagramObject("+initialX+", "+initialY+");");
+		//	System.out.println(getDiagramIdentifier(to)+".createDiagramObject("+initialX+", "+initialY+");");
+			System.out.println(getDiagramIdentifier(to)+".x_pos = "+initialX+";");
+			System.out.println(getDiagramIdentifier(to)+".y_pos = "+initialY+";");
 			System.out.println("episode"+episodeSource.getCounter()+".addComponent("+getDiagramIdentifier(to)+");");
 			System.out.println("");
 			initialX += 200;
@@ -286,52 +288,52 @@ public class JSUml2Story {
 			FunctionCall fcto = (FunctionCall) before;
 			if (fcto.getTargetFunction().contains("setTimeout")) {
 				// Timeout was set from the executing function	
-				System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
-						"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+				System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new callMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
+						"b : "+getDiagramIdentifier(to)+", " +
 						"y : "+y+"});");
 				System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"setTimeout\");");
-				System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+				//System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
 				System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
 
 			
 			}
 		} else {	
 			// Not sure where the timeout was set from...
-			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
-					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new callMessage({a : "+getDiagramIdentifier(to)+", " +
+					"b : "+getDiagramIdentifier(to)+", " +
 					"y : "+y+"}));");	
 		}
 	}
 
 	private void XHROpenMessage(TraceObject to, int y) {
 		push(getDiagramIdentifier(to));	
-		System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+".getDiagramObject(), " +
-				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
+		System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new callMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+", " +
+				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
 				"y : "+y+"});");
 		System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"open\");");
-		System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+		//System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
 		System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
 		pop();
 	}
 
 	private void XHRSendMessage(TraceObject to, int y) {
 		push(getDiagramIdentifier(to));
-		System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+".getDiagramObject(), " +
-				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
+		System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new callMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-2)+", " +
+				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
 				"y : "+y+"});");
 		System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"send\");");
-		System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+		//System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
 		System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
 		pop();
 	}
 
 	private void XHRResponseMessage(TraceObject to, int y) {
 		push(getDiagramIdentifier(to));
-		System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
-				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
+		System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new callMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
+				"b : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
 				"y : "+y+"});");
 		System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"response\");");
-		System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+		//System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
 		System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
 		pop();
 	}
@@ -351,25 +353,25 @@ public class JSUml2Story {
 		}
 
 		if (feto.getArgs() != null) {
-			System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+fromID+".getDiagramObject(), " +
-					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+			System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new callMessage({a : "+fromID+", " +
+					"b : "+getDiagramIdentifier(to)+", " +
 					"y : "+y+"});");
 			System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"args: "+feto.getArgsString()+"\");");
-			System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+			//System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
 			System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
 		} else if (from.getClass().toString().contains("XMLHttpRequestResponse")) {
 
-			System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new UMLCallMessage({a : "+fromID+".getDiagramObject(), " +
-					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+			System.out.println("var message_"+getDiagramIdentifier(to)+"_"+y+" = new callMessage({a : "+fromID+", " +
+					"b : "+getDiagramIdentifier(to)+", " +
 					"y : "+y+"});");
 			//System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".setName(\"response\");");
-			System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
+			//System.out.println("message_"+getDiagramIdentifier(to)+"_"+y+".notifyChange()");
 			System.out.println("episode"+episodeSource.getCounter()+".addMessage(message_"+getDiagramIdentifier(to)+"_"+y+");");
 
 		} else {
 			// No arguments
-			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+fromID+".getDiagramObject(), " +
-					"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+			System.out.println("episode"+episodeSource.getCounter()+".addMessage(new callMessage({a : "+fromID+", " +
+					"b : "+getDiagramIdentifier(to)+", " +
 					"y : "+y+"}));");;
 		}
 		push(getDiagramIdentifier(to));
@@ -377,15 +379,15 @@ public class JSUml2Story {
 	}
 
 	private void functionEnter(TraceObject to, int y) {	
-		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLCallMessage({a : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
-				"b : "+getDiagramIdentifier(to)+".getDiagramObject(), " +
+		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new callMessage({a : "+getDiagramIdentifier(to)+", " +
+				"b : "+getDiagramIdentifier(to)+", " +
 				"y : "+y+"}));");;
 				push(getDiagramIdentifier(to));
 	}
 
 	private void functionReturnMessage(int y) {
-		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new UMLReplyMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+".getDiagramObject(), " +
-				"b : "+functionHeirarchy.get(functionHeirarchy.size()-2)+".getDiagramObject(), " +
+		System.out.println("episode"+episodeSource.getCounter()+".addMessage(new callMessage({a : "+functionHeirarchy.get(functionHeirarchy.size()-1)+", " +
+				"b : "+functionHeirarchy.get(functionHeirarchy.size()-2)+", " +
 				"y :"+y+"}));");
 		//		System.out.println("step();");
 		pop();

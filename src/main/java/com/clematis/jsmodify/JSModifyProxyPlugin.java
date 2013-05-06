@@ -275,7 +275,6 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			client = in;
 		}
 
-		@Override
 		public Response fetchResponse(Request request) throws IOException {
 
 			Response response = client.fetchResponse(request);
