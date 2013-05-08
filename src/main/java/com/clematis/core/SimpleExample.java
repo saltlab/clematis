@@ -14,19 +14,17 @@ import org.owasp.webscarab.model.Preferences;
 import org.owasp.webscarab.plugin.Framework;
 import org.owasp.webscarab.plugin.proxy.Proxy;
 
-import com.crawljax.util.Helper;
-import com.clematis.jsmodify.JSExecutionTracer;
 import com.clematis.core.configuration.ProxyConfiguration;
-import com.clematis.instrument.*;
+import com.clematis.instrument.FunctionTrace;
+import com.clematis.jsmodify.JSExecutionTracer;
 import com.clematis.jsmodify.JSModifyProxyPlugin;
+import com.crawljax.util.Helper;
 
 public class SimpleExample {
 
-	//private static final String URL = "http://localhost:8080/same-game/same-game.html";
-	//private static final String URL = "http://localhost:8080/example_webapplication/index.html";
+	// private static final String URL = "http://localhost:8080/same-game/same-game.html";
+	// private static final String URL = "http://localhost:8080/example_webapplication/index.html";
 	private static final String URL = "http://localhost:8080/study_application/index.html";
-
-
 
 	private static String outputFolder = "";
 	private static WebDriver driver;
@@ -38,7 +36,7 @@ public class SimpleExample {
 
 			JSExecutionTracer tracer = new JSExecutionTracer("function.trace");
 			tracer.setOutputFolder(outputFolder + "ftrace");
-			//config.addPlugin(tracer);
+			// config.addPlugin(tracer);
 			tracer.preCrawling();
 
 			// Create a new instance of the firefox driver
@@ -50,6 +48,7 @@ public class SimpleExample {
 			// Modifier responsible for parsing Ast tree
 			FunctionTrace s = new FunctionTrace();
 
+			// Add necessary files from resources
 			s.setFileNameToAttach("/addvariable.js");
 			s.setFileNameToAttach("/asyncLogger.js");
 			s.setFileNameToAttach("/applicationView.js");
@@ -86,13 +85,15 @@ public class SimpleExample {
 				profile.setPreference("network.proxy.no_proxies_on", "");
 			}
 
-
-			/* For enabling Firebug with Clematis
-			 * Replace '...' with the appropriate path to your Firebug installation
+			/*
+			 * For enabling Firebug with Clematis Replace '...' with the appropriate path to your
+			 * Firebug installation
 			 */
-			//File file = new File("/Users/.../Library/Application Support/Firefox/Profiles/zga73n4v.default/extensions/firebug@software.joehewitt.com.xpi");
-			//profile.addExtension(file);
-			//profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup screen
+			// File file = new
+			// File("/Users/.../Library/Application Support/Firefox/Profiles/zga73n4v.default/extensions/firebug@software.joehewitt.com.xpi");
+			// profile.addExtension(file);
+			// profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup
+			// screen
 
 			driver = new FirefoxDriver(profile);
 			WebDriverWait wait = new WebDriverWait(driver, 10);
@@ -141,16 +142,16 @@ public class SimpleExample {
 		return true;
 	}
 
-	public static boolean isAlertPresent() 
-	{ 
-		// Selenium bug where all alerts must be closed before 
+	public static boolean isAlertPresent()
+	{
+		// Selenium bug where all alerts must be closed before
 		// driver.execute(String) can be executed
-		try { 
-			driver.switchTo().alert(); 
-			return true; 
+		try {
+			driver.switchTo().alert();
+			return true;
 		} catch (NoAlertPresentException Ex) {
-			return false; 
-		}   
+			return false;
+		}
 	}
 
 	public static String getOutputFolder() {
