@@ -68,6 +68,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		excludeFilenamePatterns.add(".*scriptaculous.*.js?.*");
 		excludeFilenamePatterns.add(".*mootools.js?.*");
 		excludeFilenamePatterns.add(".*dojo.xd.js?.*");
+		excludeFilenamePatterns.add(".*trial_toolbar.js?.*");
 
 		// Example application specific
 		excludeFilenamePatterns.add(".*tabcontent.js?.*");
