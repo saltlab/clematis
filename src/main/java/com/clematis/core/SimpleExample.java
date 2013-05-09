@@ -49,6 +49,7 @@ public class SimpleExample {
 			FunctionTrace s = new FunctionTrace();
 
 			// Add necessary files from resources
+
 			s.setFileNameToAttach("/addvariable.js");
 			s.setFileNameToAttach("/asyncLogger.js");
 			s.setFileNameToAttach("/applicationView.js");
@@ -56,6 +57,7 @@ public class SimpleExample {
 			s.setFileNameToAttach("/jsonml-dom.js");
 			s.setFileNameToAttach("/domMutations.js");
 			s.setFileNameToAttach("/mutation_summary.js");
+			// s.setFileNameToAttach("/toolbar.js");
 			s.instrumentDOMModifications();
 
 			// Interface for Ast traversal

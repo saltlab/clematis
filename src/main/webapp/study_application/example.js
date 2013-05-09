@@ -1,3 +1,4 @@
+//document.write('<script type="text/javascript" src="toolbar/trial.js"></script>');
 var submissionFinalized = false;
 var numOfClicksOnEntry = 0;
 var gradEducationActivated = false;
