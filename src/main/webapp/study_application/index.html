@@ -49,12 +49,13 @@ Released   : 20130308
 	//Create the Capture button and configure its attributes
     var captureButton = document.createElement("input");
     captureButton.setAttribute("type", "image");
+    captureButton.setAttribute("id", "captureButton");
    	//captureButton.setAttribute("src","images/capture.gif");
    	captureButton.src="images/capture.gif";
     captureButton.setAttribute("value", "Capture");
     captureButton.setAttribute("name", "capture");
     captureButton.setAttribute("title","Start Capturing");
-  	captureButton.onclick = capture;
+  	//captureButton.onclick = capture;
   	captureButton.onmouseover=showtext;
   	captureButton.style.overflow="scroll";
   	$(captureButton).scroll(capture);
@@ -67,10 +68,11 @@ Released   : 20130308
     var stopButton = document.createElement("input");
     stopButton.setAttribute("type", "image");
     stopButton.setAttribute("src","images/stop.png");
+    stopButton.setAttribute("id","stopButton");
     stopButton.setAttribute("value", "Stop");
     stopButton.setAttribute("name", "capture");
     stopButton.setAttribute("title","Stop Capturing");
-    stopButton.onclick=stop;
+   // stopButton.onclick=stop;
     stopButton.onmouseover=showtext2;
     
     function showtext2(){

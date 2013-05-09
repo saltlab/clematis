@@ -13,6 +13,7 @@ document.getElementById("captureButton").addEventListener('click', startRecordin
 document.getElementById("stopButton").addEventListener('click', stopRecording, false);
 
 function startRecording() {
+	console.log("recording");
 	if (recordButtonClicked == true)
 		return;
 
