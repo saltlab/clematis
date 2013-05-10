@@ -142,11 +142,11 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			/* recurse through AST */
 			ast.visit(modifier);
 
-			ast = modifier.finish(ast);
-
+			ast = modifier.finish(ast);		
+			
 			/* clean up */
 			Context.exit();
-
+									
 			return ast.toSource();
 		} catch (RhinoException re) {
 			System.err.println(re.getMessage()

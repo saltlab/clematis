@@ -8,10 +8,13 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import org.mozilla.javascript.CompilerEnvirons;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.Parser;
 import org.mozilla.javascript.Token;
 import org.mozilla.javascript.ast.AstNode;
 import org.mozilla.javascript.ast.AstRoot;
+import org.mozilla.javascript.ast.ExpressionStatement;
 import org.mozilla.javascript.ast.FunctionCall;
 import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.Name;
@@ -25,6 +28,7 @@ public class FunctionTrace extends AstInstrumenter {
 	 * This is used by the JavaScript node creation functions that follow.
 	 */
 	private CompilerEnvirons compilerEnvirons = new CompilerEnvirons();
+	private ErrorReporter errorReporter = compilerEnvirons.getErrorReporter();
 
 	/**
 	 * Contains the scopename of the AST we are visiting. Generally this will be the filename
@@ -64,11 +68,10 @@ public class FunctionTrace extends AstInstrumenter {
 	 * @return The AST node.
 	 */
 	public AstNode parse(String code) {
-		Parser p = new Parser(compilerEnvirons, null);
-		
+		Parser p = new Parser(compilerEnvirons, errorReporter);
+
 		//System.out.println(code);
 		return p.parse(code, null, 0);
-
 	}
 
 	/**
@@ -109,12 +112,20 @@ public class FunctionTrace extends AstInstrumenter {
 		int tt = node.getType();
 		if (tt == org.mozilla.javascript.Token.FUNCTION) {
 			handleFunction((FunctionNode) node);
-		} else if (tt == org.mozilla.javascript.Token.CALL) {
+		} else if (tt == org.mozilla.javascript.Token.CALL 
+				&& node.toSource().indexOf("FUNCTION_") == -1 
+				&& node.toSource().indexOf("RSW(") == -1) {
 			handleFunctionCall((FunctionCall) node);
 		} else if (tt == org.mozilla.javascript.Token.RETURN) {
 			handleReturn((ReturnStatement) node);
 		}
-		return true;  // process kids
+
+		if (tt == org.mozilla.javascript.Token.CALL 
+				&& (node.toSource().indexOf("FUNCTION_") > -1)) {
+			return false; // Don't process kids if the function call is part of our instrumentation
+		} else {
+			return true;  // process kids
+		}
 	}
 
 	@Override
@@ -151,7 +162,7 @@ public class FunctionTrace extends AstInstrumenter {
 	@Override
 	public AstRoot finish(AstRoot node) {
 		// Adds necessary instrumentation to the root node src
-		String isc = addInstrumentationCode(src);
+		String isc = node.toSource().replaceAll("\\)]\\;+\\n+\\(", ")](").replaceAll("\\)\\;\\n+\\(", ")(");
 		AstRoot iscNode = rhinoCreateNode(isc);
 
 		// Add wrapper functions to top of JS node
@@ -225,27 +236,8 @@ public class FunctionTrace extends AstInstrumenter {
 		return this.excludeList;
 	}
 
-	private PointOfInterest createEntry(String name, int type, int[] range, int lineNo, String body, int hashCode) {
-		PointOfInterest toke = null;
-		try {
-			toke = new PointOfInterest(new Object[]{name, type, range[0], range[1], lineNo, body, hashCode, getScopeName()});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return toke;
-	}
-
-	private PointOfInterest createEntryWithArguments(String name, int type, int[] range, int lineNo, String body, int hashCode, String arg) {
-		PointOfInterest toke = null;
-		try {
-			toke = new PointOfInterest(new Object[]{name, type, range[0], range[1], lineNo, body, hashCode, getScopeName(), arg});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return toke;
-	}
-
 	private void handleFunction(FunctionNode node) {
+
 		// Store information on function declarations
 		AstNode parent = node.getParent();
 		String name = node.getName();
@@ -266,66 +258,96 @@ public class FunctionTrace extends AstInstrumenter {
 			arguments = "";
 		}
 
-
 		if (node.getFunctionType() == FunctionNode.FUNCTION_EXPRESSION) {
 			// Complicated Case
 			if (node.getName() == "" && parent.getType() == org.mozilla.javascript.Token.COLON) {
 				// Assignment Expression					
-				name = src.substring(node.getParent().getAbsolutePosition(),node.getEncodedSourceStart());
+				name = node.getParent().toSource().substring(0,node.getParent().toSource().indexOf(node.toSource()));
 				name = name.substring(0,name.indexOf(":"));
 			} else if (node.getName() == "" && parent.getType() == org.mozilla.javascript.Token.ASSIGN) {
-				name = src.substring(node.getParent().getAbsolutePosition(),node.getEncodedSourceStart());
+				name = node.getParent().toSource().substring(0,node.getParent().toSource().indexOf(node.toSource()));
 				name = name.substring(name.lastIndexOf(".")+1,name.indexOf("="));
 			}
-			PointOfInterest toke = createEntryWithArguments(name, type, range, lineNo, body, hash, arguments);
-			if (toke != null) functionTokens.add(toke);
-		}
-		else if (node.getFunctionType() == FunctionNode.FUNCTION_STATEMENT) {
-			// Simple Case
-			PointOfInterest toke = createEntryWithArguments(name, type, range, lineNo, body, hash, arguments);
-			if (toke != null) functionTokens.add(toke);
-		}
-		else if (node.getFunctionType() == FunctionNode.FUNCTION_EXPRESSION_STATEMENT) {
-			PointOfInterest toke = createEntryWithArguments(name, type, range, lineNo, body, hash, arguments);
-			if (toke != null) functionTokens.add(toke);
-		}
-		else {
+		} else {
 			// unrecognized;
 			System.out.println("Unrecognized function name at " + lineNo);
 		}
 
+		// Add code at beginning of function declaration
+		PointOfInterest beginningPOI = new PointOfInterest(new Object[]{name,
+				type,
+				range[0],
+				-1,
+				lineNo,
+				body,
+				hash,
+				getScopeName(),
+				arguments});
+
+		// Add code before end of function declaration
+		PointOfInterest endingPOI = new PointOfInterest(new Object[]{name,
+				type,
+				range[1],
+				-2,
+				lineNo,
+				body,
+				hash,
+				getScopeName(),
+				arguments});		
+
+		String newBodyString = node.toSource().substring(0, node.toSource().indexOf("{")+1) 
+				+ beginningPOI.toString() 
+				+ node.toSource().substring(node.toSource().indexOf("{")+1);
+		newBodyString = newBodyString.substring(0, newBodyString.lastIndexOf("}")) + endingPOI.toString() + "}";
+
+		if (newBodyString != null) {
+			AstNode replacementNode = parse(newBodyString);
+			node.setBody(((FunctionNode) replacementNode.getFirstChild()).getBody());
+		}
 	}
 
 	private void handleFunctionCall(FunctionCall node) {
+
 		// Store information on function calls
 		AstNode target = node.getTarget();
-		String targetBody = src.substring(target.getAbsolutePosition(),target.getAbsolutePosition()+target.getLength());
-		String body = node.toSource();		
-		int hash = 0;
+		String targetBody = target.toSource();
 		int[] range = {0,0};
 		int lineNo = node.getLineno()+1;
 
 		range[0] = node.getAbsolutePosition();
 		range[1] = node.getAbsolutePosition()+node.getLength();
 
+		if (target.toSource().indexOf("FCW") == 0) {
+			// We don't want to instrument out code (dirty way)
+			return;
+		}
+
 		int tt = target.getType();
 		if (tt == org.mozilla.javascript.Token.NAME) {
 			// Regular function call, 39
 			// E.g. parseInt, print, startClock
-			hash = -1;
+
+			System.out.println("Path 1");
+			System.out.println(target.toSource());
+			targetBody = target.toSource();
+
+			String newBody = target.toSource().replaceFirst(targetBody, "FCW("+targetBody+",'"+targetBody+"',"+lineNo+")");
+			AstNode newTarget = parse(newBody);
+			node.setTarget(newTarget);
+
 		} else if (tt == org.mozilla.javascript.Token.GETPROP) {
 			// Class specific function call, 33
 			// E.g. document.getElementById, e.stopPropagation
-			hash = -2;
 			String[] methods = targetBody.split("\\.");
 			range[0] += targetBody.lastIndexOf(methods[methods.length-1])-1;
 			targetBody = methods[methods.length-1];
+
+			String newBody = target.toSource().replaceFirst("."+targetBody, "[FCW(\""+targetBody+"\", "+lineNo+")]");
+			AstNode newTarget = parse(newBody);
+			node.setTarget(newTarget);
 		} 
 
-		PointOfInterest toke = createEntry(targetBody, node.getType(), range, lineNo, body, hash);
-		if (toke != null && !(targetBody.contains("function") && targetBody.contains("("))) { 
-			functionTokens.add(toke);
-		} else if (targetBody.contains("function")) {
+		if (targetBody.contains("function")) {
 			System.out.println("No support for self invoking.");
 		} else {
 			System.out.println("Error instrumenting function call.");
@@ -334,117 +356,17 @@ public class FunctionTrace extends AstInstrumenter {
 
 	private void handleReturn(ReturnStatement node) {
 		// return statements
-		FunctionNode enclosingFunction = node.getEnclosingFunction();
-		String name = node.toSource();
-		String body = "";
-		int[] range = {-1,-1};
-		int hash = 0;
-		int lineNo = node.getLineno()+1;
 
-		// Get name of enclosing function
-		String enclosingFunctionName = new String();
-		if (enclosingFunction != null) {
-			if (enclosingFunction.getName() == "" && enclosingFunction.getType() == org.mozilla.javascript.Token.COLON) {
-				// Assignment Expression					
-				enclosingFunctionName = src.substring(enclosingFunction.getParent().getAbsolutePosition(),enclosingFunction.getEncodedSourceStart()-1);
-				enclosingFunctionName = enclosingFunctionName.substring(0,enclosingFunctionName.indexOf(":"));
-			} else {
-				enclosingFunctionName = enclosingFunction.getName();
-			}
-		}
+		int lineNo = node.getLineno()+1;
+		AstNode newRV;
 
 		if (node.getReturnValue() != null) {
 			// Wrap return value
-			range[0] = node.getReturnValue().getAbsolutePosition();
-			range[1] = node.getReturnValue().getAbsolutePosition()+node.getReturnValue().getLength();
+			newRV = parse("RSW("+ node.getReturnValue().toSource() + ", '" + node.getReturnValue().toSource()+ "' ," + lineNo +");");
 		} else {
 			// Return value is void
-			range[0] = node.getAbsolutePosition()+node.getLength()-1;
-			range[1] = node.getAbsolutePosition()+node.getLength()-1;
-			hash = -1;
+			newRV = parse("RSW(" + lineNo +")");
 		}
-		body = src.substring(range[0], range[1]);
-		PointOfInterest toke = createEntry(name, node.getType(), range, lineNo, body, hash);
-		if (toke != null) functionTokens.add(toke);
-	}
-
-
-	private String addInstrumentationCode (String javaScriptBody) {
-
-		ArrayList<PointOfInterest> pointsOfInstrumentation = new ArrayList<PointOfInterest>();
-
-		for (int i = functionTokens.size()-1; i >= 0; i--) {
-			// Generate lines to add
-			if (functionTokens.get(i).getType() == org.mozilla.javascript.Token.CALL) {
-				pointsOfInstrumentation.add(functionTokens.get(i));
-			} else if (functionTokens.get(i).getType() == org.mozilla.javascript.Token.FUNCTION 
-					|| functionTokens.get(i).getType() == org.mozilla.javascript.Token.RETURN) {
-				// Add code at beginning of function declaration
-				pointsOfInstrumentation.add(new PointOfInterest(new Object[]{functionTokens.get(i).getName(),
-						functionTokens.get(i).getType(),
-						functionTokens.get(i).getRange()[0],
-						-1,
-						functionTokens.get(i).getLineNo(),
-						functionTokens.get(i).getBody(),
-						functionTokens.get(i).getHash(),
-						functionTokens.get(i).getScopeName(),
-						functionTokens.get(i).getArguments()}));
-				// Add code before end of function declaration
-				pointsOfInstrumentation.add(new PointOfInterest(new Object[]{functionTokens.get(i).getName(),
-						functionTokens.get(i).getType(),
-						functionTokens.get(i).getRange()[1],
-						-2,
-						functionTokens.get(i).getLineNo(),
-						functionTokens.get(i).getBody(),
-						functionTokens.get(i).getHash(),
-						functionTokens.get(i).getScopeName(),
-						functionTokens.get(i).getArguments()}));
-			}
-		}
-
-		// Sort list so we can begin instrumenting from bottom upwards
-		Collections.sort(pointsOfInstrumentation, new Comparator<PointOfInterest>(){
-			public int compare(PointOfInterest s1, PointOfInterest s2) {
-				return s1.getBegin()-s2.getBegin();
-			}
-		});
-
-		for (int i = pointsOfInstrumentation.size()-1; i >= 0; i--) {
-			// Insert instrumentation statements
-
-			PointOfInterest POI = pointsOfInstrumentation.get(i);
-
-			if (POI.getType() == org.mozilla.javascript.Token.CALL) {
-				if (POI.getHash() == -2) {
-					// Class method
-					try {
-						javaScriptBody = javaScriptBody.substring(0,POI.getRange()[0]) +
-								javaScriptBody.substring(POI.getRange()[0], POI.getRange()[1]).replaceFirst("."+POI.getName(), "[FCW(\""+POI.getName()+"\", "+ POI.getLineNo() +")]") +
-								javaScriptBody.substring(POI.getRange()[1]);
-
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				} else {
-					// Regular function call, POI.getHash() == -1
-					try {
-						javaScriptBody = javaScriptBody.substring(0, POI.getRange()[0]) +
-								javaScriptBody.substring(POI.getRange()[0], POI.getRange()[1]).replaceFirst(POI.getName(), "FCW("+POI.getName()+",'"+POI.getName()+"',"+POI.getLineNo()+")") +
-								javaScriptBody.substring(POI.getRange()[1]);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			} else {
-				try {
-					javaScriptBody = javaScriptBody.substring(0, POI.getRange()[0]) +
-							POI.toString()+
-							javaScriptBody.substring(POI.getRange()[0]);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			} 
-		}	
-		return javaScriptBody;
+		node.setReturnValue(newRV);
 	}
 }
