@@ -1,20 +1,16 @@
 package com.clematis.instrument;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
 import org.mozilla.javascript.CompilerEnvirons;
-import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.Parser;
 import org.mozilla.javascript.Token;
 import org.mozilla.javascript.ast.AstNode;
 import org.mozilla.javascript.ast.AstRoot;
-import org.mozilla.javascript.ast.ExpressionStatement;
 import org.mozilla.javascript.ast.FunctionCall;
 import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.Name;
@@ -39,7 +35,6 @@ public class FunctionTrace extends AstInstrumenter {
 	 * List with regular expressions of variables that should not be instrumented.
 	 */
 	private ArrayList<String> excludeList = new ArrayList<String>();
-	private ArrayList<PointOfInterest> functionTokens = new ArrayList<PointOfInterest>();
 	private String src = "";
 
 	/**
@@ -67,7 +62,7 @@ public class FunctionTrace extends AstInstrumenter {
 	 *            The JavaScript source code to parse.
 	 * @return The AST node.
 	 */
-	public AstNode parse(String code) {
+	public AstRoot parse(String code) {
 		Parser p = new Parser(compilerEnvirons, errorReporter);
 
 		//System.out.println(code);
@@ -110,15 +105,19 @@ public class FunctionTrace extends AstInstrumenter {
 	@Override
 	public  boolean visit(AstNode node){
 		int tt = node.getType();
+
 		if (tt == org.mozilla.javascript.Token.FUNCTION) {
 			handleFunction((FunctionNode) node);
 		} else if (tt == org.mozilla.javascript.Token.CALL 
 				&& node.toSource().indexOf("FUNCTION_") == -1 
-				&& node.toSource().indexOf("RSW(") == -1) {
+				&& node.toSource().indexOf("RSW(") == -1 
+				&& node.toSource().indexOf("FCW(") == -1) {
 			handleFunctionCall((FunctionCall) node);
 		} else if (tt == org.mozilla.javascript.Token.RETURN) {
 			handleReturn((ReturnStatement) node);
 		}
+
+
 
 		if (tt == org.mozilla.javascript.Token.CALL 
 				&& (node.toSource().indexOf("FUNCTION_") > -1)) {
@@ -248,6 +247,8 @@ public class FunctionTrace extends AstInstrumenter {
 		int lineNo = node.getLineno()+1;
 		String arguments = new String();
 
+
+
 		if(node.getParamCount() > 0){
 			List<AstNode> params = node.getParams();
 			for (AstNode pp: params) {
@@ -295,15 +296,38 @@ public class FunctionTrace extends AstInstrumenter {
 				getScopeName(),
 				arguments});		
 
-		String newBodyString = node.toSource().substring(0, node.toSource().indexOf("{")+1) 
-				+ beginningPOI.toString() 
-				+ node.toSource().substring(node.toSource().indexOf("{")+1);
-		newBodyString = newBodyString.substring(0, newBodyString.lastIndexOf("}")) + endingPOI.toString() + "}";
+		AstNode beginningNode = parse(beginningPOI.toString());
 
-		if (newBodyString != null) {
-			AstNode replacementNode = parse(newBodyString);
-			node.setBody(((FunctionNode) replacementNode.getFirstChild()).getBody());
+		AstNode endingNode = parse(endingPOI.toString());
+		node.getBody().addChildToFront(beginningNode);
+		node.getBody().addChildToBack(endingNode);
+
+	}
+
+	private void updateAllLineNo(AstNode body) {
+
+		AstNode lastChild = (AstNode) body.getLastChild();
+
+		if (lastChild == null) {
+			// No children
+			return;
 		}
+
+		while (true) {
+			// Update line number of immediate children
+			lastChild.setLineno(lastChild.getLineno()+body.getLineno());
+
+			// Call recursively for grandchildren, greatgrandchildren, etc.
+			updateAllLineNo(lastChild);
+
+			if (body.getChildBefore(lastChild) != null) {
+				lastChild = (AstNode) body.getChildBefore(lastChild);
+			} else {
+				break;
+			}
+
+		} 
+
 	}
 
 	private void handleFunctionCall(FunctionCall node) {
@@ -312,7 +336,13 @@ public class FunctionTrace extends AstInstrumenter {
 		AstNode target = node.getTarget();
 		String targetBody = target.toSource();
 		int[] range = {0,0};
-		int lineNo = node.getLineno()+1;
+		int lineNo = -1;
+		if (node.getParent().toSource().indexOf("FCW(") > -1) {
+			lineNo = node.getParent().getParent().getParent().getLineno() +1;
+		} else {
+			lineNo = node.getLineno()+1;
+		}
+		AstNode newTarget = null;
 
 		range[0] = node.getAbsolutePosition();
 		range[1] = node.getAbsolutePosition()+node.getLength();
@@ -322,18 +352,14 @@ public class FunctionTrace extends AstInstrumenter {
 			return;
 		}
 
+
 		int tt = target.getType();
 		if (tt == org.mozilla.javascript.Token.NAME) {
 			// Regular function call, 39
 			// E.g. parseInt, print, startClock
-
-			System.out.println("Path 1");
-			System.out.println(target.toSource());
 			targetBody = target.toSource();
-
 			String newBody = target.toSource().replaceFirst(targetBody, "FCW("+targetBody+",'"+targetBody+"',"+lineNo+")");
-			AstNode newTarget = parse(newBody);
-			node.setTarget(newTarget);
+			newTarget = parse(newBody);
 
 		} else if (tt == org.mozilla.javascript.Token.GETPROP) {
 			// Class specific function call, 33
@@ -343,15 +369,10 @@ public class FunctionTrace extends AstInstrumenter {
 			targetBody = methods[methods.length-1];
 
 			String newBody = target.toSource().replaceFirst("."+targetBody, "[FCW(\""+targetBody+"\", "+lineNo+")]");
-			AstNode newTarget = parse(newBody);
-			node.setTarget(newTarget);
+			newTarget = parse(newBody);
 		} 
-
-		if (targetBody.contains("function")) {
-			System.out.println("No support for self invoking.");
-		} else {
-			System.out.println("Error instrumenting function call.");
-		}
+		newTarget.setLineno(node.getTarget().getLineno());
+		node.setTarget(newTarget);
 	}
 
 	private void handleReturn(ReturnStatement node) {
@@ -363,10 +384,15 @@ public class FunctionTrace extends AstInstrumenter {
 		if (node.getReturnValue() != null) {
 			// Wrap return value
 			newRV = parse("RSW("+ node.getReturnValue().toSource() + ", '" + node.getReturnValue().toSource()+ "' ," + lineNo +");");
+			newRV.setLineno(node.getReturnValue().getLineno());
+
 		} else {
 			// Return value is void
 			newRV = parse("RSW(" + lineNo +")");
+			newRV.setLineno(node.getLineno());
 		}
+
+		updateAllLineNo(newRV);
 		node.setReturnValue(newRV);
 	}
 }
