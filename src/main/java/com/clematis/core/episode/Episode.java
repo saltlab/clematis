@@ -11,6 +11,10 @@ public class Episode {
 	private EpisodeTrace trace;
 	private String dom;
 
+	public Episode() {
+
+	}
+
 	/*
 	 * public Episode(EpisodeSource source) { trace = new EpisodeTrace(); }
 	 */
