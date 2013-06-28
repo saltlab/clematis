@@ -9,7 +9,7 @@ var stopButtonClicked = false;
 var recordingInProgress = false; // Can use this for determining if Clematis should be logging or not
 var myVar = 0;
 
-document.getElementById("captureButton").addEventListener('click', startRecording, false);
+document.getElementById("recordButton").addEventListener('click', startRecording, false);
 document.getElementById("stopButton").addEventListener('click', stopRecording, false);
 
 function startRecording() {
@@ -28,7 +28,8 @@ function startRecording() {
 	//document.getElementById("visualizationLinkContainer").innerHTML = "";
 
 	captureButton.setAttribute("src","images/capture_green.png");
-	myVar = setInterval(function(){blink()},1900);
+
+	//myVar = setInterval(function(){blink()},1900);
 	
 	// Recording has started
     sendRecordStart();
@@ -42,12 +43,12 @@ function stopRecording() {
 	stopButtonClicked = true;
 	recordButtonClicked = false;
 
-	clearInterval(myVar);
+	//clearInterval(myVar);
 	captureButton.setAttribute("src","images/capture.gif");
 	//document.getElementById("recordButton").style.opacity = 1;
 	//document.getElementById("stopButton").style.opacity = 0.5;
 	
-	document.getElementById("visualizationLinkContainer").innerHTML = "<a href='file:///Users/sheldon/clematis/clematis-output/ftrace/sequence_diagrams/view.html' class='viewLink'>View Story</a>";
+	//document.getElementById("visualizationLinkContainer").innerHTML = "<a href='file:///Users/sheldon/clematis/clematis-output/ftrace/sequence_diagrams/view.html' class='viewLink'>View Story</a>";
 
 	// Recording has stopped
     sendRecordStop();

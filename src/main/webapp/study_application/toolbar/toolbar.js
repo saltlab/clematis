@@ -21,6 +21,7 @@
     captureButton.setAttribute("type", "image");
    	//captureButton.setAttribute("src","images/capture.gif");
    	captureButton.src="images/capture.gif";
+   	captureButton.setAttribute("id", "recordButton");
     captureButton.setAttribute("value", "Capture");
     captureButton.setAttribute("name", "capture");
     captureButton.setAttribute("title","Start Capturing");
@@ -37,6 +38,7 @@
     var stopButton = document.createElement("input");
     stopButton.setAttribute("type", "image");
     stopButton.setAttribute("src","images/stop.png");
+    stopButton.setAttribute("id", "stopButton");
     stopButton.setAttribute("value", "Stop");
     stopButton.setAttribute("name", "capture");
     stopButton.setAttribute("title","Stop Capturing");
