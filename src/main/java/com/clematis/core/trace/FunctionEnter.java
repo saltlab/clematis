@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 public class FunctionEnter extends FunctionTrace {
 	private String TargetFunction;
-	private JSONArray args;
+	private JSONArray args = new JSONArray();
 	String scopeName;
 
 	public String getScopeName() {
@@ -26,14 +26,14 @@ public class FunctionEnter extends FunctionTrace {
 		TargetFunction = targetFunction;
 	}
 
-	public JSONArray getArgs() {
-		return args;
+	public String getArgs() {
+		return args == null ? null : args.toString();
 	}
 
 	@JsonSetter("args")
 	public void setArgs(String args_string) {
 		try {
-			this.args = new JSONArray(args_string);			
+			this.args = new JSONArray(args_string);
 		} catch (JSONException e) {
 			System.out.println("Exception constructing JSONObject from string " + args_string);
 			e.printStackTrace();
@@ -44,31 +44,34 @@ public class FunctionEnter extends FunctionTrace {
 
 		String arguments = "";
 
-		for (int i=0; i<getArgs().length();i++) {
+		for (int i = 0; i < args.length(); i++) {
 			try {
-				String labels[] = JSONObject.getNames(getArgs().getJSONObject(i));
-				arguments += ", " + getArgs().getJSONObject(i).get(labels[0]).toString().replaceAll("\"", "");
+				String labels[] = JSONObject.getNames(args.getJSONObject(i));
+				arguments +=
+				        ", "
+				                + args.getJSONObject(i).get(labels[0]).toString()
+				                        .replaceAll("\"", "");
 			} catch (JSONException e) {
 				e.printStackTrace();
-			}	
+			}
 		}
 
 		return arguments.replaceFirst(", ", "");
 	}
 
 	public String getArgsLabels() {
-		if (getArgs() == null) {
+		if (args == null) {
 			return "";
 		} else {
 			String argumentLabels = "";
 
-			for (int i=0; i<getArgs().length();i++) {
+			for (int i = 0; i < args.length(); i++) {
 				try {
-					String labels[] = JSONObject.getNames(getArgs().getJSONObject(i));
+					String labels[] = JSONObject.getNames(args.getJSONObject(i));
 					argumentLabels += ", " + labels[0].toString().replaceAll("\"", "");
 				} catch (JSONException e) {
 					e.printStackTrace();
-				}	
+				}
 			}
 
 			return argumentLabels.replaceFirst(", ", "");

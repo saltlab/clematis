@@ -7,11 +7,13 @@ var recordButtonClicked = false;
 var stopButtonClicked = false;
 
 var recordingInProgress = false; // Can use this for determining if Clematis should be logging or not
+var myVar = 0;
 
 document.getElementById("recordButton").addEventListener('click', startRecording, false);
 document.getElementById("stopButton").addEventListener('click', stopRecording, false);
 
 function startRecording() {
+	console.log("recording");
 	if (recordButtonClicked == true)
 		return;
 
@@ -20,11 +22,15 @@ function startRecording() {
 	recordButtonClicked = true;
 	stopButtonClicked = false;
 
-	document.getElementById("recordButton").style.opacity = 0.5;
-	document.getElementById("stopButton").style.opacity = 1;
+	//document.getElementById("recordButton").style.opacity = 0.5;
+	//document.getElementById("stopButton").style.opacity = 1;
 
-	document.getElementById("visualizationLinkContainer").innerHTML = "";
+	//document.getElementById("visualizationLinkContainer").innerHTML = "";
 
+	captureButton.setAttribute("src","images/capture_green.png");
+
+	//myVar = setInterval(function(){blink()},1900);
+	
 	// Recording has started
     sendRecordStart();
     
@@ -33,13 +39,16 @@ function startRecording() {
 function stopRecording() {
 	if (stopButtonClicked == true)
 		return;
+	
 	stopButtonClicked = true;
 	recordButtonClicked = false;
 
-	document.getElementById("recordButton").style.opacity = 1;
-	document.getElementById("stopButton").style.opacity = 0.5;
+	//clearInterval(myVar);
+	captureButton.setAttribute("src","images/capture.gif");
+	//document.getElementById("recordButton").style.opacity = 1;
+	//document.getElementById("stopButton").style.opacity = 0.5;
 	
-	document.getElementById("visualizationLinkContainer").innerHTML = "<a href='file:///Users/sheldon/clematis/clematis-output/ftrace/sequence_diagrams/view.html' class='viewLink'>View Story</a>";
+	//document.getElementById("visualizationLinkContainer").innerHTML = "<a href='file:///Users/sheldon/clematis/clematis-output/ftrace/sequence_diagrams/view.html' class='viewLink'>View Story</a>";
 
 	// Recording has stopped
     sendRecordStop();

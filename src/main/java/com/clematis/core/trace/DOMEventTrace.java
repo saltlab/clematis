@@ -13,12 +13,15 @@ public class DOMEventTrace extends TraceObject/* implements EpisodeSource */{
 		super();
 		setEpisodeSource(true);
 	}
+
 	public String getEventType() {
 		return eventType;
 	}
+
 	public void setEventType(String eventType) {
 		this.eventType = eventType;
 	}
+
 	public String getEventHandler() {
 		if (eventHandler == "") {
 			return "anonymous";
@@ -26,31 +29,38 @@ public class DOMEventTrace extends TraceObject/* implements EpisodeSource */{
 			return eventHandler;
 		}
 	}
+
 	public void setEventHandler(String eventHandler) {
 		this.eventHandler = eventHandler;
 	}
+
 	@JsonSetter("targetElement")
 	public void setTargetElement(String targetElement_string) {
 		try {
-			this.targetElement = new JSONObject(targetElement_string);			
+			this.targetElement = new JSONObject(targetElement_string);
 		} catch (JSONException e) {
-			System.out.println("Exception constructing JSONObject from string " + targetElement_string);
+			System.out.println("Exception constructing JSONObject from string "
+			        + targetElement_string);
 			e.printStackTrace();
 		}
 	}
 
-	public JSONObject getTargetElement() {
-		//			return targetElement.getString("attributes").replaceAll("\"", "");
-//			return targetElement.getString("attributes").replaceAll("\"", "\\\"");
-		return targetElement;
+	public String getTargetElement() {
+		// return targetElement.getString("attributes").replaceAll("\"", "");
+		// return targetElement.getString("attributes").replaceAll("\"", "\\\"");
+		// return targetElement;
+		return targetElement == null ? null : targetElement.toString();
 	}
 
 	public String getTargetElementAttributes() {
 		try {
 			if (targetElement.get("attributes").toString().replaceAll("\"", "").length() > 22) {
-				// If there are too many attributes for the target element, print a shorter version 
-				// This is specific to the pic2plot sequence diagram as the comment box is not very big
-				return targetElement.get("attributes").toString().replaceAll("\"", "").substring(0, 19)+"...";
+				// If there are too many attributes for the target element, print a shorter version
+				// This is specific to the pic2plot sequence diagram as the comment box is not very
+				// big
+				return targetElement.get("attributes").toString().replaceAll("\"", "")
+				        .substring(0, 19)
+				        + "...";
 			} else {
 				return targetElement.get("attributes").toString().replaceAll("\"", "");
 			}
