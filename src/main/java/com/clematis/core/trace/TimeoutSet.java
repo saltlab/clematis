@@ -24,7 +24,7 @@ public class TimeoutSet extends TimingTrace {
 	@JsonSetter("args")
 	public void setArgs(String args_string) {
 		try {
-			this.args = new JSONArray(args_string);
+			this.args = new JSONArray("[" + args_string + "]");
 		} catch (JSONException e) {
 			System.out.println("Exception constructing JSONObject from string " + args_string);
 			e.printStackTrace();

@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonSetter;
 
 import com.clematis.core.trace.DOMElementValueTrace;
@@ -20,6 +21,7 @@ import com.clematis.core.trace.XMLHttpRequestSend;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
+@JsonAutoDetect
 @JsonRootName("Story")
 @JsonPropertyOrder({ "domEventTraces", "functionTraces", "timingTraces", "xhrTraces",
         "orderedTraceList", "episodes",
