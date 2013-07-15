@@ -1,0 +1,3 @@
+/*position and hide the menu initially - leave room for menu items to expand...*/
+.page {padding-top:150px; padding-bottom:20px; width:100%;}
+.menu {position:absolute; top:100px; left:0; display:none;}

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+<title>Example jqDock</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' type='text/css' href='example.css' />
+<script type='text/javascript' src='http://code.jquery.com/jquery-latest.min.js'></script>
+<script type='text/javascript' src='jquery.jqDock.min.js'></script>
+<script type='text/javascript' src='example.js'></script>
+<style type='text/css'>
+	/*position and hide the menus initially - leave room for menu items to expand...*/
+	#page {padding:250px 0 20px; width:100%;}
+	#menu {position:absolute; left:0; top:30px; visibility:hidden;}
+	/*position and hide the slide control...*/
+	#slide {visibility:hidden; position:absolute; top:1px; width:98%; height:12px; margin:0 1%; background-color:#444444;}
+	#slider {position:absolute; top:0; height:100%; background-color:#ff9900; cursor:e-resize;}
+/*dock styling...*/
+	/*...centre the dock...*/
+	#menu div.jqDockWrap {margin:0 auto;}
+	/*...set background on images...*/
+	#menu img {background-repeat:no-repeat; background-position:50% 50%;}
+	/*...if browser supports it, apply background-size (CSS3)...*/
+	#menu img {background-size:100% 100%; -moz-background-size:100% 100%;}
+</style>
+<!--[if lt IE 9]><script type='text/javascript'>var IElt9 = 1;</script><![endif]-->
+<script type='text/javascript'>
+jQuery(document).ready(function($){
+	// lazy set-up of the background images for each IMG...
+	// (NB: I appreciate that background images may not be ideal
+	// for a gallery, but I did it on purpose!)
+	$('#menu img').each(function(i){
+			$(this).css({backgroundImage:'url(images/gallery/' + (i+1) + '.jpg)'});
+	}).unbind('click'); // ...remove my default click handler
+	// override the default onReady...
+	// when the menu is ready, set up the top slider for when the
+	// Dock width exceeds the width of the viewport...
+	$.jqdock.defaults.onReady = function(){
+			var menu = $(this),
+					menuWidth = menu.width(),
+					pageLeft = menuWidth - $('#page').width(),
+					sliderRight = pageLeft > 0 ? pageLeft * 100 / menuWidth : 0,
+					prevRight = sliderRight,
+					slide = $('#slide'),
+					slider = $('#slider'),
+					slideWidth, maxPageX, prevPageX,
+					sliderMouseMove = function(ev){
+						if(prevPageX && prevPageX !== ev.pageX){
+							var newRight = Math.min(sliderRight, Math.max(0, prevRight + ((prevPageX - ev.pageX) * 100 / slideWidth)));
+							prevPageX = ev.pageX;
+							if(prevRight !== newRight){
+								prevRight = newRight;
+								slider.stop().css({right:newRight + '%'});
+								menu.stop().css({left:-pageLeft * (sliderRight - newRight) / sliderRight});
+							}
+						}
+						return false;
+					},
+					slideMouseOn = function(ev){
+						var newRight = Math.min(sliderRight, Math.max(0, (maxPageX - ev.pageX) * 100 / slideWidth)),
+								speed = Math.abs(prevRight - newRight);
+						if(speed){
+							prevRight = newRight;
+							speed = 400 + (speed * 600 / sliderRight);
+							slider.stop().animate({right:newRight + '%'}, speed);
+							menu.stop().animate({left:-pageLeft * (sliderRight - newRight) / sliderRight}, speed);
+						}
+						return false;
+					},
+					sliderMouseOn = function(ev){
+						var off = ev.type === 'mouseleave';
+						prevPageX = off ? 0 : ev.pageX;
+						$(this)[off ? 'unbind' : 'bind']('mousemove', sliderMouseMove);
+						return false;
+					};
+			if(sliderRight){
+				slideWidth = slide.width();
+				maxPageX = slide.offset().left + slideWidth
+					- ( slider.css({width:(100 - sliderRight) + '%', right:sliderRight + '%'}).width() / 2 );
+				slider.hover(sliderMouseOn);
+				slide.mouseenter(slideMouseOn).css({visibility:'visible'});
+			}else{
+				// dump the slide if it's not needed...
+				slide.remove();
+			}
+			if(window.IElt9){
+				//if IE less than 9 (View Source), apply filter for background-size...
+				$('img', this).each(function(i, el){
+					el.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/gallery/" + (i+1) + ".jpg', sizingMethod='scale')";
+				});
+			}
+		};
+	// apply jqdock (see data-jqdock attribute in HTML)...
+	$('#menu').jqdock();
+});
+</script>
+</head>
+<body>
+	<div id='page'>
+		<div id='menu' data-jqdock='{"align":"top", "size":51, "distance":150}'>
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+			<img src='images/gallery/frame_300x200.gif' alt='' />
+		</div>
+		<div id='slide'><div id='slider'><!-- empty --></div></div>
+	</div>
+</body>
+</html>
