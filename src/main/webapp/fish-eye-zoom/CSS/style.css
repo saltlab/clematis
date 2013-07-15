@@ -1,0 +1,102 @@
+body {
+	font: 11px Arial, Helvetica, sans-serif;
+	background: #ffffff url(images/main-bg.gif);
+	padding: 0;
+	margin: 0;
+}
+img {
+	border: none;
+}
+
+
+#tabs_div { 
+    padding: 0px; 
+    background: purple; 
+    border-width: 0px; 
+
+
+    color: #000;
+	text-decoration: none;
+	font: bold 16px Arial, Helvetica, sans-serif;
+    border: 1px brown solid;
+} 
+
+/* dock - top & bottom */
+.dock {
+	position: relative; 
+	height: 50px; 
+	text-align: center;
+}
+
+/* dock - top */
+.dock-container {
+	position: absolute;
+	top:100px;
+	overflow: visible;
+}
+
+a.dock-item {
+
+	color: #FFF;
+	text-align: center;
+	text-decoration: none;
+	font: bold 12px Arial, Helvetica, sans-serif;
+}
+
+.dock-item span {
+	display: none;
+}
+
+/* dock2 - bottom */
+#dock2 {
+	width: 100%;
+	bottom: 0px;
+	position: absolute;
+	left: 0px;
+}
+.dock-container2 {
+	position: absolute;
+	height: 50px;
+	background: url(images/dock-bg.gif);
+	padding-left: 20px;
+}
+a.dock-item2 {
+	display: block; 
+	font: bold 12px Arial, Helvetica, sans-serif;
+	width: 40px; 
+	color: #000; 
+	bottom: 0px; 
+	position: absolute;
+	text-align: center;
+	text-decoration: none;
+}
+.dock-item2 span {
+	display: none;
+	padding-left: 20px;
+}
+.dock-item2 b {
+    width: 100%;
+    zoom:   100%;
+}
+
+.dock-item2 img {
+	border: none; 
+	margin: 5px 10px 0px; 
+	width: 100%; 
+}
+
+.box {
+
+	color: #FFF;
+	text-align: center;
+	text-decoration: none;
+	font: bold 12px Arial, Helvetica, sans-serif;
+    background-color: purple;
+    border: 1px brown solid;
+}
+
+.box2 {
+    background-color: black;
+    border: 0px yellow solid;
+}
+

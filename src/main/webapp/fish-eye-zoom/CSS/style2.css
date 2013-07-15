@@ -1,0 +1,7 @@
+* {margin:0; padding:0}
+body {font:14px Helvetica, sans-serif; font-weight:bold; background:#000}
+.menu {position:relative; background:url(images/bg.gif) no-repeat; height:35px; width:459px}
+.menu ul {list-style:none; z-index:10; position:absolute; z-index:100; padding:9px 5px}
+.menu li {float:left}
+.menu a, .menu a:active, .menu a:visited, .menu a:hover {text-decoration:none; color:#FFF; padding:10px}
+#slide {position:absolute; top:6px; height:24px; background:#89957a; z-index:10}
