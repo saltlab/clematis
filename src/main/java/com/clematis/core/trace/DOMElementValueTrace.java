@@ -3,8 +3,6 @@ package com.clematis.core.trace;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.clematis.core.episode.EpisodeSource;
-
 public class DOMElementValueTrace extends TraceObject/* implements EpisodeSource */{
 	private String elementId;
 	private String elementType;
@@ -66,7 +64,7 @@ public class DOMElementValueTrace extends TraceObject/* implements EpisodeSource
 	public void setNewValue(String newValue) {
 		this.newValue = newValue;
 	}
-	
+
 	public String getParentNodeValue() {
 		return parentNodeValue;
 	}
@@ -74,15 +72,15 @@ public class DOMElementValueTrace extends TraceObject/* implements EpisodeSource
 	public void setParentNodeValue(String parentNodeValue) {
 		this.parentNodeValue = parentNodeValue;
 	}
-	
+
 	public JSONObject getValueChangeAsJSON() {
 		JSONObject returnObject = new JSONObject();
 
 		try {
 			returnObject.put("elementId", this.elementId);
-			//returnObject.put("elementType", this.elementType);
-			//returnObject.put("nodeType", this.nodeType);
-			//returnObject.put("nodeName", this.nodeName);
+			// returnObject.put("elementType", this.elementType);
+			// returnObject.put("nodeType", this.nodeType);
+			// returnObject.put("nodeName", this.nodeName);
 			returnObject.put("oldValue", this.oldValue);
 			returnObject.put("newValue", this.newValue);
 			returnObject.put("parentNodeValue", this.parentNodeValue);
@@ -91,6 +89,5 @@ public class DOMElementValueTrace extends TraceObject/* implements EpisodeSource
 		}
 		return returnObject;
 	}
-
 
 }
