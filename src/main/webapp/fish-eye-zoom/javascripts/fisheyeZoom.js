@@ -9,7 +9,7 @@
 
 	var episodeContainer = document.createElement("div");
 	var episodeContainer2 = document.createElement("div");
-
+	var episodeContents = document.createElement("div");
 	var scaledDiv = document.createElement("div");
 	scaledDiv.id="scaledDiv";
 	$(scaledDiv).addClass('scaledDiv');
@@ -20,7 +20,7 @@
 
 	$(episodeContainer).addClass('dock-container');
 	episodeContainer.id="makeMeScrollable";
-	episodeContainer.style.height="500px";
+	episodeContainer.style.height="700px";
 	//episodeContainer.style.overflow="scroll"
 
 	var episode1Clicked=false;
@@ -32,7 +32,8 @@
 	var row = document.createElement("tr");
     var cells=new Array();
     var currentEpisode;
-
+    var temp_data;
+    var conn;
     //REST CALL
 
    
@@ -69,8 +70,10 @@ function renderList(data) {
 		
 		episodes[i]=document.createTextNode("Episode #"+i);
 		divs[i]=document.createElement("div");
+
+		 
 		
-		$(divs[i]).addClass('box');
+		//$(divs[i]).addClass('box');
 		//divs[i].id="div"+i;
 		
 		divs[i].appendChild(episodes[i]);
@@ -81,6 +84,29 @@ function renderList(data) {
     
     	row.appendChild(cells[i]);
     	//console.log($(cells[i]).html()  );
+
+    	 $.ajax({
+		type: 'GET',
+		url: 'http://localhost:8080/rest/clematis-api/episodes/'+i+'/source' ,
+		dataType: "json",
+		async: false,
+		success: function show1(data) {
+
+
+		if(data.id==0){
+			$(divs[i]).addClass('box');
+			//$(episodeContents).addClass('box');
+		
+		}
+		else{
+			$(divs[i]).addClass('box3');
+			//$(episodeContents).addClass('box3');
+
+		}
+
+		}
+
+		});
 	
 	}
 	
@@ -286,9 +312,12 @@ $(tabs_div).tabs();
 
 var zoomLevel1=false;
 
+
+
+
 ////////////////////////////////////////////////////////////////////ZOOM LEVEL 1 /////////////////
 
-	var episodeContents = document.createElement("div");
+	//var episodeContents = document.createElement("div"); // MOVED UP
 	episodeContents.id=("episode-Contents");
 
 	
@@ -326,7 +355,7 @@ var zoomLevel1=false;
     tblLevel1.setAttribute("border","6");
 
     episodeContents.appendChild(tblLevel1);
-    $(episodeContents).addClass('box');
+
     episodeContents.style.overflow="auto";
 
 
@@ -405,6 +434,8 @@ for (var i = 0, n = cells.length; i<n; i++) {
 	 		cells_source[2].appendChild(document.createTextNode("targetElement"));
 			cells_source[3].appendChild(document.createTextNode(JSON.stringify(data.eventType)));
 			cells_source[4].appendChild(document.createTextNode(JSON.stringify(data.targetElement)));
+			$(episodeContents).addClass('box').removeClass('box3');
+
 		
 		}
 		else{
@@ -413,6 +444,7 @@ for (var i = 0, n = cells.length; i<n; i++) {
 	 		cells_source[2].appendChild(document.createTextNode("targetElement"));
 			cells_source[3].appendChild(document.createTextNode("XHR/TO"));
 			cells_source[4].appendChild(document.createTextNode(JSON.stringify(data.id)));
+			$(episodeContents).addClass('box3').removeClass('box');
 		}
 		
 
@@ -537,7 +569,8 @@ for (var i = 0, n = cells.length; i<n; i++) {
 
 		cell2SZ.appendChild(tempDiv);
 		$(divs[i]).replaceWith(episodeContents);
-
+		jsPlumb.detachEveryConnection();
+	
 	
 			
 		}
@@ -549,7 +582,7 @@ for (var i = 0, n = cells.length; i<n; i++) {
 			cell1SZ.removeChild(cell1SZ.lastChild);
 			cell2SZ.removeChild(cell2SZ.lastChild);
 			cell3SZ.removeChild(cell3SZ.lastChild);
-
+			redrawLinks(temp_data);
 			
 		}
 
@@ -699,6 +732,38 @@ function nextPreviousEpisode(i){
 
 }
 
+function redrawLinks(data) {
+
+		//temp_data=data;
+		//alert("REDRAW");
+		for (var i = 0; i < data.length; i++) {
+			console.log("redrawring");
+			console.log(data[i].source);
+			console.log(data[i].target);
+			//links[i]=jsPlumb.addEndpoint(cells[data[i].source]);
+			//links[i+1]=jsPlumb.addEndpoint(cells[data[i].target]);
+			//jsPlumb.connect({ source:links[i], target:links[i+1],endpoint:["rectangle"],connector:["Bezier", { curviness:30 }] });
+			jsPlumb.connect({
+                source: (cells[data[i].source]),
+                target: (cells[data[i].target]),
+                connector: ["Bezier",{ curviness:30 }],
+                cssClass: "c1",
+                endpoint: "Blank",
+                endpointClass: "c1Endpoint",
+                paintStyle: {
+                    lineWidth: 6,
+                    strokeStyle: "#a7b04b",
+                    outlineWidth: 1,
+                    outlineColor: "#666"
+                },
+                endpointStyle: {
+                    fillStyle: "#a7b04b"
+                },
+                
+            });
+		};
+
+	}
 
 //create the scrollable effect for a series of episodes
 $("#makeMeScrollable").smoothDivScroll({
@@ -715,10 +780,56 @@ var table2;
 var cells2;
 
 jsPlumb.bind("ready", function() {
-        var e0 = jsPlumb.addEndpoint(divs[0]),
-        e1 = jsPlumb.addEndpoint(divs[3]);
 
-        jsPlumb.connect({ source:e0, target:e1,connector:["Bezier", { curviness:70 }],endpoint:"Blank" });
+	var url = 'http://localhost:8080/rest/clematis-api/story/causalLinks';
+	var links=new Array;
+ 	 $.ajax({
+		type: 'GET',
+		url: url ,
+		dataType: "json",
+		async: false,
+		success: renderListLinks 
+	});
+	
+
+
+	function renderListLinks(data) {
+
+		temp_data=data;
+		for (var i = 0; i < data.length; i++) {
+			//links[i]=jsPlumb.addEndpoint(cells[data[i].source]);
+			//links[i+1]=jsPlumb.addEndpoint(cells[data[i].target]);
+			//jsPlumb.connect({ source:links[i], target:links[i+1],endpoint:["rectangle"],connector:["Bezier", { curviness:30 }] });
+			jsPlumb.connect({
+                source: (divs[data[i].source]),
+                target: (divs[data[i].target]),
+                connector: ["Bezier",{ curviness:30 }],
+                cssClass: "c1",
+                endpoint: "Blank",
+                endpointClass: "c1Endpoint",
+                paintStyle: {
+                    lineWidth: 4,
+                    strokeStyle: "#a7b04b",
+                    outlineWidth: 1,
+                    outlineColor: "#666"
+                },
+                endpointStyle: {
+                    fillStyle: "#a7b04b"
+                },
+                
+            });
+		};
+
+	}
+
+
+
+
+
+       // var e0 = jsPlumb.addEndpoint(divs[0]),
+        //e1 = jsPlumb.addEndpoint(divs[3]);
+
+        //jsPlumb.connect({ source:e0, target:e1,connector:["Bezier", { curviness:70 }],endpoint:"Blank" });
      });
 
 $(document).ready(function(){

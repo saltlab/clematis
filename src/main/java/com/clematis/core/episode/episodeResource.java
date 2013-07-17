@@ -30,6 +30,7 @@ import com.clematis.core.trace.XMLHttpRequestResponse;
 import com.clematis.core.trace.XMLHttpRequestSend;
 import com.clematis.core.trace.XMLHttpRequestTrace;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -47,6 +48,7 @@ public class episodeResource {
 	private Map<String, Episode> episodeMap = new HashMap<String, Episode>(200);
 
 	public void configureObjectMapper() {
+		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance()
 		        .withFieldVisibility(
 		                Visibility.ANY));
@@ -456,13 +458,11 @@ public class episodeResource {
 
 		intialize();
 		List<causalLinks> causalLinkss = new ArrayList<causalLinks>();
-		int index = 0;
-		for (int i =
-		        0; i < episodeMap.size(); i++) {
+
+		for (int i = 0; i < episodeMap.size(); i++) {
 			String strI = "" + i;
 			getTimeoutSet(strI);
 			// if episode contains a timeout, find the corresponding callback
-
 			if (getTimeoutSet(strI).size() == 1) {
 				for (int j = 0; j < episodeMap.size(); j++) {
 					String strJ = "" + j;
@@ -470,22 +470,21 @@ public class episodeResource {
 					if (getTimeoutCallback(strJ).size() > 0) {
 						if (getTimeoutSet(strI).get(0).getId() == getTimeoutCallback(strJ).get(0)
 						        .getId()) {
-							causalLinkss.add(new causalLinks(i, j, ""));
-
+							causalLinkss.add(new causalLinks(i, j));
 						}
 					}
 				}
-			} else if (getTimeoutSet(strI).size() > 1) {
+			} else if (getTimeoutSet(strI).size()
+			> 1) {
 				for (int x = 0; x < getTimeoutSet(strI).size(); x++) {
 					for (int z = 0; z < episodeMap.size(); z++) {
 						String strZ = "" + z;
-						if (getTimeoutCallback(strZ).size() > 0) {
+						if (getTimeoutCallback(strZ).size() > 0)
+						{
 							for (int zz = 0; zz < getTimeoutCallback(strZ).size(); zz++) {
 								if (getTimeoutSet(strI).get(x).getId() == getTimeoutCallback(strZ)
 								        .get(zz).getId()) {
-									causalLinkss.add(new causalLinks(i,
-									        z, ""));
-
+									causalLinkss.add(new causalLinks(i, z));
 								}
 							}
 						}
@@ -493,11 +492,6 @@ public class episodeResource {
 				}
 			}
 		}
-
-		// causalLinks l1 = new causalLinks(5, 5, new String("hello"));
-		// l1.setSource("5");
-		// l1.setTarget("5");
-		// l1.setDescription("masririx");
 		return causalLinkss;
 
 	}

@@ -91,12 +91,22 @@ a.dock-item2 {
 	text-align: center;
 	text-decoration: none;
 	font: bold 12px Arial, Helvetica, sans-serif;
-    background-color: purple;
+    background-color: #4876FF;
     border: 1px brown solid;
 }
 
 .box2 {
     background-color: black;
     border: 0px yellow solid;
+}
+
+.box3 {
+
+	color: #FFF;
+	text-align: center;
+	text-decoration: none;
+	font: bold 12px Arial, Helvetica, sans-serif;
+    background-color: #FF8C69;
+    border: 1px brown solid;
 }
 
