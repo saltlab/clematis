@@ -836,8 +836,6 @@ $(document).ready(function(){
 
 	menuContainer.appendChild(scaledDiv);
 	menuSlider.init('menu','slide');
-
-
    	
 });
 

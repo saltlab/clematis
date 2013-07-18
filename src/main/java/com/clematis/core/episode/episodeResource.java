@@ -1,7 +1,10 @@
 package com.clematis.core.episode;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -450,7 +453,6 @@ public class episodeResource {
 	}
 
 	// need to find which episodes have timeouts, then need to find corresponding callbacks
-
 	@GET
 	@Path("/story/causalLinks")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -495,4 +497,35 @@ public class episodeResource {
 		return causalLinkss;
 
 	}
+
+	@GET
+	@Path("/story/sequenceDiagram")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getsequenceDiagram() {
+		intialize();
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(os);
+		for (Episode e : this.s1.getEpisodes()) {
+			// Create pic files for each episode's sequence diagram
+			com.clematis.jsmodify.JSExecutionTracer.designSequenceDiagram(e, ps);
+		}
+		String output = null;
+		try {
+			output = os.toString("UTF8");
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		// System.out.println(output);
+		ps.close();
+		return output;
+	}
+
+	@GET
+	@Path("/story/string")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getString() {
+		return ("hello world!");
+	}
+
 }

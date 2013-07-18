@@ -10,8 +10,10 @@
 <script type="text/javascript" src="javascripts/script.js"></script>
 <script type="text/javascript" src="javascripts/jquery.jsPlumb-1.4.1-all.js"></script>
 
+
 <script type="text/javascript" src="javascripts/UDCore.js"></script>
 <script type="text/javascript" src="javascripts/UDModules.js"></script>
+<script type="text/javascript" src="javascripts/clematisClasses.js"></script>
 <link type="text/css" rel="stylesheet" 
           href="CSS/UDStyle.css" media="screen" />
 <script type="text/javascript" src="javascripts/fisheye-all.js"></script>
@@ -34,6 +36,22 @@
 
 </head>
 <body >
+
+<script type="text/javascript">  
+
+	 var result;
+	$.ajax({
+		type: 'GET',
+		url: 'http://localhost:8080/rest/clematis-api/story/sequenceDiagram' ,
+		dataType: "text",
+		async: false,
+		success: function sequenceDiagram(data) {
+  			result=data;
+
+	}
+		});
+document.write(eval(result));  
+</script> 
 <script type="text/javascript" src="javascripts/fisheyeZoom.js"></script>
 
 
