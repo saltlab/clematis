@@ -2,6 +2,7 @@ package com.clematis.core.episode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -465,19 +466,7 @@ public class episodeResource {
 			String strI = "" + i;
 			getTimeoutSet(strI);
 			// if episode contains a timeout, find the corresponding callback
-			if (getTimeoutSet(strI).size() == 1) {
-				for (int j = 0; j < episodeMap.size(); j++) {
-					String strJ = "" + j;
-					getTimeoutCallback(strJ);
-					if (getTimeoutCallback(strJ).size() > 0) {
-						if (getTimeoutSet(strI).get(0).getId() == getTimeoutCallback(strJ).get(0)
-						        .getId()) {
-							causalLinkss.add(new causalLinks(i, j));
-						}
-					}
-				}
-			} else if (getTimeoutSet(strI).size()
-			> 1) {
+			if (getTimeoutSet(strI).size() > 0) {
 				for (int x = 0; x < getTimeoutSet(strI).size(); x++) {
 					for (int z = 0; z < episodeMap.size(); z++) {
 						String strZ = "" + z;
@@ -493,6 +482,25 @@ public class episodeResource {
 					}
 				}
 			}
+
+			if (getXMLHttpRequestOpen(strI).size() > 0) {
+				for (int x = 0; x < getXMLHttpRequestOpen(strI).size(); x++) {
+					for (int z = 0; z < episodeMap.size(); z++) {
+						String strZ = "" + z;
+						if (getXMLHttpRequestResponse(strZ).size() > 0)
+						{
+							for (int zz = 0; zz < getXMLHttpRequestResponse(strZ).size(); zz++) {
+								if (getXMLHttpRequestOpen(strI).get(x).getId() == getXMLHttpRequestResponse(
+								        strZ)
+								        .get(zz).getId()) {
+									causalLinkss.add(new causalLinks(i, z));
+								}
+							}
+						}
+					}
+				}
+			}
+
 		}
 		return causalLinkss;
 
@@ -522,10 +530,29 @@ public class episodeResource {
 	}
 
 	@GET
-	@Path("/story/string")
+	@Path("/story/sequenceDiagram/new")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getString() {
-		return ("hello world!");
+	public String getsequenceDiagramNew() {
+		intialize();
+		PrintStream JSepisodes = null;
+		try {
+			JSepisodes = new PrintStream("allEpisodesNew.js");
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		for (Episode e : this.s1.getEpisodes()) {
+			// Create pic files for each episode's sequence diagram
+			com.clematis.jsmodify.JSExecutionTracer.designSequenceDiagram(e, JSepisodes);
+		}
+
+		// Once all episodes have been saved to JS file, close
+		JSepisodes.close();
+
+		String output = "success";
+
+		return output;
 	}
 
 }
