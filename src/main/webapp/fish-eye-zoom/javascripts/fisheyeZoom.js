@@ -1,9 +1,9 @@
 	var tbl = document.createElement("table");
-	
+	var newTbl=document.createElement("table");
+
 	var tblBody = document.createElement("tbody");
-	
-	var bigDaddy = document.createElement("div");
-	bigDaddy.id="dock";
+	var tblBody_map = document.createElement("tbody");
+
 	var lineBreak = document.createElement('br');
 	
 
@@ -18,7 +18,7 @@
 	//scaledDiv.style.height="150px";
 
 
-	$(episodeContainer).addClass('dock-container');
+	//$(episodeContainer).addClass('dock-container');
 	episodeContainer.id="makeMeScrollable";
 	episodeContainer.style.height="700px";
 	//episodeContainer.style.overflow="scroll"
@@ -31,6 +31,13 @@
 	var links=new Array();
 	var row = document.createElement("tr");
     var cells=new Array();
+
+    var episodes_map = new Array();
+	var divs_map=new Array();
+	var links_map=new Array();
+	var row_map = document.createElement("tr");
+    var cells_map=new Array();
+
     var currentEpisode;
     var temp_data;
     var conn;
@@ -67,23 +74,20 @@ function renderList(data) {
 		$(links[i]).addClass('dock-item');
 		(links[i]).style.top="auto";
 		
+
+		links_map[i]=document.createElement('a');
+		$(links_map[i]).addClass('dock-item');
+		(links_map[i]).style.top="auto";
 		
-		episodes[i]=document.createTextNode("Episode #"+i);
+		//episodes[i]=document.createTextNode("Episode #"+i); 
 		divs[i]=document.createElement("div");
 
-		 
-		
-		//$(divs[i]).addClass('box');
+		episodes_map[i]=document.createTextNode("Episode #"+i); 
+		divs_map[i]=document.createElement("div");
+
 		//divs[i].id="div"+i;
 		
-		divs[i].appendChild(episodes[i]);
-		links[i].appendChild(divs[i]);
 		
-		cells[i]=document.createElement("td");
-    	cells[i].appendChild(divs[i]);
-    
-    	row.appendChild(cells[i]);
-    	//console.log($(cells[i]).html()  );
 
     	 $.ajax({
 		type: 'GET',
@@ -94,19 +98,50 @@ function renderList(data) {
 
 
 		if(data.id==0){
-			$(divs[i]).addClass('box');
-			//$(episodeContents).addClass('box');
+			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"DOM//Event"); 
+			$(divs[i]).addClass('cell_dom');
+			$(divs_map[i]).addClass('box');
+
 		
 		}
-		else{
-			$(divs[i]).addClass('box3');
-			//$(episodeContents).addClass('box3');
+		else if(data.id!=0 && data.callbackFunction.length>0){
+			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"Timeout Event"); 
+			$(divs[i]).addClass('cell_to');
+			$(divs_map[i]).addClass('box');
 
 		}
+
+		else
+		{
+			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"XHR Event"); 
+			$(divs[i]).addClass('cell_xhr');
+			$(divs_map[i]).addClass('box');
+
+		}
+
 
 		}
 
 		});
+
+    	 divs[i].appendChild(episodes[i]);
+		links[i].appendChild(divs[i]);
+		
+		cells[i]=document.createElement("td");
+    	cells[i].appendChild(divs[i]);
+    
+    	row.appendChild(cells[i]);
+
+    	divs_map[i].appendChild(episodes_map[i]);
+		links_map[i].appendChild(divs_map[i]);
+		
+		cells_map[i]=document.createElement("td");
+    	cells_map[i].appendChild(divs_map[i]);
+    
+    	row_map.appendChild(cells_map[i]);
+
+
+
 	
 	}
 	
@@ -114,9 +149,15 @@ function renderList(data) {
 	
     tblBody.appendChild(row);
     tbl.appendChild(tblBody);
+    tbl.style.borderSpacing="6px";
 
-    var newTbl = tbl.cloneNode(true);
+   // var newTbl = tbl.cloneNode(true);
+
+    tblBody_map.appendChild(row_map);
+    newTbl.appendChild(tblBody_map);
     newTbl.id="newTbl";
+
+
 
 	episodeContainer.appendChild(tbl);
 	
@@ -135,7 +176,7 @@ function renderList(data) {
 
 	var lineBreak=document.createElement("br");
 	var menuContainer=document.createElement("div");
-	menuContainer.style.position="fixed";
+	//menuContainer.style.position="fixed";
 	menuContainer.style.left="30%";
 
 	var menuContainerSlide=document.createElement("div");
@@ -253,6 +294,7 @@ function renderList(data) {
 var tabs_div=document.createElement("div");
 tabs_div.id="tabs_div";
 tabs_div.style.top="50px";
+//tabs_div.style.position="absolute";
 
 
 
@@ -326,6 +368,7 @@ var zoomLevel1=false;
 	
 	episodeContents.style.left="390px";
 	episodeContents.style.top="120px";
+	episodeContents.style.width="120px";
 
 	var tblLevel1 = document.createElement("table");
 	var tblBodyLevel1 = document.createElement("tbody");
@@ -352,11 +395,12 @@ var zoomLevel1=false;
     row3Level1.appendChild(cell3Level1);
     tblBodyLevel1.appendChild(row3Level1); 
     tblLevel1.appendChild(tblBodyLevel1);
-    tblLevel1.setAttribute("border","6");
+   // tblLevel1.setAttribute("border","3");
+    tblLevel1.style.border = " solid black";
 
     episodeContents.appendChild(tblLevel1);
 
-    episodeContents.style.overflow="auto";
+   // episodeContents.style.overflow="auto";
 
 
 var zoomLevel1Container_DOM=document.createElement("div");
@@ -431,30 +475,44 @@ for (var i = 0, n = cells.length; i<n; i++) {
 	 	//if id != 0 then its an XHR or Timeout event
 		if(data.id==0){
 			cells_source[1].appendChild(document.createTextNode("eventType"));
-	 		cells_source[2].appendChild(document.createTextNode("targetElement"));
+	 		cells_source[2].appendChild(document.createTextNode("targetElement id"));
 			cells_source[3].appendChild(document.createTextNode(JSON.stringify(data.eventType)));
-			cells_source[4].appendChild(document.createTextNode(JSON.stringify(data.targetElement)));
-			$(episodeContents).addClass('box').removeClass('box3');
+			cells_source[3].setAttribute('class','cell_source');
+			cells_source[4].appendChild(document.createTextNode(JSON.stringify(data.targetElement.id)));
+			$(episodeContents).addClass('cell_dom').removeClass('cell_to' ,'cell_xhr');
 
 		
 		}
+		else if(data.id!=0 && data.callbackFunction.length>0){
+
+			cells_source[1].appendChild(document.createTextNode("eventType"));
+	 		cells_source[2].appendChild(document.createTextNode("targetElement"));
+			cells_source[3].appendChild(document.createTextNode("TO:"+JSON.stringify(data.id)));
+			cells_source[3].setAttribute('class','cell_source');
+			cells_source[4].appendChild(document.createTextNode(JSON.stringify(data.id)));
+			$(episodeContents).addClass('cell_to').removeClass('cell_xhr', 'cell_dom');
+		}
+
 		else{
 
 			cells_source[1].appendChild(document.createTextNode("eventType"));
 	 		cells_source[2].appendChild(document.createTextNode("targetElement"));
-			cells_source[3].appendChild(document.createTextNode("XHR/TO"));
+			cells_source[3].appendChild(document.createTextNode("XHR:"+JSON.stringify(data.id)));
+			cells_source[3].setAttribute('class','cell_source');
 			cells_source[4].appendChild(document.createTextNode(JSON.stringify(data.id)));
-			$(episodeContents).addClass('box3').removeClass('box');
+			$(episodeContents).addClass('cell_xhr').removeClass('cell_to', 'cell_dom');
+
+
 		}
 		
 
 		rows_source[1].appendChild(cells_source[1]);
 		rows_source[1].appendChild(cells_source[2]);
 		rows_source[2].appendChild(cells_source[3]);
-		rows_source[2].appendChild(cells_source[4]);
+		//rows_source[2].appendChild(cells_source[4]);
 
 		tblBody_source.appendChild(rows_source[0]);
-	 	tblBody_source.appendChild(rows_source[1]);
+	 	//tblBody_source.appendChild(rows_source[1]);
 		tblBody_source.appendChild(rows_source[2]);
 
 
@@ -462,7 +520,7 @@ for (var i = 0, n = cells.length; i<n; i++) {
 
 		});
 
-  	tbl_source.setAttribute("border","3");
+  	tbl_source.setAttribute("border","0");
   	tbl_source.appendChild(tblBody_source);
   	tempDiv_source.appendChild(tbl_source);
 	cell1SZ.appendChild(tempDiv_source);
@@ -531,7 +589,7 @@ for (var i = 0, n = cells.length; i<n; i++) {
 	 rows[1].appendChild(cells[2]);
 	 rows[1].appendChild(cells[3]);
 	 tblBody.appendChild(rows[0]);
-	 tblBody.appendChild(rows[1]);
+	 //tblBody.appendChild(rows[1]);
 
 	$.ajax({
 		type: 'GET',
@@ -542,7 +600,7 @@ for (var i = 0, n = cells.length; i<n; i++) {
 	
 	
 			
-			for(var i=0;i<data.trace.length;i++){
+			for(var i=1;i<data.trace.length;i++){
 				rows[i+2]=document.createElement("tr");
 
 				cells[i+4]=document.createElement("td");
@@ -582,7 +640,8 @@ for (var i = 0, n = cells.length; i<n; i++) {
 			cell1SZ.removeChild(cell1SZ.lastChild);
 			cell2SZ.removeChild(cell2SZ.lastChild);
 			cell3SZ.removeChild(cell3SZ.lastChild);
-			redrawLinks(temp_data);
+			//redrawLinks(temp_data);
+			renderListLinks(temp_data);
 			
 		}
 
@@ -663,7 +722,13 @@ function expandCurrentEpisode(i){
 
 // function to navigate to the next or previous episode in zoom level 2
 function nextPreviousEpisode(i){
+	console.log(divs_map.length);
+	for (var j = 0; j < divs_map.length; j++) {
+		 divs_map[j].setAttribute('class','box');
+	};
+	
 
+	divs_map[i].setAttribute('class','box2');
 	currentEpisode=i;
 	tabs1.innerHTML = '';
 	tabs2.innerHTML = '';
@@ -732,6 +797,39 @@ function nextPreviousEpisode(i){
 
 }
 
+function renderListLinks(data) {
+
+		temp_data=data;
+		for (var i = 0; i < data.length; i++) {
+			//links[i]=jsPlumb.addEndpoint(cells[data[i].source]);
+			//links[i+1]=jsPlumb.addEndpoint(cells[data[i].target]);
+			//jsPlumb.connect({ source:links[i], target:links[i+1],endpoint:["rectangle"],connector:["Bezier", { curviness:30 }] });
+			var color_link=get_random_color();
+			jsPlumb.connect({
+                source: (cells[data[i].target]), //flipped these so arrows point in right direction
+                target: (cells[data[i].source]),
+                connector: ["Bezier",{ curviness:30 }],
+                cssClass: "c1",
+                endpoint: "Blank",
+                endpointClass: "c1Endpoint",
+                paintStyle: {
+                    lineWidth: 1,
+                    strokeStyle: color_link,
+                    outlineWidth: 1,
+                    outlineColor: "#666"
+                },
+                endpointStyle: {
+                    fillStyle: "#a7b04b"
+                },
+            overlays:[ 
+               ["Arrow", {location:.955, width:15, length:10}], 
+   
+           ]
+                
+            });
+		};
+
+	}
 function redrawLinks(data) {
 
 		//temp_data=data;
@@ -766,10 +864,11 @@ function redrawLinks(data) {
 	}
 
 //create the scrollable effect for a series of episodes
+
 $("#makeMeScrollable").smoothDivScroll({
 			mousewheelScrolling: "allDirections",
 			manualContinuousScrolling: true,
-			//autoScrollingMode: "onStart"
+			autoScrollingMode: "onStart"
 });
 	
 
@@ -779,10 +878,21 @@ var cellsNew;
 var table2;
 var cells2;
 
+
+function get_random_color() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.round(Math.random() * 15)];
+    }
+    return color;
+}
+
 jsPlumb.bind("ready", function() {
 
 	var url = 'http://localhost:8080/rest/clematis-api/story/causalLinks';
 	var links=new Array;
+
  	 $.ajax({
 		type: 'GET',
 		url: url ,
@@ -791,8 +901,6 @@ jsPlumb.bind("ready", function() {
 		success: renderListLinks 
 	});
 	
-
-
 	function renderListLinks(data) {
 
 		temp_data=data;
@@ -800,36 +908,33 @@ jsPlumb.bind("ready", function() {
 			//links[i]=jsPlumb.addEndpoint(cells[data[i].source]);
 			//links[i+1]=jsPlumb.addEndpoint(cells[data[i].target]);
 			//jsPlumb.connect({ source:links[i], target:links[i+1],endpoint:["rectangle"],connector:["Bezier", { curviness:30 }] });
+			var color_link=get_random_color();
 			jsPlumb.connect({
-                source: (divs[data[i].source]),
-                target: (divs[data[i].target]),
+                source: (divs[data[i].target]), //flipped these so arrows point in right direction
+                target: (divs[data[i].source]),
                 connector: ["Bezier",{ curviness:30 }],
                 cssClass: "c1",
                 endpoint: "Blank",
                 endpointClass: "c1Endpoint",
                 paintStyle: {
-                    lineWidth: 4,
-                    strokeStyle: "#a7b04b",
+                    lineWidth: 1,
+                    strokeStyle: color_link,
                     outlineWidth: 1,
                     outlineColor: "#666"
                 },
                 endpointStyle: {
                     fillStyle: "#a7b04b"
                 },
+            overlays:[ 
+               ["Arrow", {location:.955, width:15, length:10}], 
+   
+           ]
                 
             });
 		};
 
 	}
 
-
-
-
-
-       // var e0 = jsPlumb.addEndpoint(divs[0]),
-        //e1 = jsPlumb.addEndpoint(divs[3]);
-
-        //jsPlumb.connect({ source:e0, target:e1,connector:["Bezier", { curviness:70 }],endpoint:"Blank" });
      });
 
 $(document).ready(function(){
@@ -841,16 +946,11 @@ $(document).ready(function(){
 
 //Create the overview bar on top of the series of episodes
 //shade the current episode you are on.
-window.onload=function() {
+//window.onload=function() {
 	
-    tableNew = document.getElementById('newTbl');
-    cellsNew = tableNew.getElementsByTagName('div');
+   // tableNew = document.getElementById('newTbl');
+   // cellsNew = tableNew.getElementsByTagName('div');
 
-    var width=cellsNew[0].offsetWidth;
-    var height=cellsNew[0].offsetHeight;
-    var fontSize=cellsNew[0].style.fontSize;
-    console.log(width);
-    console.log(height);
 
     table2 = document.getElementById('tbl');
     cells2 = table2.getElementsByTagName('div');
@@ -860,9 +960,9 @@ for (var i = 0, n = cells2.length; i<n; i++) {
   var el = cells2[i];
   el.addEventListener('mouseover', (function(i, el) { 
     return function() {
-      cellsNew[i].setAttribute('class','box2');
-      cellsNew[i+1].setAttribute('class','box2');
-      cellsNew[i-1].setAttribute('class','box2');
+      divs_map[i].setAttribute('class','box2');
+      //cellsNew[i+1].setAttribute('class','box2');
+      //cellsNew[i-1].setAttribute('class','box2');
     }
   })(i, el), false);
 }
@@ -871,16 +971,16 @@ for (var i = 0, n = cells2.length; i<n; i++) {
   var el = cells2[i];
   el.addEventListener('mouseout', (function(i, el) { 
     return function() {
-      cellsNew[i].setAttribute('class','box');
-      cellsNew[i+1].setAttribute('class','box');
-      cellsNew[i-1].setAttribute('class','box');
+      divs_map[i].setAttribute('class','box');
+      //cellsNew[i+1].setAttribute('class','box');
+      //cellsNew[i-1].setAttribute('class','box');
     }
   })(i, el), false);
 }
 
 
 
-};	
+//};	
 
 
 	

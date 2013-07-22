@@ -46,11 +46,12 @@
 		dataType: "text",
 		async: false,
 		success: function sequenceDiagram(data) {
-  			result=data;
+  			//result=data;
+  			document.write(eval(data));  
 
 	}
 		});
-document.write(eval(result));  
+
 </script> 
 <script type="text/javascript" src="javascripts/fisheyeZoom.js"></script>
 

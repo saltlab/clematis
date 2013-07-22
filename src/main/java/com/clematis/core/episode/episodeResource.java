@@ -2,7 +2,6 @@ package com.clematis.core.episode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -526,32 +525,6 @@ public class episodeResource {
 		}
 		// System.out.println(output);
 		ps.close();
-		return output;
-	}
-
-	@GET
-	@Path("/story/sequenceDiagram/new")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String getsequenceDiagramNew() {
-		intialize();
-		PrintStream JSepisodes = null;
-		try {
-			JSepisodes = new PrintStream("allEpisodesNew.js");
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		for (Episode e : this.s1.getEpisodes()) {
-			// Create pic files for each episode's sequence diagram
-			com.clematis.jsmodify.JSExecutionTracer.designSequenceDiagram(e, JSepisodes);
-		}
-
-		// Once all episodes have been saved to JS file, close
-		JSepisodes.close();
-
-		String output = "success";
-
 		return output;
 	}
 

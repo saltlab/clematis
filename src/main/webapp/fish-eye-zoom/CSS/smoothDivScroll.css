@@ -1,20 +1,17 @@
 ﻿/* You can alter this CSS in order to give Smooth Div Scroll your own look'n'feel */
-@import url(http://www.smoothdivscroll.com/css/smoothDivScroll.css);
+
 .scaledDiv
 {
-
-
     transform:scale(0.1,0.5);
     -ms-transform:scale(0.1,0.5); /* IE 9 */
-    -webkit-transform:scale(0.1,0.5); /* Safari and Chrome */
-
-    
+    -webkit-transform:scale(0.1,0.5); /* Safari and Chrome */    
 }
 
 
 
 #makeMeScrollable
 {
+	top:200px;
     width:100%;
     height: auto;
     position: relative;
@@ -25,7 +22,7 @@
     position: relative;
     float: left;
     margin: 0;
-    padding: 10;
+    padding: 30;
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
@@ -41,9 +38,9 @@ div.scrollingHotSpotLeft
 {
 	/* The hotspots have a minimum width of 100 pixels and if there is room the will grow
     and occupy 15% of the scrollable area (30% combined). Adjust it to your own taste. */
-	min-width: 75px;
-	width: 10%;
-	height: 100%;
+	min-width: 45px;
+	width: 5%;
+	height: 30%;
 	/* There is a big background image and it's used to solve some problems I experienced
     in Internet Explorer 6. */
 	background-image: url(../images/big_transparent.gif);
@@ -71,9 +68,9 @@ div.scrollingHotSpotLeftVisible
 /* Invisible right hotspot */
 div.scrollingHotSpotRight
 {
-	min-width: 75px;
-	width: 10%;
-	height: 100%;
+	min-width: 45px;
+	width: 5%;
+	height: 30%;
 	background-image: url(../images/big_transparent.gif);
 	background-repeat: repeat;
 	background-position: center center;

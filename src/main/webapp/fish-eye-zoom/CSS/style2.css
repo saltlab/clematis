@@ -1,6 +1,6 @@
 * {margin:0; padding:0}
 body {font:14px Helvetica, sans-serif; font-weight:bold}
-.menu {position:relative; background:url(images/bg.gif) no-repeat; height:35px; width:459px}
+.menu {position:absolute; background:url(images/bg.gif) no-repeat; height:35px; width:350px}
 .menu ul {list-style:none; z-index:10; position:absolute; z-index:100; padding:9px 5px}
 .menu li {float:left}
 .menu a, .menu a:active, .menu a:visited, .menu a:hover {text-decoration:none; color:#FFF; padding:10px}

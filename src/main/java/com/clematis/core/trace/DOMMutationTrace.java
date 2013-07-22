@@ -3,8 +3,6 @@ package com.clematis.core.trace;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.clematis.core.episode.EpisodeSource;
-
 public class DOMMutationTrace extends TraceObject/* implements EpisodeSource */{
 	private String mutationType;
 	private String data;
@@ -66,22 +64,29 @@ public class DOMMutationTrace extends TraceObject/* implements EpisodeSource */{
 		this.parentNodeValue = parentNodeValue;
 	}
 
-	
-	
 	public JSONObject getMutationAsJSON() {
 		JSONObject returnObject = new JSONObject();
-		
 		try {
 			returnObject.put("Mutation type", this.mutationType);
-			returnObject.put("Node ID", this.parentNodeValue);
-			//returnObject.put("nodeType", this.nodeType);
+			returnObject.put("Node ID", this.parentNodeValue); // returnObject.put("nodeType",
+															   // this.nodeType);
 			returnObject.put("Type of value changed", this.nodeName.replace("#", ""));
 			returnObject.put("Content changed", this.nodeValue);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return returnObject;
-
 	}
 
+	/*
+	 * public String getMutationAsJSON() { // JSONObject returnObject = new JSONObject(); JSONArray
+	 * args = new JSONArray(); // Variable[] args.put(this.mutationType);
+	 * args.put(this.parentNodeValue); args.put(this.nodeName.replace("#", ""));
+	 * args.put(this.nodeValue); return args == null ? null : args.toString(); /* try {
+	 * returnObject.put("Mutation type", this.mutationType); returnObject.put("Node ID",
+	 * this.parentNodeValue); // returnObject.put("nodeType", this.nodeType);
+	 * returnObject.put("Type of value changed", this.nodeName.replace("#", ""));
+	 * returnObject.put("Content changed", this.nodeValue); } catch (JSONException e) {
+	 * e.printStackTrace(); } return returnObject; }
+	 */
 }
