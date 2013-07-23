@@ -366,8 +366,8 @@ var zoomLevel1=false;
 	episodeContents.style.border = " solid black";
 	episodeContents.style.display="table";
 	
-	episodeContents.style.left="390px";
-	episodeContents.style.top="120px";
+	//episodeContents.style.left="390px";
+	//episodeContents.style.top="120px";
 	episodeContents.style.width="120px";
 
 	var tblLevel1 = document.createElement("table");
@@ -395,8 +395,8 @@ var zoomLevel1=false;
     row3Level1.appendChild(cell3Level1);
     tblBodyLevel1.appendChild(row3Level1); 
     tblLevel1.appendChild(tblBodyLevel1);
-   // tblLevel1.setAttribute("border","3");
-    tblLevel1.style.border = " solid black";
+    tblLevel1.setAttribute("border","0");
+    //tblLevel1.style.border = " solid black";
 
     episodeContents.appendChild(tblLevel1);
 
@@ -483,7 +483,7 @@ for (var i = 0, n = cells.length; i<n; i++) {
 
 		
 		}
-		else if(data.id!=0 && data.callbackFunction.length>0){
+		else if(data.id!=0 && (data.timeoutId==0 || data.timeoutId!=0)){
 
 			cells_source[1].appendChild(document.createTextNode("eventType"));
 	 		cells_source[2].appendChild(document.createTextNode("targetElement"));
@@ -538,10 +538,15 @@ for (var i = 0, n = cells.length; i<n; i++) {
 		success: function renderList3(data) {
 
 		console.log(data);
-		dom=document.createTextNode(JSON.stringify(data.dom));
+		dom=document.createTextNode("Result");
 	}
 		});
+		cell3SZ.style.fontSize="20px";
 
+	 cell3SZ.style.color="black";
+
+	 
+	 cell3SZ.style.fontFamily="TAHOMA";
   		cell3SZ.appendChild(dom);
 
 
@@ -599,13 +604,15 @@ for (var i = 0, n = cells.length; i<n; i++) {
 		success: function renderList4(data) {
 	
 	
-			
+			/*
 			for(var i=1;i<data.trace.length;i++){
 				rows[i+2]=document.createElement("tr");
 
 				cells[i+4]=document.createElement("td");
 				cells[i+5]=document.createElement("td");
 				cells[i+6]=document.createElement("td");
+
+
 				cells[i+4].appendChild(document.createTextNode(JSON.stringify(data.trace[i].lineNo)));
 				cells[i+5].appendChild(document.createTextNode(JSON.stringify(data.trace[i].targetFunction)));
 				cells[i+6].appendChild(document.createTextNode(JSON.stringify(data.trace[i].scopeName)));
@@ -616,8 +623,53 @@ for (var i = 0, n = cells.length; i<n; i++) {
 				tblBody.appendChild(rows[i+2]);
 				//tempDiv.appendChild(trace[i]);
 			}
-			
-			tbl.setAttribute("border","3");
+
+			*/
+			var counter=0;
+			var num_rows=1;
+			rows[num_rows+2]=document.createElement("tr");
+			for(var i=1;i<data.trace.length;i++){
+
+				if(counter==3){
+					counter=0;
+					num_rows++;
+					rows[num_rows+2]=document.createElement("tr");
+
+				}
+				counter++;
+
+				cells[i+3]=document.createElement("td");
+
+
+				var eventHandler= new String(JSON.stringify(data.trace[i].eventHandler));
+				if(data.trace[i].id==0 && eventHandler=="\"anonymous\""){
+					cells[i+3].appendChild(document.createTextNode("Anonymous"));
+					cells[i+3].setAttribute("title","Anonymous");
+					$(cells[i+3]).tipsy({gravity:'nw'});
+				}
+				else if(data.trace[i].id !=0 && (data.trace[i].xhrId>=0)){
+					cells[i+3].appendChild(document.createTextNode("XHR id:"+JSON.stringify(data.trace[i].xhrId)));
+					cells[i+3].setAttribute("title","XHR Event");
+					$(cells[i+3]).tipsy({gravity:'nw'});
+				}
+				else if(data.trace[i].id !=0 && (data.trace[i].timeoutId>=0)){
+					cells[i+3].appendChild(document.createTextNode("TimeOut id:"+JSON.stringify(data.trace[i].timeoutId)));
+					cells[i+3].setAttribute("title","Timeout Event");
+					$(cells[i+3]).tipsy({gravity:'nw'});
+				}
+				else{
+					cells[i+3].appendChild(document.createTextNode(JSON.stringify(data.trace[i].targetFunction)));
+					cells[i+3].setAttribute("title","DOM Event");
+					$(cells[i+3]).tipsy({gravity:'nw'});
+				}
+
+				cells[i+3].setAttribute('class','cell_source');
+
+
+				rows[num_rows+2].appendChild(cells[i+3]);
+				tblBody.appendChild(rows[num_rows+2]);
+			}
+			//tbl.setAttribute("border","3");
 			tbl.appendChild(tblBody);
 			tempDiv.appendChild(tbl);
 	}
@@ -649,6 +701,22 @@ for (var i = 0, n = cells.length; i<n; i++) {
   })(i, el), false);
 }
 
+
+function getType(data,i){
+	if(data.trace[i].id==0 && data.trace[i].targetfunction.length>0){
+		return 1;
+	}
+	else if(data.trace[i].id !=0 && (data.trace[i].xhrId==0  ||data.trace[i].xhrId!=0)){
+		return 2;
+	}
+	else if(data.trace[i].id !=0 && (data.trace[i].timeoutId==0  ||data.trace[i].timeoutId!=0)){
+		return 3;
+	}
+	else{
+		return 4;
+	}
+
+}
 //Function to zoom into the current episode(ZOOM level 2)
 function expandCurrentEpisode(i){
 

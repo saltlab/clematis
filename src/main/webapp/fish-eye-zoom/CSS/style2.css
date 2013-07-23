@@ -1,7 +1,25 @@
 * {margin:0; padding:0}
 body {font:14px Helvetica, sans-serif; font-weight:bold}
-.menu {position:absolute; background:url(images/bg.gif) no-repeat; height:35px; width:350px}
+.menu {position:absolute; background:#58d68d no-repeat; height:35px; width:350px;
+  color: #ffffff;
+  line-height: 22px;
+  text-decoration: none;
+  text-shadow: none;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+
+  -webkit-backface-visibility: hidden;}
 .menu ul {list-style:none; z-index:10; position:absolute; z-index:100; padding:9px 5px}
 .menu li {float:left}
 .menu a, .menu a:active, .menu a:visited, .menu a:hover {text-decoration:none; color:#FFF; padding:10px}
-#slide {position:absolute; top:6px; height:24px; background:#89957a; z-index:10}
+#slide {position:absolute; top:6px; height:24px; background:#E74C3C; z-index:10; -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -webkit-backface-visibility: hidden;}
