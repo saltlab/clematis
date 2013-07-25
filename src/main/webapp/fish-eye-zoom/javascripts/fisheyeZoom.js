@@ -286,8 +286,10 @@ function renderList(data) {
 
 	//Add the menu and list of episodes to the page
 	//document.body.style.backgroundColor = '#000';
+	var code_div=document.createElement('div');
 	document.body.appendChild(menuContainer);
 	document.body.appendChild(episodeContainer);
+	document.body.appendChild(code_div);
 	
 
 //Create the tabbed view that will be used for zoom level2
@@ -791,12 +793,6 @@ function expandCurrentEpisode(i){
 		});
 
 		//tabs3.appendChild(trace[0]);
-		var xx=episodeTable;
-		console.log(xx);
-		
-
-
-
 		//var cells=document.getElementById('storyTable');
 		//console.log(cells);
 		//tabs3.appendChild(document.getElementById('episodeTable_'+i));
@@ -812,6 +808,7 @@ function expandCurrentEpisode(i){
 
 		 var div_code=second_column;//document.getElementById('second_column');
 		cell2_code.appendChild(div_code);
+		//code_div.appendChild(second_column);
 		tabs3.appendChild(table_sequence);
     	$(episodeContainer).replaceWith(tabs_div);
 

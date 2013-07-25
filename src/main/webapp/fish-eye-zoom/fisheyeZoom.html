@@ -63,7 +63,7 @@
 
 		<td id='second_column' class="code_column">
             <div id='filename_div'></div>
-            <pre id='code_pre' class="prettyprint lang-java">
+            <pre id='code_pre' class="prettyprint lang-java" width='85'>
                 <code id='code_code' class="language-java">
                 </code>
             </pre>
@@ -165,6 +165,7 @@ var storyTableRow = document.createElement('tr');
 storyTableRow.id = "storyTableRow";
 var episodeTable=new Array;
 var episodeCell=new Array;
+var episodeTraceDiv=new Array;
 for (var i = 0; i < episodeCounter; i ++) {
 	 episodeCell[i] = document.createElement('td');
 
@@ -201,13 +202,13 @@ for (var i = 0; i < episodeCounter; i ++) {
 	var episodeTraceCell = document.createElement('td');
 	episodeTraceCell.rowspan = "2";
 
-	var episodeTraceDiv = document.createElement('div');
+	episodeTraceDiv[i] = document.createElement('div');
 
-	episodeTraceDiv.id = "trace_div_" + i;
-	episodeTraceDiv.addEventListener('click', traceDivClickHandler, false);
-	episodeTraceDiv.setAttribute('class', 'ud_diagram_div');
-	episodeTraceDiv.style.width = width + 'px';
-	episodeTraceDiv.style.height = height + 'px';
+	episodeTraceDiv[i].id = "trace_div_" + i;
+	//episodeTraceDiv[i].addEventListener('click', traceDivClickHandler, false);
+	episodeTraceDiv[i].setAttribute('class', 'ud_diagram_div');
+	episodeTraceDiv[i].style.width = width + 'px';
+	episodeTraceDiv[i].style.height = height + 'px';
 
 
 
@@ -223,7 +224,7 @@ for (var i = 0; i < episodeCounter; i ++) {
 
 //////////////////////////////////////////////////
 
-	episodeTraceCell.appendChild(episodeTraceDiv);
+	episodeTraceCell.appendChild(episodeTraceDiv[i]);
 	//
 	var canvas = document.createElement('canvas');
 	canvas.setAttribute('class', 'ud_diagram_canvas');
@@ -231,7 +232,7 @@ for (var i = 0; i < episodeCounter; i ++) {
 	canvas.height = this.height;
     canvas.id = "canvas_"+i;
 	var mainContext = canvas.getContext('2d');
-	episodeTraceDiv.appendChild(canvas);
+	episodeTraceDiv[i].appendChild(canvas);
 
 	var canvas2 = document.createElement('canvas');
 	canvas2.setAttribute('class', 'ud_diagram_canvas');
@@ -364,7 +365,7 @@ for (var i = 0; i < episodeCounter; i ++) {
  	  }
       return allEpisodes[i].sequenceDiagram;
 
- 	 })(0, episodeTraceDiv, mainContext, motionContext, width, height);
+ 	 })(0, episodeTraceDiv[i], mainContext, motionContext, width, height);
 
 
 console.log(episodeTraces[i]);
@@ -380,7 +381,7 @@ console.log(episodeTraces[i]);
 
 
 
-    episodeTraceDiv.style.width = episodeTraces[i]._width + 30;
+    episodeTraceDiv[i].style.width = episodeTraces[i]._width + 30;
     canvas.width = episodeTraces[i]._width;
     canvas.height = episodeTraces[i]._height;
 
@@ -429,6 +430,8 @@ for (var m = 0; m < lifeLinesByEpisode.length; m ++) {
 	}
 
 	//document.getElementById("trace_div_" + m).addEventListener('click', traceDivClickHandler, false);
+	episodeTraceDiv[m].addEventListener('click', traceDivClickHandler, false);
+
 }
 
 for (var m = 0; m < mutationsByEpisode.length; m ++) {
@@ -548,7 +551,6 @@ function viewDetailedCode(lifeline) {
              var codeToPrint = xmlhttp.responseText.replace("<", "&lt", "gi");
              codeToPrint = codeToPrint.replace(">", "&gt", "gi");
              document.getElementById('code_code').innerHTML = codeToPrint;
-
              document.getElementById('code_pre').className="prettyprint lang-js codeWrapper";
              prettyPrint();
            
@@ -566,6 +568,7 @@ function viewDetailedCode(lifeline) {
                               || this.previousSibling.textContent.contains('.'));
                  }
              });
+
 
     function findLineNumber(element) {
         var endOfLineNodes = $("#code_code").find('span').filter(':contains("\n")');
@@ -588,7 +591,7 @@ function viewDetailedCode(lifeline) {
 
 
 
-
+    		 console.log(lineOfInterest[indexOfReal]);
              $('#code_pre').scrollTo(lineOfInterest[indexOfReal]);
              $('#code_pre').scrollLeft('30px');
              $(lineOfInterest[indexOfReal]).effect("highlight", {}, 8000);
