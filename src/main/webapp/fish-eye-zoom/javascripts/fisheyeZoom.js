@@ -15,7 +15,7 @@
 	$(scaledDiv).addClass('scaledDiv');
 	scaledDiv.style.width="auto";
 	scaledDiv.style.float="left";
-	//scaledDiv.style.height="150px";
+	scaledDiv.style.height="50px";
 
 
 	//$(episodeContainer).addClass('dock-container');
@@ -62,11 +62,11 @@ function renderList(data) {
 	//console.log(data);
 	number_episodes=data.length;
 	//alert("success");
-	console.log(data);
+	//console.log(data);
 }
 
 
-	console.log(number_episodes);
+	
 	
 	//create the list of episodes, ZOOM  level 0
 	for (var i=0; i<number_episodes; i++){
@@ -98,14 +98,14 @@ function renderList(data) {
 
 
 		if(data.id==0){
-			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"DOM//Event"); 
+			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"DOM"); 
 			$(divs[i]).addClass('cell_dom');
 			$(divs_map[i]).addClass('box');
 
 		
 		}
 		else if(data.id!=0 && data.callbackFunction.length>0){
-			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"Timeout Event"); 
+			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"Timeout"); 
 			$(divs[i]).addClass('cell_to');
 			$(divs_map[i]).addClass('box');
 
@@ -113,7 +113,7 @@ function renderList(data) {
 
 		else
 		{
-			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"XHR Event"); 
+			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"XHR"); 
 			$(divs[i]).addClass('cell_xhr');
 			$(divs_map[i]).addClass('box');
 
@@ -149,7 +149,7 @@ function renderList(data) {
 	
     tblBody.appendChild(row);
     tbl.appendChild(tblBody);
-    tbl.style.borderSpacing="6px";
+    //tbl.style.borderSpacing="6px";
 
    // var newTbl = tbl.cloneNode(true);
 
@@ -417,6 +417,8 @@ for (var i = 0, n = cells.length; i<n; i++) {
   
   el.addEventListener('click', (function(i, el) { 
     return function() {
+    	//jsPlumb.detachEveryConnection();
+
     	menuAnchor4.appendChild(fullScreen);
     	if(zoomLevel1==false){
 			zoomLevel1=true;
@@ -678,8 +680,11 @@ for (var i = 0, n = cells.length; i<n; i++) {
   	
 
 		cell2SZ.appendChild(tempDiv);
-		$(divs[i]).replaceWith(episodeContents);
 		jsPlumb.detachEveryConnection();
+		$(divs[i]).replaceWith(episodeContents);
+		//$(divs[i]).replaceWith(episodeTable[i]);
+		//tabs3.appendChild(episodeTable[i]);
+		
 	
 	
 			
@@ -688,12 +693,14 @@ for (var i = 0, n = cells.length; i<n; i++) {
 		
 		else{
 			zoomLevel1=false;
+
 			$(episodeContents).replaceWith(divs[i]);
 			cell1SZ.removeChild(cell1SZ.lastChild);
 			cell2SZ.removeChild(cell2SZ.lastChild);
 			cell3SZ.removeChild(cell3SZ.lastChild);
 			//redrawLinks(temp_data);
 			renderListLinks(temp_data);
+			//jsPlumb.repaintEverything();
 			
 		}
 
@@ -741,7 +748,9 @@ function expandCurrentEpisode(i){
 		console.log(data.eventType);
 		eventType=document.createTextNode(data.eventType);
 	}
-		tabs1.appendChild(eventType);
+
+		var temp_event=first_column;//document.getElementById('first_column');
+		tabs1.appendChild(temp_event);
 //get the DOM of a speceifc episode
  	var url2 = 'http://localhost:8080/rest/clematis-api/episodes/'+i;
 	 var dom;
@@ -781,8 +790,29 @@ function expandCurrentEpisode(i){
 	}
 		});
 
-		tabs3.appendChild(trace[0]);
+		//tabs3.appendChild(trace[0]);
+		var xx=episodeTable;
+		console.log(xx);
+		
 
+
+
+		//var cells=document.getElementById('storyTable');
+		//console.log(cells);
+		//tabs3.appendChild(document.getElementById('episodeTable_'+i));
+		var table_sequence=document.createElement('table');
+		var row_sequence=document.createElement('tr');
+		var cell1_sequence=document.createElement('td');
+		var cell2_code=document.createElement('td');
+
+		row_sequence.appendChild(cell1_sequence);
+		row_sequence.appendChild(cell2_code);
+		table_sequence.appendChild(row_sequence);
+		cell1_sequence.appendChild(episodeTable[i]);
+
+		 var div_code=second_column;//document.getElementById('second_column');
+		cell2_code.appendChild(div_code);
+		tabs3.appendChild(table_sequence);
     	$(episodeContainer).replaceWith(tabs_div);
 
 }
@@ -820,7 +850,8 @@ function nextPreviousEpisode(i){
 		console.log(data.eventType);
 		eventType=document.createTextNode(data.eventType);
 	}
-		tabs1.appendChild(eventType);
+		//tabs1.appendChild(eventType);
+		tabs1.appendChild(first_column);
 //get the DOM of a speceifc episode
  	var url2 = 'http://localhost:8080/rest/clematis-api/episodes/'+i;
 	 var dom;
@@ -860,7 +891,21 @@ function nextPreviousEpisode(i){
 	}
 		});
 
-		tabs3.appendChild(trace[0]);
+		var table_sequence=document.createElement('table');
+		var row_sequence=document.createElement('tr');
+		var cell1_sequence=document.createElement('td');
+		var cell2_code=document.createElement('td');
+
+		row_sequence.appendChild(cell1_sequence);
+		row_sequence.appendChild(cell2_code);
+		table_sequence.appendChild(row_sequence);
+		cell1_sequence.appendChild(episodeTable[i]);
+
+		 var div_code=second_column;//document.getElementById('second_column');
+		cell2_code.appendChild(div_code);
+		tabs3.appendChild(table_sequence);
+		//tabs3.appendChild(trace[0]);
+		//tabs3.appendChild(episodeTable[i]);
 
 
 }

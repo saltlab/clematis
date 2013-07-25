@@ -19,19 +19,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.crawljax.util.Helper;
-import com.clematis.jsmodify.JSModifyProxyPlugin;
-
 
 /**
  * The JSInstrument proxy plugin used to add instrumentation code to JavaScript files.
- * 
  */
 public class JSModifyProxyPlugin extends ProxyPlugin {
 
 	private List<String> excludeFilenamePatterns;
 
 	private final JSASTModifier modifier;
-	
+
 	private static String outputFolder = "";
 	private static String jsFilename = "";
 
@@ -44,7 +41,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	public JSModifyProxyPlugin(JSASTModifier modify) {
 		excludeFilenamePatterns = new ArrayList<String>();
 		modifier = modify;
-		
+
 		outputFolder = Helper.addFolderSlashIfNeeded("clematis-output") + "js_snapshot";
 	}
 
@@ -73,7 +70,6 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		// Example application specific
 		excludeFilenamePatterns.add(".*tabcontent.js?.*");
 	}
-
 
 	@Override
 	public String getPluginName() {
@@ -109,12 +105,12 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	private synchronized String modifyJS(String input, String scopename) {
 
 		System.out.println("Scope: " + scopename);
-		
+
 		if (!shouldModify(scopename)) {
 			return input;
 		}
 		try {
-			
+
 			// Save original JavaScript files/nodes
 			Helper.directoryCheck(getOutputFolder());
 			setFileName(scopename);
@@ -123,7 +119,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			System.setOut(output);
 			System.out.println(input);
 			System.setOut(oldOut);
-			
+
 			AstRoot ast = null;
 
 			/* initialize JavaScript context */
@@ -135,7 +131,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			/* parse some script and save it in AST */
 			ast = rhinoParser.parse(new String(input), scopename, 0);
 
-			//modifier.setScopeName(scopename);
+			// modifier.setScopeName(scopename);
 			modifier.setScopeName(getFilename());
 
 			modifier.start(new String(input));
@@ -143,16 +139,16 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			/* recurse through AST */
 			ast.visit(modifier);
 
-			ast = modifier.finish(ast);		
-			
+			ast = modifier.finish(ast);
+
 			/* clean up */
 			Context.exit();
-									
+
 			return ast.toSource();
 		} catch (RhinoException re) {
 			System.err.println(re.getMessage()
-					+ "Unable to instrument. This might be a JSON response sent"
-					+ " with the wrong Content-Type or a syntax error.");
+			        + "Unable to instrument. This might be a JSON response sent"
+			        + " with the wrong Content-Type or a syntax error.");
 
 		} catch (IllegalArgumentException iae) {
 			System.err.println("Invalid operator exception catched. Not instrumenting code.");
@@ -166,13 +162,13 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 	private void setFileName(String scopename) {
 		int index = scopename.lastIndexOf("/");
-		jsFilename = scopename.substring(index+1);
+		jsFilename = scopename.substring(index + 1);
 	}
 
 	private static String getOutputFolder() {
 		return Helper.addFolderSlashIfNeeded(outputFolder);
 	}
-	
+
 	private static String getFilename() {
 		return jsFilename;
 	}
@@ -188,30 +184,28 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 */
 	private Response createResponse(Response response, Request request) {
 		String type = response.getHeader("Content-Type");
-		
+
 		if (request.getURL().toString().contains("?beginrecord")) {
 			JSExecutionTracer.preCrawling();
 			return response;
 		}
-		
-        if (request.getURL().toString().contains("?stoprecord")) {
-        	JSExecutionTracer.postCrawling();
+
+		if (request.getURL().toString().contains("?stoprecord")) {
+			JSExecutionTracer.postCrawling();
 			return response;
 		}
-		
-		
+
 		if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
 			String rawResponse = new String(request.getContent());
 			JSExecutionTracer.addPoint(rawResponse);
 			return response;
 		}
 
-
 		if (type != null && type.contains("javascript")) {
 
 			/* instrument the code if possible */
 			response.setContent(modifyJS(new String(response.getContent()),
-					request.getURL().toString()).getBytes());
+			        request.getURL().toString()).getBytes());
 		} else if (type != null && type.contains("html")) {
 			try {
 				Document dom = Helper.getDocument(new String(response.getContent()));
@@ -222,7 +216,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 					Node nType = nodes.item(i).getAttributes().getNamedItem("type");
 					/* instrument if this is a JavaScript node */
 					if ((nType != null && nType.getTextContent() != null && nType
-							.getTextContent().toLowerCase().contains("javascript"))) {
+					        .getTextContent().toLowerCase().contains("javascript"))) {
 						String content = nodes.item(i).getTextContent();
 						if (content.length() > 0) {
 							String js = modifyJS(content, request.getURL() + "script" + i);
@@ -236,7 +230,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 					/* also check for the less used language="javascript" type tag */
 					nType = nodes.item(i).getAttributes().getNamedItem("language");
 					if ((nType != null && nType.getTextContent() != null && nType
-							.getTextContent().toLowerCase().contains("javascript"))) {
+					        .getTextContent().toLowerCase().contains("javascript"))) {
 						String content = nodes.item(i).getTextContent();
 						if (content.length() > 0) {
 							String js = modifyJS(content, request.getURL() + "script" + i);
@@ -260,7 +254,6 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 	/**
 	 * WebScarab plugin that adds instrumentation code.
-	 * 
 	 */
 	private class Plugin implements HTTPClient {
 
@@ -284,4 +277,3 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	}
 
 }
-

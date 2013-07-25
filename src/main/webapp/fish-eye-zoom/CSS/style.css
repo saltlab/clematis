@@ -9,18 +9,6 @@ img {
 }
 
 
-#tabs_div { 
-    padding: 0px; 
-    background: purple; 
-    border-width: 0px; 
-
-
-    color: #000;
-	text-decoration: none;
-	font: bold 16px Arial, Helvetica, sans-serif;
-    border: 1px brown solid;
-} 
-
 /* dock - top & bottom */
 .dock {
 	position: relative; 
@@ -110,7 +98,7 @@ a.dock-item2 {
     border: 1px #8e44ad solid;
 }
 
-.cell_dom, cell_xhr, cell_to/*,
+.cell_dom,cell_source, cell_xhr, cell_to/*,
 .btn-group > .btn,
 .btn-group > .dropdown-menu,
 .btn-group > .popover*/ {

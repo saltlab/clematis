@@ -42,15 +42,39 @@
 /*****************************************
  [UDCore] Div container for Canvas
 *****************************************/
+
 div.ud_diagram_div {
   position: relative;
   float: left;
   background: #ffffff;
   border: 1px solid black;
+  overflow-y: scroll;
+}
+/*
+div.ud_diagram_div_dom {
+  position: relative;
+  float: left;
+  background: #ffffff;
+  border: 1px solid #00CED1;
+  background-color: #E0FFFF;
 }
 
+div.ud_diagram_div_timing {
+  position: relative;
+  float: left;
+  background: #ffffff;
+  border: 1px solid #B8860B;
+  background-color: #FFF8DC;
+}
 
-
+div.ud_diagram_div_xhr {
+  position: relative;
+  float: left;
+  background: #ffffff;
+border: 1px solid #FF6347;
+  background-color: #FFE4E1;
+}
+*/
 /*****************************************
  [UDCore] Canvas elements style
 *****************************************/

@@ -1,5 +1,6 @@
 
-
+console.log("hello");
+alert("hello");
 document.write('<script type="text/javascript" src="toolbar/jquery-1.9.1.js"></script>');
 document.write('<script type="text/javascript" src="toolbar/jquery-ui-1.10.2.custom.js"></script>');
 document.write('<script type="text/javascript" src="toolbar/jquery.tipsy.js"></script>');

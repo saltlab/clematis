@@ -12,9 +12,9 @@
 
 	var textBox = document.createTextNode("Clematis");
 	
-
+	document.body.appendChild(textBox);
 	
-
+/*
 	//Create the Capture button and configure its attributes
     var captureButton = document.createElement("input");
     captureButton.setAttribute("type", "image");
@@ -93,3 +93,4 @@
 	 // div.appendChild(tbl);
       $(div).dialog({ height: 110, width: 120, title:"Clematis", show:"slow", minWidth: 110 , minHeight:0  });
     //ocument.body.appendChild(div);
+	*/

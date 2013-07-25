@@ -1,6 +1,8 @@
 * {margin:0; padding:0}
-body {font:14px Helvetica, sans-serif; font-weight:bold}
-.menu {position:absolute; background:#58d68d no-repeat; height:35px; width:350px;
+body {font-size: 14.994px;
+
+  font-weight: 500;}
+.menu {position:absolute; background:#58d68d no-repeat; height:45px; width:325px;
   color: #ffffff;
   line-height: 22px;
   text-decoration: none;
