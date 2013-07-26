@@ -1,3 +1,7 @@
+// todo
+var globalEpisodeContainer;
+// todo
+
 	var tbl = document.createElement("table");
 	var newTbl=document.createElement("table");
 
@@ -63,6 +67,34 @@ function renderList(data) {
 	number_episodes=data.length;
 	//alert("success");
 	//console.log(data);
+	
+	// todo
+	globalEpisodeContainer = data;
+	console.log("=======================");
+	console.log(globalEpisodeContainer);
+
+	var marchedIDs;	
+//	var matchedIDs = searchByDomEventType("click");
+
+	matchedIDs = searchByDomElementKeyword("record");
+	
+	var key = "Send";
+	matchedIDs = searchTraceByKeyword(key.toLowerCase());
+
+	for (var i = 0; i < matchedIDs.length; i ++) {
+		console.log(matchedIDs[i], " - ", globalEpisodeContainer[matchedIDs[i]].trace.trace);
+	}
+
+	console.log("=======================");
+	
+	matchedIDs = searchTraceByKeyword("request");
+
+	for (i = 0; i < matchedIDs.length; i ++) {
+		console.log(matchedIDs[i], " - ", globalEpisodeContainer[matchedIDs[i]].trace.trace);
+	}
+	
+	console.log("=======================");
+	// todo
 }
 
 
@@ -188,6 +220,7 @@ function renderList(data) {
 	var menuElem2 = document.createElement("li");
 	var menuElem3 = document.createElement("li");
 	var menuElem4 = document.createElement("li");
+	var menuElem_map = document.createElement("li");
 
 	var menuAnchor1 = document.createElement("a");
 	var menuAnchor2 = document.createElement("a");
@@ -280,6 +313,80 @@ function renderList(data) {
 	menuList.appendChild(menuElem2);
 	menuList.appendChild(menuElem3);
 	
+	/***************************************/
+	/*** Begin: Search By DOM Event Type ***/
+	/***************************************/
+	// todo ADD SELECT TAG FOR SEARCHING BY DOM EVENT TYPE
+	
+	var selectDomEventType = document.createElement('select');
+	selectDomEventType.id = "selectDomEventType";
+	selectDomEventType.name = "selectDomEventType";
+
+	var domEventOption = document.createElement('option');
+	domEventOption.value = "Search by Event";
+	domEventOption.textContent = "Search by Event";
+	selectDomEventType.appendChild(domEventOption);
+	
+	domEventOption = document.createElement('option');
+	domEventOption.value = "click";
+	domEventOption.textContent = "click";
+	selectDomEventType.appendChild(domEventOption);
+
+	domEventOption = document.createElement('option');
+	domEventOption.value = "dblclick";
+	domEventOption.textContent = "dblclick";
+	selectDomEventType.appendChild(domEventOption);
+
+	domEventOption = document.createElement('option');
+	domEventOption.value = "mousedown";
+	domEventOption.textContent = "mousedown";
+	selectDomEventType.appendChild(domEventOption);
+
+	domEventOption = document.createElement('option');
+	domEventOption.value = "mousemove";
+	domEventOption.textContent = "mousemove";
+	selectDomEventType.appendChild(domEventOption);
+
+	domEventOption = document.createElement('option');
+	domEventOption.value = "mouseover";	
+	domEventOption.textContent = "mouseover";
+	selectDomEventType.appendChild(domEventOption);
+
+	domEventOption = document.createElement('option');
+	domEventOption.value = "mouseout";	
+	domEventOption.textContent = "mouseout";
+	selectDomEventType.appendChild(domEventOption);
+
+	domEventOption = document.createElement('option');
+	domEventOption.value = "mouseup";	
+	domEventOption.textContent = "mouseup";
+	selectDomEventType.appendChild(domEventOption);
+
+	domEventOption = document.createElement('option');
+	domEventOption.value = "keydown";	
+	domEventOption.textContent = "keydown";
+	selectDomEventType.appendChild(domEventOption);
+
+	domEventOption = document.createElement('option');
+	domEventOption.value = "keypress";	
+	domEventOption.textContent = "keypress";
+	selectDomEventType.appendChild(domEventOption);
+
+	domEventOption = document.createElement('option');
+	domEventOption.value = "keyup";	
+	domEventOption.textContent = "keyup";
+	selectDomEventType.appendChild(domEventOption);
+	
+	var menuElem_searchDomEl = document.createElement("li");
+
+	menuElem_searchDomEl.appendChild(selectDomEventType);
+	menuList.appendChild(menuElem_searchDomEl);
+
+	
+	/*************************************/
+	/*** End: Search By DOM Event Type ***/
+	/*************************************/
+	
 	menuContainer.appendChild(menuList);
 	menuContainer.appendChild(menuContainerSlide);
 
@@ -291,6 +398,14 @@ function renderList(data) {
 	document.body.appendChild(episodeContainer);
 	document.body.appendChild(code_div);
 	
+	/******** Add the listener for search by dom event select tag *******/
+	document.getElementById('selectDomEventType').addEventListener('change', searchByDomEventClicked);
+	
+	function searchByDomEventClicked() {
+		var matchingEpisodes = searchByDomEventType(this.options[this.selectedIndex].value);
+		console.log("++++\n", matchingEpisodes);
+	}
+	/*********************************/
 
 //Create the tabbed view that will be used for zoom level2
 var tabs_div=document.createElement("div");
@@ -1050,6 +1165,10 @@ jsPlumb.bind("ready", function() {
 $(document).ready(function(){
 
 	menuContainer.appendChild(scaledDiv);
+/*	menuElem_map.appendChild(scaledDiv);
+	menuList.appendChild(menuElem_map);
+*/
+
 	menuSlider.init('menu','slide');
    	
 });
@@ -1094,3 +1213,139 @@ for (var i = 0, n = cells2.length; i<n; i++) {
 
 
 	
+///////////////////////////////////////
+// Search on DOM event and its content
+
+function searchByDomEventType(eventType) {
+	var matchedEpisodeIDs = [];
+	
+	for (var i = 0; i < globalEpisodeContainer.length; i ++) {
+		if (globalEpisodeContainer[i].source.eventType != null) {
+			if (globalEpisodeContainer[i].source.eventType == eventType) {
+//				console.log("found");
+				matchedEpisodeIDs.push(i);
+			}
+		}
+	}
+
+	return matchedEpisodeIDs;
+}
+
+function searchByDomElementKeyword(key) {
+	var matchedEpisodeIDs = [];
+	
+	for (var i = 0; i < globalEpisodeContainer.length; i ++) {
+		var eventType = globalEpisodeContainer[i].source.eventType;
+		var eventHandler = globalEpisodeContainer[i].source.eventHandler;
+		var targetElementAttributes = globalEpisodeContainer[i].source.targetElementAttributes;
+		if (eventType != null && eventType.toLowerCase().indexOf(key) != -1) {
+			console.log("eventType: ", eventType);
+			matchedEpisodeIDs.push(i);
+		}
+		else if (eventHandler != null && eventHandler.toLowerCase().indexOf(key) != -1) {
+			console.log("eventHandler: ", eventHandler);
+			matchedEpisodeIDs.push(i);
+		}
+		else if (targetElementAttributes != null && targetElementAttributes.toLowerCase().indexOf(key) != -1) {
+			console.log("targetElementAttributes: ", targetElementAttributes);
+			matchedEpisodeIDs.push(i);
+		}
+	}
+
+	return matchedEpisodeIDs;	
+}
+
+// search on all important text values in SOURCE
+function searchSourceByKeyword(key) {
+	var matchedEpisodeIDs = [];
+/*	
+	for (var i = 0; i < globalEpisodeContainer.length; i ++) {
+		if (type == dom) {
+			searchByDomElementKeyword(key);
+		}
+		else if (type == timeoutcallback) {
+			var callbackFunction = globalEpisodeContainer[i].source.callbackFunction; // todo
+		}
+		else if (type == xhrcallback) {
+			var callbackFunction = globalEpisodeContainer[i].source.callbackFunction; // todo
+			var response = globalEpisodeContainer[i].source.response; // todo
+		}
+	}
+*/
+
+	for (var i = 0; i < globalEpisodeContainer.length; i ++) {
+		var source = globalEpisodeContainer[i].source;
+		if (source.eventType != null && source.eventType.toLowerCase().indexOf(key) != -1) {
+			console.log("eventType: ", eventType);
+			matchedEpisodeIDs.push(i);
+		}
+		else if (source.eventHandler != null && source.eventHandler.toLowerCase().indexOf(key) != -1) {
+			console.log("eventHandler: ", eventHandler);
+			matchedEpisodeIDs.push(i);
+		}
+		else if (source.targetElementAttributes != null && source.targetElementAttributes.toLowerCase().indexOf(key) != -1) {
+			console.log("targetElementAttributes: ", targetElementAttributes);
+			matchedEpisodeIDs.push(i);
+		}
+		else if (source.callbackFunction != null && source.callbackFunction.toLowerCase().indexOf(key) != -1) {
+			matchedEpisodeIDs.push(i);
+		}
+		else if (source.response != null && source.response.toLowerCase().indexOf(key) != -1) {
+			matchedEpisodeIDs.push(i);
+		}
+	}
+
+	return matchedEpisodeIDs;	
+}
+
+function searchTraceByKeyword(key) {
+	var matchedEpisodeIDs = [];
+/*
+	if (type = functionEnter or functionCall or functionExit or functionReturn) {
+		var targetFunction
+	}
+	else if (type == timeoutSet) {
+	}
+	else if (type == timeoutCallback) {
+	}
+	else if (type == xhrOpen) {
+	}
+	else if (type == xhrSend) {
+	}
+	else if (type == xhrResponse) {
+	}
+*/	
+	// OR JUST CHECK (FOR ALL FIELS) IF THE FIELD WAS NOT EMPTY OR NULL SEARCH IT
+
+	for (var i = 0; i < globalEpisodeContainer.length; i ++) {
+		var trace = globalEpisodeContainer[i].trace.trace;
+		for (var j = 0; j < trace.length; j ++) {
+			if (trace[j].targetFunction != null && trace[j].targetFunction.toLowerCase().indexOf(key) != -1) { // function stuff
+				console.log("found targetFunction ", trace[j].targetFunction);
+				matchedEpisodeIDs.push(i);
+			}
+			else if (trace[j].callbackFunction != null && trace[j].callbackFunction.toLowerCase().indexOf(key) != -1) { // to callback and xhr response
+				console.log("found callbackFunction ", trace[j].callbackFunction);
+				matchedEpisodeIDs.push(i);
+			}
+			else if (trace[j].methodType != null && trace[j].methodType.toLowerCase().indexOf(key) != -1) { // xhr open
+				console.log("found methodType ", trace[j].methodType);
+				matchedEpisodeIDs.push(i);
+			}
+			else if (trace[j].url != null && trace[j].url.toLowerCase().indexOf(key) != -1) { // xhr open
+				console.log("found url ", trace[j].url);
+				matchedEpisodeIDs.push(i);
+			}
+			else if (trace[j].message != null && trace[j].message.toLowerCase().indexOf(key) != -1) { // xhr send
+				console.log("found message ", trace[j].message);
+				matchedEpisodeIDs.push(i);
+			}
+			else if (trace[j].response != null && trace[j].response.toLowerCase().indexOf(key) != -1) { // xhr response
+				console.log("found response ", trace[j].response);
+				matchedEpisodeIDs.push(i);
+			}
+		}
+	}
+
+	return matchedEpisodeIDs;
+}
