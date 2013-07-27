@@ -70,6 +70,7 @@ function renderList(data) {
 	
 	// todo
 	globalEpisodeContainer = data;
+/*
 	console.log("=======================");
 	console.log(globalEpisodeContainer);
 
@@ -92,7 +93,7 @@ function renderList(data) {
 	for (i = 0; i < matchedIDs.length; i ++) {
 		console.log(matchedIDs[i], " - ", globalEpisodeContainer[matchedIDs[i]].trace.trace);
 	}
-	
+*/	
 	console.log("=======================");
 	// todo
 }
@@ -387,6 +388,22 @@ function renderList(data) {
 	/*** End: Search By DOM Event Type ***/
 	/*************************************/
 	
+	/********** Begin: Search by Text **********/
+	
+	var searchTextInput = document.createElement('input');
+	searchTextInput.type = 'text';
+	searchTextInput.id = 'searchTextInput';
+	searchTextInput.value = 'Search';
+	searchTextInput.style.width = '60px';
+
+	var menuElem_searchText = document.createElement("li");
+
+	menuElem_searchText.appendChild(searchTextInput);
+	menuList.appendChild(menuElem_searchText);
+	
+	/********** End: Search by Text **********/
+
+	
 	menuContainer.appendChild(menuList);
 	menuContainer.appendChild(menuContainerSlide);
 
@@ -398,13 +415,26 @@ function renderList(data) {
 	document.body.appendChild(episodeContainer);
 	document.body.appendChild(code_div);
 	
-	/******** Add the listener for search by dom event select tag *******/
+	/******** Add the listener for search elements *******/
+	// Search by dom event select tag
 	document.getElementById('selectDomEventType').addEventListener('change', searchByDomEventClicked);
 	
 	function searchByDomEventClicked() {
 		var matchingEpisodes = searchByDomEventType(this.options[this.selectedIndex].value);
 		console.log("++++\n", matchingEpisodes);
 	}
+	
+	// Search by text
+	document.getElementById('searchTextInput').addEventListener('change', searchByTextValueChanged);
+	
+	function searchByTextValueChanged() {
+		var matchingSourceEpisodes = searchByDomEventType(this.value);
+		var matchingTraceEpisodes = searchTraceByKeyword(this.value);
+		console.log("----\n", matchingSourceEpisodes);
+		console.log("****\n", matchingTraceEpisodes);
+	}
+	
+
 	/*********************************/
 
 //Create the tabbed view that will be used for zoom level2
@@ -1213,8 +1243,7 @@ for (var i = 0, n = cells2.length; i<n; i++) {
 
 
 	
-///////////////////////////////////////
-// Search on DOM event and its content
+/************ Search on DOM event and its content ************/
 
 function searchByDomEventType(eventType) {
 	var matchedEpisodeIDs = [];
@@ -1255,7 +1284,8 @@ function searchByDomElementKeyword(key) {
 	return matchedEpisodeIDs;	
 }
 
-// search on all important text values in SOURCE
+/************ search on all important text values in SOURCE ************/
+
 function searchSourceByKeyword(key) {
 	var matchedEpisodeIDs = [];
 /*	
@@ -1276,15 +1306,15 @@ function searchSourceByKeyword(key) {
 	for (var i = 0; i < globalEpisodeContainer.length; i ++) {
 		var source = globalEpisodeContainer[i].source;
 		if (source.eventType != null && source.eventType.toLowerCase().indexOf(key) != -1) {
-			console.log("eventType: ", eventType);
+//			console.log("eventType: ", eventType);
 			matchedEpisodeIDs.push(i);
 		}
 		else if (source.eventHandler != null && source.eventHandler.toLowerCase().indexOf(key) != -1) {
-			console.log("eventHandler: ", eventHandler);
+//			console.log("eventHandler: ", eventHandler);
 			matchedEpisodeIDs.push(i);
 		}
 		else if (source.targetElementAttributes != null && source.targetElementAttributes.toLowerCase().indexOf(key) != -1) {
-			console.log("targetElementAttributes: ", targetElementAttributes);
+//			console.log("targetElementAttributes: ", targetElementAttributes);
 			matchedEpisodeIDs.push(i);
 		}
 		else if (source.callbackFunction != null && source.callbackFunction.toLowerCase().indexOf(key) != -1) {
@@ -1321,27 +1351,27 @@ function searchTraceByKeyword(key) {
 		var trace = globalEpisodeContainer[i].trace.trace;
 		for (var j = 0; j < trace.length; j ++) {
 			if (trace[j].targetFunction != null && trace[j].targetFunction.toLowerCase().indexOf(key) != -1) { // function stuff
-				console.log("found targetFunction ", trace[j].targetFunction);
+//				console.log("found targetFunction ", trace[j].targetFunction);
 				matchedEpisodeIDs.push(i);
 			}
 			else if (trace[j].callbackFunction != null && trace[j].callbackFunction.toLowerCase().indexOf(key) != -1) { // to callback and xhr response
-				console.log("found callbackFunction ", trace[j].callbackFunction);
+//				console.log("found callbackFunction ", trace[j].callbackFunction);
 				matchedEpisodeIDs.push(i);
 			}
 			else if (trace[j].methodType != null && trace[j].methodType.toLowerCase().indexOf(key) != -1) { // xhr open
-				console.log("found methodType ", trace[j].methodType);
+//				console.log("found methodType ", trace[j].methodType);
 				matchedEpisodeIDs.push(i);
 			}
 			else if (trace[j].url != null && trace[j].url.toLowerCase().indexOf(key) != -1) { // xhr open
-				console.log("found url ", trace[j].url);
+//				console.log("found url ", trace[j].url);
 				matchedEpisodeIDs.push(i);
 			}
 			else if (trace[j].message != null && trace[j].message.toLowerCase().indexOf(key) != -1) { // xhr send
-				console.log("found message ", trace[j].message);
+//				console.log("found message ", trace[j].message);
 				matchedEpisodeIDs.push(i);
 			}
 			else if (trace[j].response != null && trace[j].response.toLowerCase().indexOf(key) != -1) { // xhr response
-				console.log("found response ", trace[j].response);
+//				console.log("found response ", trace[j].response);
 				matchedEpisodeIDs.push(i);
 			}
 		}
