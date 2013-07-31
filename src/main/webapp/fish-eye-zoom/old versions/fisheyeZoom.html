@@ -1,0 +1,591 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Dynamically add Button in html Form using JavaScript</title>
+ <link type="text/css" rel="stylesheet" 
+          href="CSS/UDStyle.css" media="screen" />
+    <link type="text/css" rel="stylesheet" 
+          href="CSS/episodeStyle.css" media="screen" />
+    <link type="text/css" rel="stylesheet" 
+          href="CSS/prettify.css" />
+
+    <script type="text/javascript" src="javascripts/UDCore.js"></script>
+    <script type="text/javascript" src="javascripts/UDModules.js"></script>
+    <script type="text/javascript" src="javascripts/clematisClasses.js"></script>
+    <!--script type="text/javascript" src="javascripts/allEpisodes.js"></script-->
+    <script type="text/javascript" src="javascripts/asynchronous_relations.js"></script>
+
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+
+
+    <script type="text/javascript" src="javascripts/prettify.js"></script>
+    <script type="text/javascript" src="javascripts/jquery.scrollTo.min.js"></script>
+   
+</head>
+<body style="overflow-x:hidden">
+<div id='wrapper_div' class='storyWrapper'></div>
+<br />
+<br />
+<br />
+<table border='2'>
+	<tr>
+		<td id='first_column' width=10>
+		</td>
+		<td id='second_column' width=10 class="code_column">
+            <div id='filename_div'></div>
+            <pre id='code_pre' class="prettyprint lang-java">
+                <code id='code_code' class="language-java">
+                </code>
+            </pre>
+		</td>
+		<td id='third_column' width=10>
+			<div></div>
+		</td>
+	</tr>
+</table>
+
+<script type="text/javascript">  
+
+	 var result;
+	$.ajax({
+		type: 'GET',
+		url: 'http://localhost:8080/rest/clematis-api/story/sequenceDiagram2' ,
+		dataType: "text",
+		async: false,
+		success: function sequenceDiagram(data) {
+  			result=data;
+
+	}
+		});
+document.write(eval(result));  
+</script> 
+
+<script>
+	
+
+var episodeTraces = new Array();
+
+var width = 1200;
+var height = 400;
+
+var initialX = 0;
+var initialY = 0;
+
+var episodeCounter = allEpisodes.length;//5;
+
+var lifeLinesByEpisode = new Array();
+var messagesByEpisode = new Array();
+var mutationsByEpisode = new Array();
+var lastMutationDisplay = -1;
+
+document.getElementById('first_column').width = window.innerWidth/3;
+document.getElementById('third_column').width = window.innerWidth/3;
+document.getElementById('code_code').width = window.innerWidth/3;
+document.getElementById('filename_div').width = window.innerWidth/3;
+document.getElementById('second_column').width = window.innerWidth/3;
+
+$("#first_column").prepend("DOM/Timing/XHR Event Info.");
+$("#second_column").prepend("JavaScript Source Code");
+$("#third_column").prepend("DOM Mutation Information");
+
+
+
+
+</script>
+
+<script>
+
+var storyTable = document.createElement('table');
+storyTable.id = "storyTable";
+storyTable.border = "2"; // TODO add CSS for style
+
+var storyTableRow = document.createElement('tr');
+storyTableRow.id = "storyTableRow";
+
+for (var i = 0; i < episodeCounter; i ++) {
+	var episodeCell = document.createElement('td');
+
+	var episodeTable = document.createElement('table');
+	episodeTable.id = "episodeTable_" + i;
+
+	var episodeTableFirstRow = document.createElement('tr');
+	var episodeTableSecondRow = document.createElement('tr');
+	var episodeSourceCell = document.createElement('td');
+	// TODO add episode source
+
+	var episodeSourceDiv = document.createElement('div');
+	episodeSourceDiv.id = "source_div_" + i;
+	//episodeSourceDiv
+	var actorType = "Episode " +i;
+	
+	// TODO check for empty component list
+	var episodeActor = allEpisodes[i].getComponents()[0];
+
+	if (episodeActor instanceof DOMEventTrace) {
+		actorType += "\nDOM_EVENT";
+	}
+	else if (episodeActor instanceof TimingTrace) {
+		actorType += "\nTIMING_EVENT";
+	}
+	else if (episodeActor instanceof XHREvent) {
+		actorType += "\nXHR_EVENT";
+	}
+
+	episodeSourceDiv.appendChild(episodeSourceDiv.ownerDocument.createTextNode(actorType));
+
+	episodeSourceCell.appendChild(episodeSourceDiv);
+
+	var episodeTraceCell = document.createElement('td');
+	episodeTraceCell.rowspan = "2";
+
+	var episodeTraceDiv = document.createElement('div');
+
+	episodeTraceDiv.id = "trace_div_" + i;
+	episodeTraceDiv.setAttribute('class', 'ud_diagram_div');
+	episodeTraceDiv.style.width = width + 'px';
+	episodeTraceDiv.style.height = height + 'px';
+
+
+
+//////////////////////////////////////////////////
+	// change this to assign the trace class based on the type of the episode trace (dom/timing/xhr)
+	if (actorType.contains("DOM_EVENT")) {
+		episodeCell.setAttribute('class', 'episode_cell_dom');
+	} else if (actorType.contains("TIMING_EVENT")) {
+		episodeCell.setAttribute('class', 'episode_cell_timing');
+	} else if (actorType.contains("XHR_EVENT")) {
+		episodeCell.setAttribute('class', 'episode_cell_xhr');
+	}
+
+//////////////////////////////////////////////////
+
+	episodeTraceCell.appendChild(episodeTraceDiv);
+	//
+	var canvas = document.createElement('canvas');
+	canvas.setAttribute('class', 'ud_diagram_canvas');
+	canvas.width = this.width;
+	canvas.height = this.height;
+    canvas.id = "canvas_"+i;
+	var mainContext = canvas.getContext('2d');
+	episodeTraceDiv.appendChild(canvas);
+
+	var canvas2 = document.createElement('canvas');
+	canvas2.setAttribute('class', 'ud_diagram_canvas');
+	canvas2.width = this.width;
+    canvas2.height = this.height;
+    canvas2.id = "canvas_"+i;
+    canvas2.onmousedown = function() {return false;}
+    var motionContext = canvas2.getContext('2d');
+
+/*	var sequenceDiagram = new UMLSequenceDiagram({backgroundNodes: '#FF9900'});
+	sequenceDiagram.initialize(0, episodeTraceDiv, mainContext, motionContext, width, height);
+
+	episodeTraces[i] = sequenceDiagram;
+	episodeTraces[i] = allEpisodes[i].createDiagram(0, episodeTraceDiv, mainContext, motionContext, width, height);
+*/
+
+
+	episodeTraces[i] = (function (zero, div, mainContext, motionContext, width, height) {
+    	var initialX = 30; 
+    	var initialY = 60; 
+
+	    allEpisodes[i].sequenceDiagram = new UMLSequenceDiagram({backgroundNodes: '#FF9900'});
+	    allEpisodes[i].sequenceDiagram.initialize(zero, div, mainContext, motionContext, width, height);
+
+	    // Add the components into the UMLSequenceDiagram
+	    for (var h = 0; h<allEpisodes[i].internalComponents.length; h++){
+
+			if (allEpisodes[i].internalComponents[h] instanceof DOMEventTrace) {
+			// DOM event, Actor should be created for sequence diagram
+    			var newVisual = new UMLActor({ 	x : allEpisodes[i].internalComponents[h].x_pos, 
+												y: allEpisodes[i].internalComponents[h].y_pos});
+    			newVisual.setName('Event type:' + allEpisodes[i].internalComponents[h].getEventType() 
+									+ '\nHandler:'+allEpisodes[i].internalComponents[h].getEventHandler()
+									+'\nTarget ID:'+allEpisodes[i].internalComponents[h].targetElement.attributes.id);
+				newVisual.notifyChange();
+				allEpisodes[i].internalComponents[h].visual = newVisual;
+			} else if (allEpisodes[i].internalComponents[h] instanceof XHREvent) {
+			// XMLHttpRequest, Actor should be created
+    			var newVisual = new UMLActor({ 	x : allEpisodes[i].internalComponents[h].x_pos, 
+												y: allEpisodes[i].internalComponents[h].y_pos});
+			    newVisual.setName('XHR ID: ' + allEpisodes[i].internalComponents[h].getXHRId().toString());
+			    newVisual.notifyChange();
+				allEpisodes[i].internalComponents[h].visual = newVisual;
+			} else if (allEpisodes[i].internalComponents[h] instanceof TimingTrace) {
+			// Timeing event, Actor should be created
+    			var newVisual = new UMLActor({ 	x : allEpisodes[i].internalComponents[h].x_pos, 
+												y: allEpisodes[i].internalComponents[h].y_pos});
+    			newVisual.setName('TID: ' + allEpisodes[i].internalComponents[h].getTimeoutId().toString());
+    			newVisual.notifyChange();
+				allEpisodes[i].internalComponents[h].visual = newVisual;
+			} else {
+			// Function trace, create lifeline
+    			var newVisual = new UMLLifeline({ 	x : allEpisodes[i].internalComponents[h].x_pos, 
+													y: allEpisodes[i].internalComponents[h].y_pos});
+			    newVisual.setName(allEpisodes[i].internalComponents[h].getName());
+			    newVisual.notifyChange();
+				allEpisodes[i].internalComponents[h].visual = newVisual;
+			}
+
+
+	      	allEpisodes[i].sequenceDiagram.addElement(allEpisodes[i].internalComponents[h].getDiagramObject());
+	    }
+
+		// Shift components of sequence diagram to better accomadate longer names
+		// (i.e. long function names overlap with nearby components if not fixed)
+	    for (var h = 1; h<allEpisodes[i].internalComponents.length; h++){
+			if (allEpisodes[i].internalComponents[h-1].getDiagramObject()._width > 200) {
+	 	       for (var j = h; j<allEpisodes[i].internalComponents.length; j++){
+	 	           	allEpisodes[i].internalComponents[j].visual._x += 
+						allEpisodes[i].internalComponents[h-1].getDiagramObject()._width/2;
+					allEpisodes[i].internalComponents[j].visual.notifyChange();
+		        }
+			}
+		}
+
+		// Add dotted lines for actors within sequence diagrams
+		for (var f=0; f<allEpisodes[i].internalComponents.length; f++) {
+	      	if (allEpisodes[i].internalComponents[f].getDiagramObject() instanceof Actor) {
+	        	var dottedLine = new UMLLifeline({x:allEpisodes[i].internalComponents[f].getDiagramObject()._x+25, 
+												y:allEpisodes[i].internalComponents[f].getDiagramObject()._y+35});
+	        	dottedLine.setName("");
+				dottedLine._heightSmallRectangle = -1;
+	      	  	dottedLine._width = 0;
+	        	allEpisodes[i].sequenceDiagram.addElement(dottedLine);
+	      	}
+		}
+
+	    // Add the messages into the UMLSequenceDiagram
+	    for (var j = 0; j<allEpisodes[i].internalMessages.length; j++){
+
+		  var newMessage = new UMLCallMessage({	a: (allEpisodes[i].internalMessages[j].a).visual, 
+												b: (allEpisodes[i].internalMessages[j].b).visual, 
+												y: allEpisodes[i].internalMessages[j].y}); 
+
+	
+	      if (newMessage._elemB == newMessage._elemA) {
+	        newMessage._objB._visible = false;
+	      }
+
+	      if (newMessage._points[0]._x == undefined && 
+				newMessage._points[1]._x == undefined) {
+	        // Recursive call to Actor
+	        var dottedLine = new UMLLifeline({x:newMessage._elemA._x+25, 
+												y:newMessage._elemA._y+35});
+	        dottedLine.setName("");
+	        dottedLine._heightSmallRectangle = -1;
+	        dottedLine._width = 0;
+	        newMessage._elemA = dottedLine;
+	        newMessage._elemB = dottedLine;
+	      } else if (newMessage._points[0]._x == undefined) {
+	          // Source of message is an actor (not lifeline)
+	          newMessage._points[0].setX(newMessage._elemA._x + 23);
+	          newMessage._objA = newMessage._objB;
+	      } else if (newMessage._points[1]._x == undefined) {
+	          // Destination of message is an actor (not lifeline)
+	          newMessage._points[1].setX(newMessage._elemB._x + 23);
+	          newMessage._objB = newMessage._objA;
+	      }
+   	   // Add message to sequence diagram
+	   newMessage.notifyChange();
+   	   allEpisodes[i].sequenceDiagram.addElement(newMessage);
+   	 }
+
+  	  allEpisodes[i].sequenceDiagram._width = allEpisodes[i].internalComponents[h-1].getDiagramObject()._x + 165; 
+  	  if (j>0) {
+  	    allEpisodes[i].sequenceDiagram._height = allEpisodes[i].internalMessages[j-1].y + 120; 
+  	  } else {
+ 	     allEpisodes[i].sequenceDiagram._height = 300; 
+ 	  }
+      return allEpisodes[i].sequenceDiagram;
+
+ 	 })(0, episodeTraceDiv, mainContext, motionContext, width, height);
+
+
+console.log(episodeTraces[i]);
+
+
+
+
+
+
+
+
+
+
+
+
+    episodeTraceDiv.style.width = episodeTraces[i]._width + 30;
+    canvas.width = episodeTraces[i]._width;
+    canvas.height = episodeTraces[i]._height;
+
+	lifeLinesByEpisode[i] = new Array();
+	messagesByEpisode[i] = new Array();
+	mutationsByEpisode[i] = new Array();
+
+	episodeTableFirstRow.appendChild(episodeSourceCell);
+	episodeTableFirstRow.appendChild(episodeTraceCell);
+
+
+    if (allEpisodes[i].getMutations().length > 0) {
+        var mutationNotification = document.createElement('div');
+        mutationNotification.className = 'mutationnotification';
+        mutationNotification.innerHTML="Mutation Present"
+        episodeTableSecondRow.appendChild(mutationNotification);
+    }
+	// episodeDomCell = first column, episodeDomCell2 = second column
+
+	episodeTable.appendChild(episodeTableFirstRow);
+	episodeTable.appendChild(episodeTableSecondRow);
+
+
+	episodeCell.appendChild(episodeTable);
+
+	storyTableRow.appendChild(episodeCell);
+
+}
+
+storyTable.appendChild(storyTableRow);
+
+for (var k = 0; k < episodeTraces.length; k ++) {
+	episodeTraces[k].draw();
+        episodeTraces[k].interaction(true);
+}
+
+document.getElementById("wrapper_div").appendChild(storyTable);
+
+
+for (var m = 0; m < lifeLinesByEpisode.length; m ++) {
+
+	////////////////////
+	var episodeComponents = allEpisodes[m].getComponents();
+	for (var n = 0; n < episodeComponents.length; n ++) {
+		lifeLinesByEpisode[m][n] = episodeComponents[n];
+	}
+
+	document.getElementById("trace_div_" + m).addEventListener('click', traceDivClickHandler, false);
+}
+
+for (var m = 0; m < mutationsByEpisode.length; m ++) {
+
+    
+	for (var j=0; j<allEpisodes[m].getMutations().length; j++){
+	    mutationsByEpisode[m][j] = allEpisodes[m].getMutations()[j].getMutationObject();
+	}
+
+	document.getElementById("trace_div_" + m).addEventListener('click', printDOMMutation, false);
+}
+
+function printDOMMutation(e) {
+	var splitId = this.id.split("_");
+	var episodeNumber = splitId[2];
+
+    if (episodeNumber == lastMutationDisplay) return;
+
+    lastMutationDisplay = episodeNumber;
+
+    document.getElementById('third_column').innerHTML = '';
+
+    $("#third_column").prepend("DOM Mutation Information for episode " + episodeNumber + ":");
+
+	for (var j=0; j<allEpisodes[episodeNumber].getMutations().length; j++){
+        var jjson = mutationsByEpisode[episodeNumber][j]; 
+        document.getElementById('third_column').appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
+	}
+    if (allEpisodes[episodeNumber].getMutations().length < 1) {
+        document.getElementById('third_column').appendChild(document.createElement('pre')).innerHTML = "N/A";
+    } 
+    $("#third_column").effect("highlight", {}, 2000);
+}
+
+function traceDivClickHandler(e) {
+	var splitId = this.id.split("_");
+	var episodeNumber = splitId[2];
+
+	var relativeMouseX = e.pageX - this.getBoundingClientRect().left;
+	var relativeMouseY = e.pageY - this.getBoundingClientRect().top;
+/*
+	var relativeMouseX = e.pageX - this.offsetLeft;
+	var relativeMouseY = e.pageY - this.offsetTop;
+*/
+	var clickedOnLifelines = false;
+
+	for (var n = 0; n < lifeLinesByEpisode[episodeNumber].length; n++) {
+
+		// check if the click was on this lifeline
+		var lifelineX = lifeLinesByEpisode[episodeNumber][n].visual.getX();
+		var lifelineY = lifeLinesByEpisode[episodeNumber][n].visual.getY();
+		var lifelineW = lifeLinesByEpisode[episodeNumber][n].visual.getWidth();
+		var lifelineH = lifeLinesByEpisode[episodeNumber][n].visual.getHeight();
+
+		if (relativeMouseX >= lifelineX && relativeMouseX <= lifelineX + lifelineW && relativeMouseY >= lifelineY && relativeMouseY <= lifelineY + lifelineH) {
+
+			if (lifeLinesByEpisode[episodeNumber][n].getDiagramObject() instanceof Actor) {
+                viewEventInformation(lifeLinesByEpisode[episodeNumber][n]);
+            } else {
+                viewDetailedCode(lifeLinesByEpisode[episodeNumber][n]);
+            }
+			viewEpisodeInfo(); // TODO
+
+			clickedOnLifelines = true;
+		}
+
+	}
+
+	// TODO DO EPISODE STUFF (SHOW CAUSAL LINKS FOR TIMEOUTS / XHRS AND ETC)
+	if (!clickedOnLifelines) {
+		// show general information about the episode
+		// pop up? about timeouts and xhrs and ....
+	}
+}
+
+/*
+for (var j = 0; j < episodeTraces.length; j ++) {
+	console.log("j: ", j);
+        var currentDiv = document.getElementById('trace_div_' + j);
+	var currentEpisodeTrace = episodeTraces[j];
+        var interaccionUnClick = function( funcion ) {
+
+                currentEpisodeTrace.interaction( false );
+                var funcionCaptura = function( event ) {
+
+                        var mousex = event.pageX - currentDiv.offsetLeft;
+                        var mousey = event.pageY - currentDiv.offsetTop;
+                        funcion( currentEpisodeTrace, mousex, mousey );
+////////////////////////                        div_0.onclick = false;
+                        currentEpisodeTrace.draw();
+                        currentEpisodeTrace.interaction( true );
+                }
+                currentDiv.onclick = funcionCaptura;
+        }
+
+
+        currentDiv.onclick = function() {
+                function f( d, x, y ) {
+//                      d.addElement( new UMLActor() );
+                        console.log("===========================");
+                }
+                interaccionUnClick( f );
+        }
+}
+*/
+
+function viewEpisodeInfo() {
+	// todo info about episode / set timeouts and xhrs / the callbacks and the links
+}
+
+function viewDetailedCode(lifeline) {
+
+     var xmlhttp = new XMLHttpRequest();
+
+     xmlhttp.onreadystatechange = function() {
+         if (xmlhttp.readyState==4/* && xmlhttp.status==200*/) {
+             var codeToPrint = xmlhttp.responseText.replace("<", "&lt", "gi");
+             codeToPrint = codeToPrint.replace(">", "&gt", "gi");
+             document.getElementById('code_code').innerHTML = codeToPrint;
+
+             document.getElementById('code_pre').className="prettyprint lang-js codeWrapper";
+             prettyPrint();
+           
+             $('#code_pre')._scrollable(); // When scrolling the window
+
+             var numberOfLines = $("#code_code").find('span').filter(':contains("\n")').size();
+             numberOfLines += $("#code_code").find('span').filter(':contains("\n\n")').size();
+             numberOfLines += $("#code_code").find('span').filter(':contains("\n\n\n")').size();
+             numberOfLines += $("#code_code").find('span').filter(':contains("\n\n\n\n")').size();
+
+             var lineOfInterest = $("#code_code").contents().filter(function(){
+                 if (this.previousSibling != null) { 
+                   return this.textContent.contains(lifeline.getName().substring(0,lifeline.getName().indexOf('('))) && (this.previousSibling.textContent.contains('function') 
+                              || this.previousSibling.textContent.contains('var') 
+                              || this.previousSibling.textContent.contains('.'));
+                 }
+             });
+
+    function findLineNumber(element) {
+        var endOfLineNodes = $("#code_code").find('span').filter(':contains("\n")');
+        var indexOfOurLineEnd = endOfLineNodes.index($(element).nextAll().filter(':contains("\n")')[0]);
+        var count = 0;
+
+        for (var t=0; t < indexOfOurLineEnd; t++) {
+            count += endOfLineNodes.get(t).innerHTML.split(/[\n]/g).length -1 ;
+        }
+        return count+1;
+    }
+
+    var distance = 999;
+    for (var k = 0; k< lineOfInterest.length; k ++) {
+        if (Math.abs(lifeline.getLineNo() - findLineNumber(lineOfInterest[k]))<distance) {
+            distance = Math.abs(lifeline.getLineNo() - findLineNumber(lineOfInterest[k]));
+            var indexOfReal = k;
+        }
+    }
+
+
+
+
+             $('#code_pre').scrollTo(lineOfInterest[indexOfReal]);
+             $('#code_pre').scrollLeft('30px');
+             $(lineOfInterest[indexOfReal]).effect("highlight", {}, 8000);
+
+             document.getElementById('filename_div').innerHTML = '<strong>'+lifeline.getFileName()+'</strong>';
+             document.getElementById('second_column').width = 200;
+             document.getElementById('code_code').width = 200;
+             document.getElementById('code_pre').width = window.innerWidth/15;
+
+         }
+     }
+     xmlhttp.open("GET",lifeline.getFileName(),true);
+     xmlhttp.send();
+     console.log(xmlhttp);
+}
+
+function viewEventInformation(lifeline) {
+    if (lifeline instanceof DOMEventTrace) {
+        var jjson = lifeline.getTargetElement();
+        document.getElementById('first_column').innerHTML = '';
+        $("#first_column").prepend("DOM Event Target");
+        document.getElementById('first_column').appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
+    } else if (lifeline instanceof TimingTrace) {
+        var jjson = {"delay":lifeline.getDelay(), "callback":lifeline.getCallbackFunction(), "TID":lifeline.getTimeoutId()};
+        document.getElementById('first_column').innerHTML = '';
+        $("#first_column").prepend("Timing Event Information:");
+        document.getElementById('first_column').appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
+    } else if (lifeline instanceof XHREvent) {
+        var jjson = {"XHR ID":lifeline.getXHRId(), "URL":lifeline.getUrl(), "Method Type":lifeline.getMethodType(), "Async":lifeline.isAsync(), "Message": lifeline.getMessage(),"Callback function": lifeline.getCallbackFunction(), "Response":lifeline.getResponse()};
+        document.getElementById('first_column').innerHTML = '';
+        $("#first_column").prepend("XHR Event Information:");
+        document.getElementById('first_column').appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
+    }
+     $("#first_column").effect("highlight", {}, 2000);
+}
+
+function syntaxHighlight(json) {
+    // For making JSON pretty
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+}
+
+
+</script>
+
+</body>
+</html>

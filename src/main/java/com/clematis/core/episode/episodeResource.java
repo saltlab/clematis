@@ -2,6 +2,7 @@ package com.clematis.core.episode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -525,6 +527,24 @@ public class episodeResource {
 		}
 		// System.out.println(output);
 		ps.close();
+		return output;
+	}
+
+	@GET
+	@Path("/story/sequenceDiagram2")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getsequenceDiagram2() {
+		String output = null;
+		try {
+			output =
+			        new Scanner(new File(
+			                "clematis-output/ftrace/sequence_diagrams/allEpisodes.js"))
+			                .useDelimiter("\\Z").next();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("" + output);
 		return output;
 	}
 
