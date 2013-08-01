@@ -94,10 +94,10 @@ public class SimpleExample {
 			 * For enabling Firebug with Clematis Replace '...' with the appropriate path to your
 			 * Firebug installation
 			 */
-			// File file = new
-			// File("/Users/.../Library/Application Support/Firefox/Profiles/zga73n4v.default/extensions/firebug@software.joehewitt.com.xpi");
-			// profile.addExtension(file);
-			// profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup
+//			 File file = new File("/Users/.../Library/Application Support/Firefox/Profiles/zga73n4v.default/extensions/firebug@software.joehewitt.com.xpi");
+			 File file = new File("/Users/Saba/Library/Application Support/Firefox/Profiles/b0dzzwrl.default/extensions/firebug@software.joehewitt.com.xpi");
+			profile.addExtension(file);
+			profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup
 			// screen
 
 			driver = new FirefoxDriver(profile);

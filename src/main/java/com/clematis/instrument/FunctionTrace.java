@@ -208,10 +208,10 @@ public class FunctionTrace extends AstInstrumenter {
 			}
 		}
 		/////// TODO JUST A HACK FOR RUNNING THE EXPERIMENT. MUST BE REMOVED AFTER
-		/*
+//		if (baseUrl.equals("http://localhost:8888/files/phorm.js"))
 		if (baseUrl.equals("http://localhost:8888/phormer331/"))
 			return iscNode;
-			*/
+			
 		/*******************/
 		// Add wrapper functions to top of JS node
 		iscNode.addChildToFront(jsLoggingFunctions());
