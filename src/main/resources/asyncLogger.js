@@ -109,6 +109,7 @@ logger.logSetTimeout = function(func, delay, params) {
 		argsJSONObject = argsJSONObject.substring(0, argsJSONObject.length - 1);
         argsJSONObject += "}";
 
+//        alert("set timeout");
         send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: date, id: func.id, callbackFunction: func.name, delay: delay, args: argsJSONObject, counter: traceCounter++}));
     }
     
@@ -137,6 +138,7 @@ logger.logTimeoutCallback = function(func) {
 		// responsible unit.
 	}
 
+    //alert("timeout callback");
     send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func.name, counter: traceCounter++}));
 
     checkValues();
@@ -158,6 +160,7 @@ logger.logXHROpen = function(xhr, method, url, async) {
 	console.log(" + URL: ", url);
 	console.log(" + Async: ", async);
 
+    //alert("xhr open");
     send(JSON.stringify({messageType: "XHR_OPEN", timeStamp: date, id: xhr.id, methodType: method, url: url, async: async, counter: traceCounter++}));
 
 	checkValues();
@@ -176,6 +179,7 @@ logger.logXHRSend = function(xhr, str) {
 	console.log(" + Message (POST):", str);
 	var date = Date.now();
 
+    //alert("xhr send");
     send(JSON.stringify({messageType: "XHR_SEND", timeStamp: date, id: xhr.id, message: str, counter: traceCounter++}));
 
 	checkValues();
@@ -205,6 +209,8 @@ logger.logXHRResponse = function(xhr) {
 		// The execution of all registered XHRs is finished. Notify the
 		// responsible unit.
 	}
+	
+    //alert("xhr response");
 
     if (xhr.onreadystatechange != null) {
         send(JSON.stringify({messageType: "XHR_RESPONSE", timeStamp: date, id: xhr.id, callbackFunction: xhr.onreadystatechange.name, response: xhr.response, counter: traceCounter++}));
@@ -240,6 +246,7 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 	//if (jml && recordingInProgress == true) {
 	if (jml) {
 		jml = JSON.stringify(jml);
+	    //alert("dom event");
     	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
 	}
 	checkValues();
@@ -289,6 +296,8 @@ logger.logDOMMutation = function() {
 
 			}
 		}
+	    //alert("dom mutation");
+
 
 	}		
 	//	Reset the array of summaries

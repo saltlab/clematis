@@ -6,9 +6,10 @@ var traceCounter = 0;
 var recordButtonClicked = false;
 var stopButtonClicked = false;
 
-var recordingInProgress = false; // Can use this for determining if Clematis should be logging or not
+var recordingInProgress = true;//////////false; // Can use this for determining if Clematis should be logging or not
+///////var recordingInProgress = false; // Can use this for determining if Clematis should be logging or not
 var myVar = 0;
-
+/*
 document.getElementById("recordButton").addEventListener('click', startRecording, false);
 document.getElementById("stopButton").addEventListener('click', stopRecording, false);
 
@@ -53,7 +54,7 @@ function stopRecording() {
 	// Recording has stopped
     sendRecordStop();
 }
-
+*/
 // Function Call Wrapper
 function FCW() {
 	var date = Date.now();

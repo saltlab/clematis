@@ -1,9 +1,11 @@
 package com.clematis.jsmodify;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.Context;
@@ -26,6 +28,9 @@ import com.crawljax.util.Helper;
 public class JSModifyProxyPlugin extends ProxyPlugin {
 
 	private List<String> excludeFilenamePatterns;
+	
+	public static List<String> visitedBaseUrls; ///// todo todo todo todo **********
+	public static String scopeNameForExternalUse; ////// todo ********** change this later
 
 	private final JSASTModifier modifier;
 
@@ -40,6 +45,8 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 */
 	public JSModifyProxyPlugin(JSASTModifier modify) {
 		excludeFilenamePatterns = new ArrayList<String>();
+		visitedBaseUrls = new ArrayList<String>();
+		
 		modifier = modify;
 
 		outputFolder = Helper.addFolderSlashIfNeeded("clematis-output") + "js_snapshot";
@@ -69,6 +76,12 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 		// Example application specific
 		excludeFilenamePatterns.add(".*tabcontent.js?.*");
+		
+		excludeFilenamePatterns.add(".*toolbar.js?.*");
+		excludeFilenamePatterns.add(".*jquery*.js?.*");
+		
+//		excludeFilenamePatterns.add(".*http://localhost:8888/phormer331/index.phpscript1?.*"); // todo ???????
+
 	}
 
 	@Override
@@ -104,9 +117,16 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 */
 	private synchronized String modifyJS(String input, String scopename) {
 
+		System.out.println("<<<<");
 		System.out.println("Scope: " + scopename);
+		
+		/***************/
+		scopeNameForExternalUse = scopename; // todo todo todo todo
+		/***************/
 
 		if (!shouldModify(scopename)) {
+			System.out.println("^ should not modify");
+			System.out.println(">>>>");
 			return input;
 		}
 		try {
@@ -140,20 +160,76 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			ast.visit(modifier);
 
 			ast = modifier.finish(ast);
+			
+			/****************************/
+			// todo todo todo do not instrument again if visited before
+			System.out.println("--------------------------------");
+			StringTokenizer tokenizer = new StringTokenizer(scopename, "?");
+			String newBaseUrl = "";
+			if (tokenizer.hasMoreTokens()) {
+				newBaseUrl = tokenizer.nextToken();
+			}
+			PrintStream output2;
+			try {
+				output2 = new PrintStream("tempUrls.txt");
+				PrintStream oldOut2 = System.out;
+				System.setOut(output2);
+				System.out.println("new newBaseUrl: " + newBaseUrl + "\n ---");
+				boolean baseUrlExists = false;
+				for (String str: visitedBaseUrls) {
+					System.out.print(str);
+					if (/*str.startsWith(newBaseUrl) || */str.equals(newBaseUrl)) {
+						System.out.println(" -> exists");
+//						System.setOut(oldOut2);
+						baseUrlExists = true;
+						//return input;
+					}
+					else {
+						System.out.println();
+					}
+				}
+				if (!baseUrlExists)
+					visitedBaseUrls.add(newBaseUrl); //
+				System.setOut(oldOut2);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			System.out.println("--------------------------------");
+			/***************************/
 
 			/* clean up */
 			Context.exit();
+
+			System.out.println(">>>>");
 
 			return ast.toSource();
 		} catch (RhinoException re) {
 			System.err.println(re.getMessage()
 			        + "Unable to instrument. This might be a JSON response sent"
 			        + " with the wrong Content-Type or a syntax error.");
+			
+			System.err.println("details: " + re.details());
+			System.err.println("getLocalizedMessage: " + re.getLocalizedMessage());
+			System.err.println("getScriptStackTrace: " + re.getScriptStackTrace());
+			System.err.println("lineNumber: " + re.lineNumber());
+			System.err.println("lineSource: " + re.lineSource());
+			System.err.println("getCause: " + re.getCause());
+			re.printStackTrace();
 
 		} catch (IllegalArgumentException iae) {
 			System.err.println("Invalid operator exception catched. Not instrumenting code.");
+			
+			System.err.println("getCause: " + iae.getCause());
+			System.err.println("getLocalizedMessage: " + iae.getLocalizedMessage());
+			System.err.println("getMessage: " + iae.getMessage());
+			iae.printStackTrace();
 		} catch (IOException ioe) {
 			System.err.println("Error saving original javascript files.");
+			
+			System.err.println("getMessage: " + ioe.getMessage());
+			ioe.printStackTrace();
 		}
 		System.err.println("Here is the corresponding buffer: \n" + input + "\n");
 
@@ -183,6 +259,28 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 * @return The modified response.
 	 */
 	private Response createResponse(Response response, Request request) {
+		System.out.println("~~~~~~~~~ request begin ~~~~~~~~~");
+		if (request == null) {
+			System.err.println("JSModifyProxyPlugin::createResponse: request is null");
+			return response;
+		}
+		System.out.println(request.getURL());
+		if (request.getURL() == null) {
+			System.err.println("JSModifyProxyPlugin::createResponse: request url is null");
+			return response;
+		}
+		else if (request.getURL().toString().isEmpty()) {
+			System.err.println("JSModifyProxyPlugin::createResponse: request url is empty");
+			return response;
+		}
+		else if (response == null) {
+			System.err.println("JSModifyProxyPlugin::createResponse: response is null");
+			return response;
+		}
+		System.out.println("~~~~~~~~~ request end ~~~~~~~~~");
+		System.out.println("~~~~~~~~~ response begin ~~~~~~~~~");
+		System.out.println(response.getStatus());
+		System.out.println("~~~~~~~~~ response end ~~~~~~~~~");
 		String type = response.getHeader("Content-Type");
 
 		if (request.getURL().toString().contains("?beginrecord")) {
