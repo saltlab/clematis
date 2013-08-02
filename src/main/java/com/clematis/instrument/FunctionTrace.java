@@ -207,11 +207,15 @@ public class FunctionTrace extends AstInstrumenter {
 				return iscNode;
 			}
 		}
+		/*******************/
 		/////// TODO JUST A HACK FOR RUNNING THE EXPERIMENT. MUST BE REMOVED AFTER
 //		if (baseUrl.equals("http://localhost:8888/files/phorm.js"))
 		if (baseUrl.equals("http://localhost:8888/phormer331/"))
 			return iscNode;
 			
+	/////// TODO JUST A HACK FOR RUNNING THE EXPERIMENT. MUST BE REMOVED AFTER
+		if (baseUrl.contains("skeleton.js") || baseUrl.contains("help.js") || baseUrl.contains("upload.js"))
+			return iscNode;
 		/*******************/
 		// Add wrapper functions to top of JS node
 		iscNode.addChildToFront(jsLoggingFunctions());
@@ -309,7 +313,6 @@ public class FunctionTrace extends AstInstrumenter {
 		}
 
 		if (node.getFunctionType() == FunctionNode.FUNCTION_EXPRESSION) {
-			System.out.println("1111111111111111111111111");
 			// Complicated Case
 			if (node.getName() == "" && parent.getType() == org.mozilla.javascript.Token.COLON) {
 				// Assignment Expression					
@@ -320,7 +323,6 @@ public class FunctionTrace extends AstInstrumenter {
 				name = name.substring(name.lastIndexOf(".")+1,name.indexOf("="));
 			}
 		} else {
-			System.out.println("22222222222222222222");
 			if (node.getFunctionType() == FunctionNode.FUNCTION_STATEMENT) {
 				System.out.println("* " + node.getName());
 			}

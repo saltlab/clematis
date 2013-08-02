@@ -72,7 +72,7 @@ function lookup(that, args) {
 }; // end of lookup();
 
 // Need eval() to keep function name
-function overwriteEventListener(originalEventListener, zzem, listeners, dispatched, isTimeout) {
+function overwriteEventListener(originalEventListener, zzem, listeners, dispatched, eventType) {
     return function overwrittenEventListener() {
         if (zzem.isBlockingDispatch === true) {
             return;
@@ -105,13 +105,14 @@ function overwriteEventListener(originalEventListener, zzem, listeners, dispatch
             }
             break;
           case "addEventListener":
-            for (i=listenerIndexes.length-1; i >= 0; i--) {
+  /*          for (i=listenerIndexes.length-1; i >= 0; i--) {
               var listener = listeners[listenerIndexes[i]];
               if (listener.args[1] === originalEventListener) { 
-                logger.logDOMEvent(listener.args[0], this, originalEventListener);;
-              }
+    */        	  console.log("+++++++++++++++ eventListenerMirror : overwriteEventListener : case(addEventListener) +++++++++++++++");
+                logger.logDOMEvent(eventType, this, originalEventListener);
+     /*         }
             }
-            break;
+       */     break;
           case "setTimeout":
             for (i=listenerIndexes.length-1; i >= 0; i--) {
               var listener = listeners[listenerIndexes[i]];
@@ -137,10 +138,10 @@ function overwriteEventListener(originalEventListener, zzem, listeners, dispatch
           default:
             console.log("Unsupported event constructor.");
           }
-        if (isTimeout) {
+/*        if (isTimeout) {
             delete listeners[arguments.callee.ret];
         }
-        return originalEventListener.apply(this, arguments);
+ */       return originalEventListener.apply(this, arguments);
     };
 };
 
@@ -170,12 +171,19 @@ EventlistenersMirror.prototype.init= function init(object, setname, clearname, i
 	  	  
 	  var indx, orig, owel;
 	  if (dispatched) {
-	    indx=(typeof(arg0)==="function")?0:(typeof(arg1)==="function")?1:undefined;	  
-        // orig = original function handler
-		orig=arguments[indx];
-        // owel (overwritten event listener) is the wrapper function, contains orig
-		owel=arguments[indx]=overwriteEventListener(orig, that, listeners, dispatched, isTimeout);
-	  }
+          if (typeof arg0 === "function") {
+              // orig = original function handler
+              orig = arg0;
+              // owel (overwritten event listener) is the wrapper function, contains orig
+              owel = arg0 = overwriteEventListener(orig, that, listeners, dispatched, arg1);
+          } else if (typeof arg1 === "function") {
+              // orig = original function handler
+              orig = arg1;
+              // owel (overwritten event listener) is the wrapper function, contains orig
+              owel = arg1 = overwriteEventListener(orig, that, listeners, dispatched, arg0);
+          }
+      }
+	  
       // Calling the seter (e.g. addEventListener, setAttribute) with this (zzel_set) 
       // and the original arguments. For example, for "setTimeout('incrementCounter', 1000)"
       // as a handler, seter = setTimeout, arguments = ['overwrittenEventListener', 1000] where
@@ -364,40 +372,55 @@ function addElM(__proto__, name, o) {
  *  of these are saved to the elmsonkeys[] array with index 'name', the 'name' of the prototype. 
  *
  */
+
 function getOnkeys(object) {
-  var name = object.constructor.name;
-  if (name===undefined || name==="Object") {
-    name = object.toString();
-	name = name.substring(8, name.length-1);
-  }
-  if (elmsonkeys.hasOwnProperty(name)) {
-    // Ignores duplicates with same name (e.g. multiple HTMLTableCellElement)
-    return elmsonkeys[name];
-  }
-  var ownkeys, onkeys=[], k, key, __proto__ = OgPO(object); // OgPO = Object.getPrototypeOf
-  if (isChromeOrSafari) {
-    ownkeys = OgOPN(object); // Object.getOwnPropertyNames
-	if (! (object instanceof Node)) {
-	  addElM(__proto__, name);
-	}
-  } else {
-    ownkeys = OgOPN(__proto__);  // Object.getOwnPropertyNames
-	addElM(__proto__, name, object);
-    if (browser === "firefox" && (object instanceof XMLHttpRequest)) {
-	  ownkeys = ownkeys.concat(OgOPN(OgPO(__proto__)));	  
-	}
-  }
-  
- // var natif = {};
-  for (k=ownkeys.length; k--;) {
-	key = ownkeys[k];
-	if (key.indexOf("on")===0) {
-      onkeys.push(key);  // Note: onkeys != ownkeys
-	}
-  }
-  elmsonkeys[name] = onkeys; 
-  return onkeys;
+
+    var name = object.constructor.name, key, newKeys = [];
+    if (!name || name === "Object" || name.length === 0) {
+        name = object.toString();
+        if (name.length === 0) {
+            name = Object.getPrototypeOf(object).constructor.toString().match(/function\s*?(\w*?)\s*?\(/)[1];
+        } else {
+            name = name.substring(8, name.length-1);
+        }
+    }
+    
+    if (elmsonkeys.hasOwnProperty(name)) {
+        // Ignores duplicates with same name (e.g. multiple HTMLTableCellElement)
+        return elmsonkeys[name];
+    }
+    var ownkeys, onkeys=[], k, __proto__ = OgPO(object); // OgPO = Object.getPrototypeOf
+    if (isChromeOrSafari) {
+        ownkeys = OgOPN(object); // Object.getOwnPropertyNames
+        if (! (object instanceof Node)) {
+            addElM(__proto__, name);
+        }
+    } else {
+        ownkeys = Object.getOwnPropertyNames(__proto__);  // Object.getOwnPropertyNames
+
+
+        for (key in object) {
+            if (key.indexOf('on') === 0) {
+                newKeys.push(key);
+            }
+        }
+        addElM(__proto__, name, object);
+        if (browser === "firefox" && (object instanceof XMLHttpRequest)) {
+            ownkeys = ownkeys.concat(OgOPN(OgPO(__proto__)));	  
+        }
+    }
+
+    // var natif = {};
+    for (k=ownkeys.length; k--;) {
+        key = ownkeys[k];
+        if (key.indexOf("on")===0) {
+            onkeys.push(key);  // Note: onkeys != ownkeys
+        }
+    }
+    elmsonkeys[name] = newKeys; 
+    return newKeys;
 }; // end of getOnkeys()
+
 ZZEM.getOnkeys=getOnkeys;
 
 var counter=-1, onkeyDescriptors={};
@@ -462,58 +485,66 @@ function oOwOn_empty(object) {
  */
 function oOwOn_full(object) {
 
-  // 0) object has already been processed
-  if (object.hasOwnProperty("__em__ow")) {
+    // 0) object has already been processed
+    if (object.hasOwnProperty("__em__ow")) {
+        return object;
+    }
+    var errkeys = [];
+    // 1) modify innerHTML   
+    if (object instanceof Node) {  
+        // Define new property for holding original innerHTML value
+        OdP(object, "__em__innerHTML", {
+            value: object.innerHTML,
+            configurable: true,
+            enumerable: false,
+            writable: true
+        });
+        try {
+            OdP(object, "innerHTML", innerHTMLdescriptor);  // Object.defineProperty
+        }
+        catch (err) {
+            if (ZZ.DEBUG===true) {
+                errkeys.push("innerHTML");
+            }	  
+        }
+    }
+    // 2) get the array of onkeys
+    var j, onkey, object_onkey, onkeys=getOnkeys(object), hasOwnm, key;
+
+    // 3) modify onkeys
+    for (j=onkeys.length; j--;) {
+        onkey = onkeys[j];
+
+        hasOwn = object.hasOwnProperty(onkey);		
+
+        object_onkey = object[onkey];
+
+        if (object_onkey && onkey !== "onload") {
+            object[onkey] = null;
+        }
+        if (! onkeyDescriptors.hasOwnProperty(onkey)) {
+            onkeyDescriptors[onkey] = generateDescriptor(onkey);
+        }
+        try {
+            OdP(object, onkey, onkeyDescriptors[onkey]);	 // Object.defineProperty
+        }
+        catch (err) {
+            if (ZZ.DEBUG===true) {
+                errkeys.push(onkey);
+            }
+        }
+        if (object_onkey || hasOwn) {
+  object[onkey] = object_onkey;
+}
+    }  
+    if (errkeys.length > 0) {
+        // Debugging purposes
+        console.log(object.nodeName, onkeys.length, errkeys.length);  
+    }
+    OdP(object, "__em__ow", {value: ++counter, configurable: false, enumerable: false, writable: false});
     return object;
-  }
-  var errkeys = [];
-  // 1) modify innerHTML   
-  if (object instanceof Node) {  
-    // Define new property for holding original innerHTML value
-    OdP(object, "__em__innerHTML", {value:object.innerHTML, configurable:true, enumerable:false, writable:true});
-	try {
-      OdP(object, "innerHTML", innerHTMLdescriptor);  // Object.defineProperty
-	}
-	catch (err) {
-	  if (ZZ.DEBUG===true) {
-	    errkeys.push("innerHTML");
-	  }	  
-	}
-  }
-  // 2) get the array of onkeys
-  var j, onkey, object_onkey, onkeys=getOnkeys(object), hasOwn;
-
-  // 3) modify onkeys
-  for (j=onkeys.length; j--;) {
-    onkey = onkeys[j];
-    hasOwn = object.hasOwnProperty(onkey);		
-	object_onkey = object[onkey];
-
-	if (object_onkey && onkey !== "onload") {
-	  object[onkey] = null;
-	}
-	if (! onkeyDescriptors.hasOwnProperty(onkey)) {
-	  onkeyDescriptors[onkey] = generateDescriptor(onkey);
-	}
-    try {
-	  OdP(object, onkey, onkeyDescriptors[onkey]);	 // Object.defineProperty
-	}
-	catch (err) {
-	  if (ZZ.DEBUG===true) {
-	    errkeys.push(onkey);
-	  }
-	}
-	if (object_onkey || hasOwn) {
-	  object[onkey] = object_onkey;
-	}
-  }  
-  if (errkeys.length > 0) {
-    // Debugging purposes
-    console.log(object.nodeName, onkeys.length, errkeys.length);  
-  }
-  OdP(object, "__em__ow", {value: ++counter, configurable: false, enumerable: false, writable: false});
-  return object;
 }; // end of objectOverwriteOn();
+// end of objectOverwriteOn();
 
 // Choose overwrite function based on browser type
 var objectOverwriteOn = (browser === "safari")?oOwOn_empty:oOwOn_full;
@@ -608,7 +639,7 @@ if (Node.prototype.hasOwnProperty("addEventListener")) {
 }
 // addEventListener() of Firefox for HTML Object definitions  
 //if (Element.prototype.hasOwnProperty("addEventListener")) {
-if (isFirefox) {
+if (browser === "firefox") {
 
   addElM(HTMLHtmlElement.prototype, "HTMLHtmlElement");
   addElM(HTMLElement.prototype, "HTMLElement");
