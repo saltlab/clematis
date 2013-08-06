@@ -60,10 +60,12 @@ function stopRecording() {
 // Function Call Wrapper
 function FCW() {
 	var date = Date.now();
-
+	
     if (arguments.length == 2) {
+//    	console.log("Function call ++++++++++ " + arguments[0]);
         send(JSON.stringify({messageType: "FUNCTION_CALL", timeStamp: date, targetFunction: arguments[0], lineNo: arguments[1], counter: traceCounter++}));
     } else {
+//    	console.log("Function call ++++++++++ " + arguments[1]);
         send(JSON.stringify({messageType: "FUNCTION_CALL", timeStamp: date, targetFunction: arguments[1], lineNo: arguments[2], counter: traceCounter++}));
     }
 	return arguments[0];
@@ -73,6 +75,8 @@ function FCW() {
 function RSW() {
 
 	var date = Date.now();
+
+//	console.log("Function return ++++++++++ " + arguments[1]);
 
     if (arguments.length > 1) {
     // arguments[0] = value, arguments[1] = name, arguments[2] = lineno

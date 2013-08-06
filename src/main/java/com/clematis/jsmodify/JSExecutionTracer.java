@@ -246,6 +246,8 @@ public class JSExecutionTracer {
 			story = new Story(domEventTraces, functionTraces, timingTraces, XHRTraces);
 			story.setOrderedTraceList(sortTraceObjects());
 			story.setEpisodes(buildEpisodes());
+			
+			// TODO TODO TODO project specific for photo gallery. eliminate unwanted episodes
 
 			System.out.println("# of trace objects: " + story.getOrderedTraceList().size());
 			System.out.println("# of episodes: " + story.getEpisodes().size());

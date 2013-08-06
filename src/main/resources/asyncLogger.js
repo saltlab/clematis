@@ -81,13 +81,22 @@ var MsgConstants = {
  * Prints the information related to creation of a timeout to the console
  */
 logger.logSetTimeout = function(func, delay, params) {
+	console.log("++++++++++++++++++++++++++++++++++ ", totalNumOfTimeouts);
 	if (!recordingInProgress) return;
 //	else console.log("logSetTimeout");
 	
-    console.log("set timeout()");
+//    console.log("set timeout()");
 
 	if (!recordStarted)
 		return;
+	
+    // todo todo
+//	console.log("(((delay))) " + delay);
+	if (delay == 0 || delay == null) {
+//		console.log("+++++ Ignore timeout with delay = 0 +++++");
+		func[totalNumOfTimeouts] = true;
+		return;
+	}
 
 	console.log("------------------------------------");
 	console.log("TIMEOUT: NEW");
@@ -96,7 +105,7 @@ logger.logSetTimeout = function(func, delay, params) {
 	console.log("totalNumOfTimeouts: ", totalNumOfTimeouts);
 
 	func.id = totalNumOfTimeouts;
-	console.log(" +++ Timeout ID:", func.id);
+	console.log(" + Timeout ID:", func.id);
 	console.log(" + Callback function: ", func);
 	console.log(" + Delay: ", delay);
 //	var args = func.toString().match(/function\s+\w*\s*\((.*?)\)/)[1]
@@ -141,15 +150,23 @@ logger.logTimeoutCallback = function(func) {
 	if (!recordingInProgress) return;
 //	else console.log("logTimeoutCallback");
 
-	console.log("timeout callback");
+//	console.log("timeout callback");
 
     if (!recordStarted)
 		return;
+    // todo todo
+    if (func[totalNumOfTimeouts] == true) {
+//    	console.log("++--- should ignore timeout callback ---++");
+		func[totalNumOfTimeouts] = false;
+    	return;
+    }
+    
 	console.log("------------------------------------");
 	console.log("TIMEOUT: CALLBACK");
 	var date = Date.now();
 
-	console.log(" +++ Timeout ID:", func.id);
+	console.log(" + Timeout ID:", func.id);
+//	console.log(" + ignore?", func[totalNumOfTimeouts]);
 	console.log(" + Callback function: ", func);
 	console.log("Number of active timeouts: ", timeoutCounter);
 	if (timeoutCounter == 0) {
@@ -406,17 +423,17 @@ window.setTimeout = function(func, delay, params) {
 	totalNumOfTimeouts++;
 
 ///////////////////////////////	var timeoutArgs = Array.prototype.slice.call(arguments, 2);
-	var timeoutArgs = null; ///////////////////////////////
-	////////////////////////////////
+	var timeoutArgs = null;
+
 	// Log the creation of the timeout
 	logger.logSetTimeout(func, delay, timeoutArgs);
 
-//	alert("----------- window timeout");
+
 	// Call the original timeout after logging
 	window.oldSetTimeout(function(/* params */) {
 		try {
 			logger.logTimeoutCallback(func);
-//			alert("before timeout callback");
+
 //////////////////////////			func.apply(null, timeoutArgs);
 			func.apply(null);
 //////////////////////////			
