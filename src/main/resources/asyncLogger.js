@@ -81,6 +81,9 @@ var MsgConstants = {
  * Prints the information related to creation of a timeout to the console
  */
 logger.logSetTimeout = function(func, delay, params) {
+	if (!recordingInProgress) return;
+//	else console.log("logSetTimeout");
+	
     console.log("set timeout()");
 
 	if (!recordStarted)
@@ -135,7 +138,10 @@ logger.logSetTimeout = function(func, delay, params) {
  * timeout to the console.
  */
 logger.logTimeoutCallback = function(func) {
-    console.log("timeout callback");
+	if (!recordingInProgress) return;
+//	else console.log("logTimeoutCallback");
+
+	console.log("timeout callback");
 
     if (!recordStarted)
 		return;
@@ -170,6 +176,9 @@ logger.logTimeoutCallback = function(func) {
  * console
  */
 logger.logXHROpen = function(xhr, method, url, async) {
+	if (!recordingInProgress) return;
+//	else console.log("logXHROpen");
+
 	if (!recordStarted)
 		return;
 	console.log("------------------------------------");
@@ -192,6 +201,9 @@ logger.logXHROpen = function(xhr, method, url, async) {
  * console
  */
 logger.logXHRSend = function(xhr, str) {
+	if (!recordingInProgress) return;
+//	else console.log("logXHRSend");
+
 	if (!recordStarted)
 		return;
 	console.log("------------------------------------");
@@ -211,6 +223,9 @@ logger.logXHRSend = function(xhr, str) {
  * executing the callback function on the console
  */
 logger.logXHRResponse = function(xhr) {
+	if (!recordingInProgress) return;
+//	else console.log("logXHRResponse");
+
 	if (!recordStarted)
 		return;
 	console.log("------------------------------------");
@@ -247,6 +262,8 @@ logger.logXHRResponse = function(xhr) {
  * Prints the information related to a DOM event on the console
  */
 logger.logDOMEvent = function(type, targetEl, callback) {
+	if (!recordingInProgress) return;
+//	else console.log("logDOMEvent");
 
 	var jml;
 	console.log("------------------------------------");
@@ -277,6 +294,8 @@ logger.logDOMEvent = function(type, targetEl, callback) {
  * Prints the contents of the DOM Mutation array and empties the array
  */
 logger.logDOMMutation = function() {
+	if (!recordingInProgress) return;
+//	else console.log("logDOMMutation");
 	
 	// Loop through the array of summaries
 	for (var i=0; i<mutationArray.length; i++) {
@@ -331,6 +350,8 @@ logger.logDOMMutation = function() {
  * Prints a summary of an element with a changed value
  */
 	logger.logElementValueChange = function(changedElem, oldVal, newVal, parent) {
+		if (!recordingInProgress) return;
+//		else console.log("logElementValueChange");
 	
 		var date = Date.now();	
 		var id = "null";

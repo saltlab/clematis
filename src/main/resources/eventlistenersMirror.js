@@ -108,7 +108,7 @@ function overwriteEventListener(originalEventListener, zzem, listeners, dispatch
   /*          for (i=listenerIndexes.length-1; i >= 0; i--) {
               var listener = listeners[listenerIndexes[i]];
               if (listener.args[1] === originalEventListener) { 
-    */        	  console.log("+++++++++++++++ eventListenerMirror : overwriteEventListener : case(addEventListener) +++++++++++++++");
+    *///        	  console.log("+++++++++++++++ eventListenerMirror : overwriteEventListener : case(addEventListener) +++++++++++++++");
                 logger.logDOMEvent(eventType, this, originalEventListener);
      /*         }
             }
@@ -372,7 +372,6 @@ function addElM(__proto__, name, o) {
  *  of these are saved to the elmsonkeys[] array with index 'name', the 'name' of the prototype. 
  *
  */
-
 function getOnkeys(object) {
 
     var name = object.constructor.name, key, newKeys = [];
@@ -489,7 +488,7 @@ function oOwOn_full(object) {
     if (object.hasOwnProperty("__em__ow")) {
         return object;
     }
-    var errkeys = [];
+    var errkeys = [], actualFunction, matches;
     // 1) modify innerHTML   
     if (object instanceof Node) {  
         // Define new property for holding original innerHTML value
@@ -533,9 +532,28 @@ function oOwOn_full(object) {
                 errkeys.push(onkey);
             }
         }
+        if (object_onkey && (typeof object_onkey === 'function') && (object_onkey.name === onkey)) {
+            // TODO: Not surefire way to extract actual function 
+            window.console.log('Special case:  ', object_onkey, typeof object_onkey, object_onkey.toString());
+            /* [1]: function name
+             * [2]: arguments
+             * [3]: function body
+             */
+            matches = object_onkey.toString().match(/function\s*?(\w*?)\s*?\((.*?)\)\s*?\{([^]*)\}/);//(.*?)\}/);
+            if (matches) {
+                actualFunction = matches[3];
+                // Extract function name
+                actualFunction = actualFunction.replace('javascript:','');
+                actualFunction = actualFunction.replace('();','');
+                window.console.log(actualFunction);
+                // TODO: Don't use eval, but for now eval retrieves the function body
+                object_onkey =  eval(actualFunction);
+            }
+        }
         if (object_onkey || hasOwn) {
-  object[onkey] = object_onkey;
-}
+            object[onkey] = object_onkey;
+        }
+
     }  
     if (errkeys.length > 0) {
         // Debugging purposes

@@ -6,12 +6,14 @@ var traceCounter = 0;
 var recordButtonClicked = false;
 var stopButtonClicked = false;
 
-var recordingInProgress = true;//////////false; // Can use this for determining if Clematis should be logging or not
+var recordingInProgress = false;//true;//////////false; // Can use this for determining if Clematis should be logging or not
 ///////var recordingInProgress = false; // Can use this for determining if Clematis should be logging or not
 var myVar = 0;
-/*
-document.getElementById("recordButton").addEventListener('click', startRecording, false);
-document.getElementById("stopButton").addEventListener('click', stopRecording, false);
+
+window.onload = function () {
+	document.getElementById("recordButton").addEventListener('click', startRecording, false);
+	document.getElementById("stopButton").addEventListener('click', stopRecording, false);
+}
 
 function startRecording() {
 	console.log("recording");
@@ -54,7 +56,7 @@ function stopRecording() {
 	// Recording has stopped
     sendRecordStop();
 }
-*/
+
 // Function Call Wrapper
 function FCW() {
 	var date = Date.now();
@@ -74,10 +76,16 @@ function RSW() {
 
     if (arguments.length > 1) {
     // arguments[0] = value, arguments[1] = name, arguments[2] = lineno
-        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: date, returnValue: {label: arguments[1], value: arguments[0]}, lineNo: arguments[2], counter: traceCounter++}));
+//        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: date, returnValue: {label: arguments[1], value: arguments[0]}, lineNo: arguments[2], counter: traceCounter++}));
+    	// todo
+    	/*********************/
+        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: date, label: arguments[1], value: arguments[0].toString(), lineNo: arguments[2], counter: traceCounter++}));
     } else {
     // arguments[0] = lineno
-        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: date, returnValue: null, lineNo: arguments[0], counter: traceCounter++}));
+//        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: date, returnValue: null, lineNo: arguments[0], counter: traceCounter++}));
+    	// todo
+    	/*********************/
+        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: date, label: null, value: null, lineNo: arguments[0], counter: traceCounter++}));
     }
 	return arguments[0];
 }

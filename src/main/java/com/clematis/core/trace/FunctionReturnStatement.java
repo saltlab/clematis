@@ -5,6 +5,26 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class FunctionReturnStatement extends FunctionTrace {
+	private String label, value;
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
+	
+	/*
 	private JSONObject returnValue;
 
 	public Object getReturnValue() {
@@ -45,4 +65,5 @@ public class FunctionReturnStatement extends FunctionTrace {
 			ee.printStackTrace();
 		}
 	}	
+	*/
 }
