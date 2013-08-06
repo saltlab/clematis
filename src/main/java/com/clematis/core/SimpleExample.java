@@ -24,10 +24,12 @@ public class SimpleExample {
 
 	// private static final String URL = "http://localhost:8080/same-game/same-game.html";
 	// private static final String URL = "http://localhost:8080/example_webapplication/index.html";
-//	private static final String URL = "http://localhost:8080/study_application/index.html";
+
+	//	private static final String URL = "http://localhost:8080/study_application/index.html";
 	private static final String URL = "http://localhost:8888/phormer331/index.php";
 
 //	private static final String URL = "http://10.162.207.43:8000/sap/bi/launchpad/explorer?itemId=nhl-data%3ACOMPLETE_NHL_PLAYER_STATS&type=DATASET";
+//	private static final String URL = "http://localhost:8080/study_application/index.html";
 
 	private static String outputFolder = "";
 	private static WebDriver driver;
@@ -44,7 +46,6 @@ public class SimpleExample {
 
 			// Create a new instance of the firefox driver
 			FirefoxProfile profile = new FirefoxProfile();
-
 			// Instantiate proxy components
 			ProxyConfiguration prox = new ProxyConfiguration();
 
@@ -52,8 +53,15 @@ public class SimpleExample {
 			FunctionTrace s = new FunctionTrace();
 
 			// Add necessary files from resources
+
 			s.setFileNameToAttach("/esprima.js");
 			s.setFileNameToAttach("/esmorph.js");
+
+			// s.setFileNameToAttach("/jquery-1.9.1.js");
+			// s.setFileNameToAttach("/jquery-ui-1.10.2.custom.js");
+			// s.setFileNameToAttach("/jquery.tipsy.js");
+			// s.setFileNameToAttach("/trial_toolbar.js");
+			// s.setFileNameToAttach("/toolbar.js");
 			s.setFileNameToAttach("/addvariable.js");
 			s.setFileNameToAttach("/asyncLogger.js");
 			s.setFileNameToAttach("/applicationView.js");
@@ -61,8 +69,6 @@ public class SimpleExample {
 			s.setFileNameToAttach("/jsonml-dom.js");
 			s.setFileNameToAttach("/domMutations.js");
 			s.setFileNameToAttach("/mutation_summary.js");
-
-			// s.setFileNameToAttach("/toolbar.js");
 			s.instrumentDOMModifications();
 
 			// Interface for Ast traversal

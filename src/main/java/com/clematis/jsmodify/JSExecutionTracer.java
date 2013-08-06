@@ -265,12 +265,6 @@ public class JSExecutionTracer {
 			// Once all episodes have been saved to JS file, close
 			JSepisodes.close();
 
-			/*
-			 * ByteArrayOutputStream os = new ByteArrayOutputStream(); PrintStream ps = new
-			 * PrintStream(os); for (Episode e : story.getEpisodes()) { // Create pic files for each
-			 * episode's sequence diagram designSequenceDiagram(e, ps); } String output =
-			 * os.toString("UTF8"); System.out.println(output); ps.close();
-			 */
 			// Create graph containing all episodes with embedded sequence diagrams
 			EpisodeGraph eg = new EpisodeGraph(getOutputFolder(), story.getEpisodes());
 			eg.createGraph();
