@@ -1,8 +1,11 @@
 package com.clematis.instrument;
 
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.TreeSet;
 
 import org.mozilla.javascript.CompilerEnvirons;
@@ -17,6 +20,8 @@ import org.mozilla.javascript.ast.Name;
 import org.mozilla.javascript.ast.ReturnStatement;
 import org.mozilla.javascript.ast.Scope;
 import org.mozilla.javascript.ast.Symbol;
+
+import com.clematis.jsmodify.JSModifyProxyPlugin;
 
 public class FunctionTrace extends AstInstrumenter {
 
@@ -164,6 +169,54 @@ public class FunctionTrace extends AstInstrumenter {
 		String isc = node.toSource().replaceAll("\\)]\\;+\\n+\\(", ")](").replaceAll("\\)\\;\\n+\\(", ")(");
 		AstRoot iscNode = rhinoCreateNode(isc);
 
+		/*******************/
+		// todo todo todo todo
+		StringTokenizer tokenizer = new StringTokenizer(JSModifyProxyPlugin.scopeNameForExternalUse, "?");
+		String baseUrl = "";
+		
+		if (tokenizer.hasMoreElements())
+			baseUrl = tokenizer.nextToken();
+		
+		PrintStream output2;
+		try {
+			output2 = new PrintStream("finish_func_trace.txt");
+			PrintStream oldOut2 = System.out;
+			System.setOut(output2);
+			System.out.println("new scope: " + JSModifyProxyPlugin.scopeNameForExternalUse + "\n ---");
+			System.out.println("new newBaseUrl: " + baseUrl + "\n ---");
+			boolean baseUrlExists = false;
+			for (String str: JSModifyProxyPlugin.visitedBaseUrls) {
+				System.out.print(str);
+				if (/*str.startsWith(newBaseUrl) || */str.equals(baseUrl)) {
+					System.out.println(" -> exists");
+					baseUrlExists = true;
+					//return input;
+				}
+				else {
+					System.out.println();
+				}
+			}
+			System.setOut(oldOut2);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		for (String str : JSModifyProxyPlugin.visitedBaseUrls) {
+			if (str.equals(baseUrl)) {
+				return iscNode;
+			}
+		}
+		/*******************/
+		/////// TODO JUST A HACK FOR RUNNING THE EXPERIMENT. MUST BE REMOVED AFTER
+//		if (baseUrl.equals("http://localhost:8888/files/phorm.js"))
+		if (baseUrl.equals("http://localhost:8888/phormer331/"))
+			return iscNode;
+			
+	/////// TODO JUST A HACK FOR RUNNING THE EXPERIMENT. MUST BE REMOVED AFTER
+		if (baseUrl.contains("skeleton.js") || baseUrl.contains("help.js") || baseUrl.contains("upload.js"))
+			return iscNode;
+		/*******************/
 		// Add wrapper functions to top of JS node
 		iscNode.addChildToFront(jsLoggingFunctions());
 
@@ -270,6 +323,9 @@ public class FunctionTrace extends AstInstrumenter {
 				name = name.substring(name.lastIndexOf(".")+1,name.indexOf("="));
 			}
 		} else {
+			if (node.getFunctionType() == FunctionNode.FUNCTION_STATEMENT) {
+				System.out.println("* " + node.getName());
+			}
 			// unrecognized;
 			System.out.println("Unrecognized function name at " + lineNo);
 		}
@@ -359,6 +415,7 @@ public class FunctionTrace extends AstInstrumenter {
 			// E.g. parseInt, print, startClock
 			targetBody = target.toSource();
 			String newBody = target.toSource().replaceFirst(targetBody, "FCW("+targetBody+",'"+targetBody+"',"+lineNo+")");
+			System.out.println("--- NAME: " + newBody);
 			newTarget = parse(newBody);
 
 		} else if (tt == org.mozilla.javascript.Token.GETPROP) {
@@ -369,10 +426,28 @@ public class FunctionTrace extends AstInstrumenter {
 			targetBody = methods[methods.length-1];
 
 			String newBody = target.toSource().replaceFirst("."+targetBody, "[FCW(\""+targetBody+"\", "+lineNo+")]");
+			System.out.println("--- PROP: " + newBody);
 			newTarget = parse(newBody);
-		} 
-		newTarget.setLineno(node.getTarget().getLineno());
-		node.setTarget(newTarget);
+		} else {
+			if (tt == org.mozilla.javascript.Token.GETELEM) {
+				System.out.println("====== " + org.mozilla.javascript.Token.GETELEM + " - " + targetBody);
+			}
+			else if (tt == org.mozilla.javascript.Token.LP) {
+				System.out.println("====== " + org.mozilla.javascript.Token.LP + " - " + targetBody);
+			}
+			else if (tt == org.mozilla.javascript.Token.THIS) {
+				System.out.println("====== " + org.mozilla.javascript.Token.THIS + " - " + targetBody);
+			}
+			else
+				System.out.println("======");
+		}
+		if (newTarget != null) {
+			newTarget.setLineno(node.getTarget().getLineno());
+			node.setTarget(newTarget);
+		}
+		else {
+			System.out.println("NEW TARGET NULL +++ " + node.getTarget());
+		}
 	}
 
 	private void handleReturn(ReturnStatement node) {
@@ -384,6 +459,8 @@ public class FunctionTrace extends AstInstrumenter {
 		if (node.getReturnValue() != null) {
 			// Wrap return value
 			newRV = parse("RSW("+ node.getReturnValue().toSource() + ", '" + node.getReturnValue().toSource()+ "' ," + lineNo +");");
+//			newRV = parse("RSW("+ node.getReturnValue().toSource() + ", '" + 'a' + "' ," + lineNo +");");
+//			newRV = parse("RSW("+ node.getReturnValue().toSource() + ", \"val\" ," + lineNo +");");
 			newRV.setLineno(node.getReturnValue().getLineno());
 
 		} else {

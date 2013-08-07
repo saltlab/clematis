@@ -29,6 +29,7 @@ import org.json.JSONObject;
 
 import com.clematis.core.episode.Episode;
 import com.clematis.core.episode.Story;
+import com.clematis.core.trace.FunctionReturnStatement;
 import com.clematis.core.trace.TraceObject;
 import com.clematis.visual.EpisodeGraph;
 import com.clematis.visual.JSUml2Story;
@@ -241,10 +242,12 @@ public class JSExecutionTracer {
 			Collection<TraceObject> XHRTraces = traceMap.get("XHRTrace");
 			Collection<TraceObject> functionTraces = traceMap
 			        .get("FunctionTrace");
-
+			
 			story = new Story(domEventTraces, functionTraces, timingTraces, XHRTraces);
 			story.setOrderedTraceList(sortTraceObjects());
 			story.setEpisodes(buildEpisodes());
+			
+			// TODO TODO TODO project specific for photo gallery. eliminate unwanted episodes
 
 			System.out.println("# of trace objects: " + story.getOrderedTraceList().size());
 			System.out.println("# of episodes: " + story.getEpisodes().size());

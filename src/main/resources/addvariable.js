@@ -6,10 +6,9 @@ var traceCounter = 0;
 var recordButtonClicked = false;
 var stopButtonClicked = false;
 
-var recordingInProgress = false; // Can use this for determining if Clematis should be logging or not
+var recordingInProgress = false;//true;//////////false; // Can use this for determining if Clematis should be logging or not
+///////var recordingInProgress = false; // Can use this for determining if Clematis should be logging or not
 var myVar = 0;
-
-
 
 window.onload = function () {
 	document.getElementById("recordButton").addEventListener('click', startRecording, false);
@@ -31,7 +30,7 @@ function startRecording() {
 
 	//document.getElementById("visualizationLinkContainer").innerHTML = "";
 
-	document.getElementById("recordButton").setAttribute("src","images/capture_green.png");
+	captureButton.setAttribute("src","images/capture_green.png");
 
 	//myVar = setInterval(function(){blink()},1900);
 	
@@ -48,7 +47,7 @@ function stopRecording() {
 	recordButtonClicked = false;
 
 	//clearInterval(myVar);
-	document.getElementById("recordButton").setAttribute("src","images/capture.gif");
+	captureButton.setAttribute("src","images/capture.gif");
 	//document.getElementById("recordButton").style.opacity = 1;
 	//document.getElementById("stopButton").style.opacity = 0.5;
 	
@@ -61,10 +60,12 @@ function stopRecording() {
 // Function Call Wrapper
 function FCW() {
 	var date = Date.now();
-
+	
     if (arguments.length == 2) {
+//    	console.log("Function call ++++++++++ " + arguments[0]);
         send(JSON.stringify({messageType: "FUNCTION_CALL", timeStamp: date, targetFunction: arguments[0], lineNo: arguments[1], counter: traceCounter++}));
     } else {
+//    	console.log("Function call ++++++++++ " + arguments[1]);
         send(JSON.stringify({messageType: "FUNCTION_CALL", timeStamp: date, targetFunction: arguments[1], lineNo: arguments[2], counter: traceCounter++}));
     }
 	return arguments[0];
@@ -75,12 +76,20 @@ function RSW() {
 
 	var date = Date.now();
 
+//	console.log("Function return ++++++++++ " + arguments[1]);
+
     if (arguments.length > 1) {
     // arguments[0] = value, arguments[1] = name, arguments[2] = lineno
-        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: date, returnValue: {label: arguments[1], value: arguments[0]}, lineNo: arguments[2], counter: traceCounter++}));
+//        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: date, returnValue: {label: arguments[1], value: arguments[0]}, lineNo: arguments[2], counter: traceCounter++}));
+    	// todo
+    	/*********************/
+        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: date, label: arguments[1], value: arguments[0].toString(), lineNo: arguments[2], counter: traceCounter++}));
     } else {
     // arguments[0] = lineno
-        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: date, returnValue: null, lineNo: arguments[0], counter: traceCounter++}));
+//        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: date, returnValue: null, lineNo: arguments[0], counter: traceCounter++}));
+    	// todo
+    	/*********************/
+        send(JSON.stringify({messageType: "RETURN_STATEMENT", timeStamp: date, label: null, value: null, lineNo: arguments[0], counter: traceCounter++}));
     }
 	return arguments[0];
 }
