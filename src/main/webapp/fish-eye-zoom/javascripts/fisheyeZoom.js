@@ -85,7 +85,7 @@ function renderList(data) {
 		 seconds[i] = date[i].getUTCSeconds();
 
 		// will display time in 10:30:23 format
-		 formattedTime[i] = hours[i] + ':' + minutes[i] + ':' + seconds[i];
+		 formattedTime[i] =minutes[i] + ':' + seconds[i];
 
 	};
 	
@@ -151,8 +151,7 @@ function renderList(data) {
 		   bookmarkButton[i] = document.createElement("input");
     		bookmarkButton[i].setAttribute("type", "image");
    		 bookmarkButton[i].setAttribute("src","images/star.png");
-   		  bookmarkButton[i].style.background="#bb79d6";
-
+   		
    		 //divs[2].appendChild(bookmarkButton[0]);
 		 divs[0].appendChild(bookmarkButton[0]);
 
