@@ -10,6 +10,7 @@ public class Episode {
 	private TraceObject source;
 	private EpisodeTrace trace;
 	private String dom;
+	private boolean isBookmarked;
 
 	public Episode() {
 
@@ -52,5 +53,13 @@ public class Episode {
 
 	public void setSource(TraceObject source) {
 		this.source = source;
+	}
+	
+	public boolean getIsBookmarked() {
+		return isBookmarked;
+	}
+
+	public void setIsBookmarked(boolean isBookmarked) {
+		this.isBookmarked = isBookmarked;
 	}
 }
