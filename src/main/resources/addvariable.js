@@ -15,8 +15,13 @@ var bookmarkPressed = false;
 window.onload = function () {
 	document.getElementById("recordButton").addEventListener('click', startRecording, false);
 	document.getElementById("stopButton").addEventListener('click', stopRecording, false);
+	document.getElementById("bookmarkButton").addEventListener('click', bookmark, false);
 }
 
+
+function bookmark(){
+	console.log("bookmarking");
+}
 function startRecording() {
 	console.log("recording");
 	if (recordButtonClicked == true)
