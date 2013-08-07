@@ -321,8 +321,9 @@ public class JSExecutionTracer {
 					if(source.getTargetElement().contains("bookmarkButton")) {
 						System.out.println("***********");
 						if (i + 1 < story.getEpisodes().size()) {
-							story.getEpisodes().get(i).getSource().setIsBookmarked(true); // move isbookmarked to episode
-							System.out.println("* " + story.getEpisodes().get(i).getSource().toString());
+							story.getEpisodes().get(i + 1).setIsBookmarked(true);
+//							story.getEpisodes().get(i).getSource().setIsBookmarked(true); // move isbookmarked to episode
+							System.out.println("* episode # " + (i + 1) + " bookmarked");
 						}
 					}
 				}
