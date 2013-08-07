@@ -28,9 +28,9 @@ import com.crawljax.util.Helper;
 public class JSModifyProxyPlugin extends ProxyPlugin {
 
 	private List<String> excludeFilenamePatterns;
-	
-	public static List<String> visitedBaseUrls; ///// todo todo todo todo **********
-	public static String scopeNameForExternalUse; ////// todo ********** change this later
+
+	public static List<String> visitedBaseUrls; // /// todo todo todo todo **********
+	public static String scopeNameForExternalUse; // //// todo ********** change this later
 
 	private final JSASTModifier modifier;
 
@@ -46,7 +46,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	public JSModifyProxyPlugin(JSASTModifier modify) {
 		excludeFilenamePatterns = new ArrayList<String>();
 		visitedBaseUrls = new ArrayList<String>();
-		
+
 		modifier = modify;
 
 		outputFolder = Helper.addFolderSlashIfNeeded("clematis-output") + "js_snapshot";
@@ -76,11 +76,12 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 		// Example application specific
 		excludeFilenamePatterns.add(".*tabcontent.js?.*");
-		
+
 		excludeFilenamePatterns.add(".*toolbar.js?.*");
 		excludeFilenamePatterns.add(".*jquery*.js?.*");
-		
-//		excludeFilenamePatterns.add(".*http://localhost:8888/phormer331/index.phpscript1?.*"); // todo ???????
+
+		// excludeFilenamePatterns.add(".*http://localhost:8888/phormer331/index.phpscript1?.*"); //
+		// todo ???????
 
 	}
 
@@ -119,7 +120,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 		System.out.println("<<<<");
 		System.out.println("Scope: " + scopename);
-		
+
 		/***************/
 		scopeNameForExternalUse = scopename; // todo todo todo todo
 		/***************/
@@ -141,14 +142,14 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			System.out.println(input);
 			System.setOut(oldOut);
 
-			PrintStream output2 =
+			PrintStream output_visual =
 			        new PrintStream("src/main/webapp/fish-eye-zoom/" + getFilename());
 			System.out.println("MOEEEEE" +
 			        "src/main/webapp/fish-eye-zoom/" + getFilename());
-			PrintStream oldOut2 = System.out;
-			System.setOut(output2);
+			PrintStream oldOut2_visual = System.out;
+			System.setOut(output_visual);
 			System.out.println(input);
-			System.setOut(oldOut2);
+			System.setOut(oldOut2_visual);
 
 			AstRoot ast = null;
 
@@ -170,7 +171,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			ast.visit(modifier);
 
 			ast = modifier.finish(ast);
-			
+
 			/****************************/
 			// todo todo todo do not instrument again if visited before
 			System.out.println("--------------------------------");
@@ -186,13 +187,13 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 				System.setOut(output2);
 				System.out.println("new newBaseUrl: " + newBaseUrl + "\n ---");
 				boolean baseUrlExists = false;
-				for (String str: visitedBaseUrls) {
+				for (String str : visitedBaseUrls) {
 					System.out.print(str);
-					if (/*str.startsWith(newBaseUrl) || */str.equals(newBaseUrl)) {
+					if (/* str.startsWith(newBaseUrl) || */str.equals(newBaseUrl)) {
 						System.out.println(" -> exists");
-//						System.setOut(oldOut2);
+						// System.setOut(oldOut2);
 						baseUrlExists = true;
-						//return input;
+						// return input;
 					}
 					else {
 						System.out.println();
@@ -219,7 +220,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			System.err.println(re.getMessage()
 			        + "Unable to instrument. This might be a JSON response sent"
 			        + " with the wrong Content-Type or a syntax error.");
-			
+
 			System.err.println("details: " + re.details());
 			System.err.println("getLocalizedMessage: " + re.getLocalizedMessage());
 			System.err.println("getScriptStackTrace: " + re.getScriptStackTrace());
@@ -230,14 +231,14 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 		} catch (IllegalArgumentException iae) {
 			System.err.println("Invalid operator exception catched. Not instrumenting code.");
-			
+
 			System.err.println("getCause: " + iae.getCause());
 			System.err.println("getLocalizedMessage: " + iae.getLocalizedMessage());
 			System.err.println("getMessage: " + iae.getMessage());
 			iae.printStackTrace();
 		} catch (IOException ioe) {
 			System.err.println("Error saving original javascript files.");
-			
+
 			System.err.println("getMessage: " + ioe.getMessage());
 			ioe.printStackTrace();
 		}
