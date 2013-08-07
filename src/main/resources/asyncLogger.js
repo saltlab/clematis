@@ -81,7 +81,7 @@ var MsgConstants = {
  * Prints the information related to creation of a timeout to the console
  */
 logger.logSetTimeout = function(func, delay, params) {
-	console.log("++++++++++++++++++++++++++++++++++ ", totalNumOfTimeouts);
+//	console.log("++++++++++++++++++++++++++++++++++ ", totalNumOfTimeouts);
 	if (!recordingInProgress) return;
 //	else console.log("logSetTimeout");
 	
@@ -289,6 +289,17 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 	//if (!recordStarted || arguments[0].toString().indexOf("webdriver-evaluate") >= 0)
 	if (!recordStarted)
 		return;
+	
+	// todo /******************/
+	/*
+	var eventType = arguments[0];
+	if (eventType == "mouseover" || eventType == "mousemove" || eventType == "mouseout") {
+		console.log(eventType, " not logged");
+		return;
+	}
+	*/
+	// todo /******************/
+	
 	console.log("------------------------------------");
 	console.log("DOM EVENT HANDLED");
 	var date = Date.now();

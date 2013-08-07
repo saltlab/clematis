@@ -10,6 +10,8 @@ var recordingInProgress = false;//true;//////////false; // Can use this for dete
 ///////var recordingInProgress = false; // Can use this for determining if Clematis should be logging or not
 var myVar = 0;
 
+var bookmarkPressed = false;
+
 window.onload = function () {
 	document.getElementById("recordButton").addEventListener('click', startRecording, false);
 	document.getElementById("stopButton").addEventListener('click', stopRecording, false);

@@ -29,8 +29,11 @@ import org.json.JSONObject;
 
 import com.clematis.core.episode.Episode;
 import com.clematis.core.episode.Story;
+import com.clematis.core.trace.DOMEventTrace;
 import com.clematis.core.trace.FunctionReturnStatement;
+import com.clematis.core.trace.TimingTrace;
 import com.clematis.core.trace.TraceObject;
+import com.clematis.core.trace.XMLHttpRequestTrace;
 import com.clematis.visual.EpisodeGraph;
 import com.clematis.visual.JSUml2Story;
 import com.crawljax.util.Helper;
@@ -247,10 +250,14 @@ public class JSExecutionTracer {
 			story.setOrderedTraceList(sortTraceObjects());
 			story.setEpisodes(buildEpisodes());
 			
-			// TODO TODO TODO project specific for photo gallery. eliminate unwanted episodes
-
 			System.out.println("# of trace objects: " + story.getOrderedTraceList().size());
 			System.out.println("# of episodes: " + story.getEpisodes().size());
+
+			// TODO TODO TODO project specific for photo gallery. eliminate unwanted episodes
+			story.removeUselessEpisodes();
+
+			System.out.println("# of episodes after trimming: " + story.getEpisodes().size());
+			
 
 			// JavaScript episodes for JSUML2
 			Helper.directoryCheck(outputFolder + "/sequence_diagrams/");
