@@ -2,9 +2,12 @@
 
 .scaledDiv
 {
-    transform:scale(0.1,0.5);
-    -ms-transform:scale(0.1,0.5); /* IE 9 */
-    -webkit-transform:scale(0.1,0.5); /* Safari and Chrome */    
+	position: fixed;
+	left: 18%;
+	top:2%;
+    transform:scale(0.08,0.4);
+    -ms-transform:scale(0.08,0.4); /* IE 9 */
+    -webkit-transform:scale(0.08,0.4); /* Safari and Chrome */    
 }
 
 

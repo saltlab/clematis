@@ -11,17 +11,9 @@
 	
 	<init-param>
 		<param-name>com.sun.jersey.config.property.packages</param-name>
-		<param-value>com.clematis.core.episode;com.wordnik.swagger.jaxrs.listing</param-value>
+		<param-value>com.clematis.core.episode</param-value>
 	</init-param>
 
-	<init-param>
-  <param-name>swagger.api.basepath</param-name>
-  <param-value>http://localhost:8080/rest</param-value>
-</init-param>
-<init-param>
-  <param-name>api.version</param-name>
-  <param-value>1.0</param-value>
-</init-param>
 	<init-param>
 		<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
 		<param-value>true</param-value>

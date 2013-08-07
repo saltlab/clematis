@@ -165,7 +165,7 @@ public class JSExecutionTracer {
 				System.out.print("SUCCESS\n");
 			}
 			else
-				System.out.print("Failure\n");
+				System.out.print("SUCCESSS\n");
 		} catch (JsonGenerationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

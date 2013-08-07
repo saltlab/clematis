@@ -51,10 +51,19 @@
 <link type="text/css" rel="stylesheet" 
           href="CSS/prettify.css" />
 
+<link rel="stylesheet" type="text/css" href="flatui/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="flatui/css/flat-ui.css">  
+<script type="text/javascript" src="flatui/javascripts/jquery.ui.touch-punch.min.js"></script>    
+<script type="text/javascript" src="flatui/javascripts/application.js"></script>
+<script type="text/javascript" src="flatui/javascripts/bootstrap-select.js"></script>
+<script type="text/javascript" src="flatui/javascripts/bootstrap.min.js"></script>
+    
+
 
 
 </head>
 <body >
+
 <!--table border='2'>
 	<tr>
 		<td id='first_column'>
@@ -77,6 +86,9 @@
 </table-->
 
 <script type="text/javascript">
+var signalMutation=false;
+var signalMutation2=false;
+var signalActor=false;
 var tableExtras=document.createElement('table');
 var row=document.createElement('tr');
 var first_column=document.createElement('td');
@@ -401,6 +413,7 @@ console.log(episodeTraces[i]);
 
 
     if (allEpisodes[i].getMutations().length > 0) {
+    	signalMutation2=true;
         var mutationNotification = document.createElement('div');
         mutationNotification.className = 'mutationnotification';
         mutationNotification.innerHTML="Mutation Present"
@@ -462,12 +475,21 @@ function printDOMMutation(e) {
     $("#third_column").prepend("DOM Mutation Information for episode " + episodeNumber + ":");
 
 	for (var j=0; j<allEpisodes[episodeNumber].getMutations().length; j++){
+		signalMutation=true;
         var jjson = mutationsByEpisode[episodeNumber][j]; 
         document.getElementById('third_column').appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
 	}
+
+	if(signalMutation==true){
+			signalMutation=false;
+			$(document.getElementById('elem2Mutation')).effect("highlight", {}, 2000);
+			//var temp=document.getElementById('anchor3').innerHTML;
+			//document.getElementById('anchor3').innerHTML=temp+"\nMutation Present";
+	}	
     if (allEpisodes[episodeNumber].getMutations().length < 1) {
         document.getElementById('third_column').appendChild(document.createElement('pre')).innerHTML = "N/A";
     } 
+    console.log(signalMutation);
     $("#third_column").effect("highlight", {}, 2000);
 }
 
@@ -528,6 +550,7 @@ function traceDivClickHandler(e) {
 			if (lifeLinesByEpisode[episodeNumber][n].getDiagramObject() instanceof Actor) {
                 viewEventInformation(lifeLinesByEpisode[episodeNumber][n]);
                 console.log("ACTOR");
+                signalActor=true;
             } else {
                 viewDetailedCode(lifeLinesByEpisode[episodeNumber][n]);
                 console.log("FUNCTION");
@@ -536,6 +559,11 @@ function traceDivClickHandler(e) {
 
 			clickedOnLifelines = true;
 		}
+		if(signalActor==true){
+			signalActor=false;
+			$(document.getElementById('elem1EventType')).effect("highlight", {}, 2000);
+	}
+
 
 	}
 

@@ -13,12 +13,13 @@ var globalEpisodeContainer;
 
 	var episodeContainer = document.createElement("div");
 	var episodeContainer2 = document.createElement("div");
-	var episodeContents = document.createElement("div");
+	//var episodeContents = document.createElement("div");
+	var episodeContents = new Array;
 	var scaledDiv = document.createElement("div");
 	scaledDiv.id="scaledDiv";
 	$(scaledDiv).addClass('scaledDiv');
-	scaledDiv.style.width="auto";
-	scaledDiv.style.float="left";
+	//scaledDiv.style.width="auto";
+	//scaledDiv.style.float="left";
 	scaledDiv.style.height="50px";
 
 
@@ -49,7 +50,12 @@ var globalEpisodeContainer;
 
    
 var number_episodes;
-	
+var timeStamps=new Array;
+var date=new Array;
+var hours=new Array;
+var minutes=new Array;
+var seconds=new Array;
+var formattedTime=new Array;	
  var url = 'http://localhost:8080/rest/clematis-api/episodes/';
 
   $.ajax({
@@ -67,6 +73,21 @@ function renderList(data) {
 	number_episodes=data.length;
 	//alert("success");
 	//console.log(data);
+	for (var i = 0; i < data.length; i++) {
+		//timeStamps[i]=data[i].source.timeStamp;
+		//console.log("timeStamps"+(timeStamps[i]));
+		 date[i] = new Date((data[i].source.timeStamp)*1000);
+		// hours part from the timestamp
+		 hours[i] = date[i].getUTCHours()
+		// minutes part from the timestamp
+		 minutes[i] = date[i].getUTCMinutes();
+		// seconds part from the timestamp
+		 seconds[i] = date[i].getUTCSeconds();
+
+		// will display time in 10:30:23 format
+		 formattedTime[i] = hours[i] + ':' + minutes[i] + ':' + seconds[i];
+
+	};
 	
 	// todo
 	globalEpisodeContainer = data;
@@ -100,9 +121,13 @@ function renderList(data) {
 
 
 	
-	
+	var zoomLevel1=new Array;
 	//create the list of episodes, ZOOM  level 0
 	for (var i=0; i<number_episodes; i++){
+
+		
+		zoomLevel1[i]=false;
+		episodeContents[i]=document.createElement("div");
 		links[i]=document.createElement('a');
 		$(links[i]).addClass('dock-item');
 		(links[i]).style.top="auto";
@@ -146,7 +171,7 @@ function renderList(data) {
 
 		else
 		{
-			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"XHR"); 
+			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"  XHR"); 
 			$(divs[i]).addClass('cell_xhr');
 			$(divs_map[i]).addClass('box');
 
@@ -158,9 +183,14 @@ function renderList(data) {
 		});
 
     	 divs[i].appendChild(episodes[i]);
+
 		links[i].appendChild(divs[i]);
 		
 		cells[i]=document.createElement("td");
+		divs[i].style.height="65px";
+		divs[i].style.width="85px";
+		cells[i].setAttribute("title","time: "+formattedTime[i]);
+		$(cells[i]).tipsy({gravity:'nw'});
     	cells[i].appendChild(divs[i]);
     
     	row.appendChild(cells[i]);
@@ -210,7 +240,7 @@ function renderList(data) {
 	var lineBreak=document.createElement("br");
 	var menuContainer=document.createElement("div");
 	//menuContainer.style.position="fixed";
-	menuContainer.style.left="30%";
+	menuContainer.style.left="13%";
 
 	var menuContainerSlide=document.createElement("div");
 	menuContainerSlide.id="slide"
@@ -222,7 +252,25 @@ function renderList(data) {
 	var menuElem3 = document.createElement("li");
 	var menuElem4 = document.createElement("li");
 	var menuElem_map = document.createElement("li");
+	var menuElem_XHR = document.createElement("li");
+	var menuElem_DOM = document.createElement("li");
+	var menuElem_TO = document.createElement("li");
 
+	var div_dom=document.createElement('div');
+	$(div_dom).addClass('cell_dom_menu');
+	div_dom.appendChild(document.createTextNode('Event'));
+	menuElem_DOM.appendChild(div_dom);
+
+	var div_xhr=document.createElement('div');
+	$(div_xhr).addClass('cell_xhr_menu');
+	div_xhr.appendChild(document.createTextNode('XHR'));
+	menuElem_XHR.appendChild(div_xhr);
+
+	var div_to=document.createElement('div');
+	$(div_to).addClass('cell_to_menu');
+	div_to.appendChild(document.createTextNode('TO'));
+	menuElem_TO.appendChild(div_to);
+	
 	var menuAnchor1 = document.createElement("a");
 	var menuAnchor2 = document.createElement("a");
 	var menuAnchor3 = document.createElement("a");
@@ -280,11 +328,11 @@ function renderList(data) {
     fullScreen.style.height="20px";
     fullScreen.addEventListener('click', function(){
 
-    	if(zoomLevel1==true){
+    	//if(zoomLevel1==true){
     		expandCurrentEpisode(currentEpisode);
-    	}
-    	else
-    	{}
+    	//}
+    	//else
+    	//{}
 	});
 
 
@@ -313,6 +361,11 @@ function renderList(data) {
 	menuList.appendChild(menuElem4);
 	menuList.appendChild(menuElem2);
 	menuList.appendChild(menuElem3);
+	menuList.appendChild(menuElem_DOM);
+	menuList.appendChild(menuElem_XHR);
+	menuList.appendChild(menuElem_TO);
+	
+
 	
 	/***************************************/
 	/*** Begin: Search By DOM Event Type ***/
@@ -321,11 +374,24 @@ function renderList(data) {
 	
 	var selectDomEventType = document.createElement('select');
 	selectDomEventType.id = "selectDomEventType";
-	selectDomEventType.name = "selectDomEventType";
+	//selectDomEventType.name='herolist';
+	//selectDomEventType.value="Search by Event";
+	//selectDomEventType.value="Default";
+	selectDomEventType.style.background="#16a085";
+	 	selectDomEventType.style.marginRight="10px"
+
+	//selectDomEventType.name = "selectDomEventType";
+	$(selectDomEventType).addClass('select-block span3');
 
 	var domEventOption = document.createElement('option');
 	domEventOption.value = "Search by Event";
 	domEventOption.textContent = "Search by Event";
+	selectDomEventType.appendChild(domEventOption);
+
+	domEventOption = document.createElement('option');
+	domEventOption.value = "Default";
+	domEventOption.textContent = "Default";
+	//domEventOption.selected="selected";
 	selectDomEventType.appendChild(domEventOption);
 	
 	domEventOption = document.createElement('option');
@@ -380,9 +446,16 @@ function renderList(data) {
 	
 	var menuElem_searchDomEl = document.createElement("li");
 
+	
+
+	
+	//var divSearch=document.createElement('div');
+	//divSearch.appendChild(selectDomEventType);
+	//$(divSearch).addClass('span3');
+	//document.body.appendChild(divSearch);
+
 	menuElem_searchDomEl.appendChild(selectDomEventType);
 	menuList.appendChild(menuElem_searchDomEl);
-
 	
 	/*************************************/
 	/*** End: Search By DOM Event Type ***/
@@ -395,11 +468,13 @@ function renderList(data) {
 	searchTextInput.id = 'searchTextInput';
 	searchTextInput.value = 'Search';
 	searchTextInput.style.width = '60px';
+	searchTextInput.style.height = '12px';
 
 	var menuElem_searchText = document.createElement("li");
 
 	menuElem_searchText.appendChild(searchTextInput);
 	menuList.appendChild(menuElem_searchText);
+	menuList.appendChild(scaledDiv);
 	
 	/********** End: Search by Text **********/
 
@@ -414,6 +489,7 @@ function renderList(data) {
 	document.body.appendChild(menuContainer);
 	document.body.appendChild(episodeContainer);
 	document.body.appendChild(code_div);
+
 	
 	/******** Add the listener for search elements *******/
 	// Search by dom event select tag
@@ -421,7 +497,20 @@ function renderList(data) {
 	
 	function searchByDomEventClicked() {
 		var matchingEpisodes = searchByDomEventType(this.options[this.selectedIndex].value);
+		if(this.options[this.selectedIndex].value=="Default"){
+			console.log("Deafult");
+			for(var j=0;j<number_episodes;j++){
+			$(divs[j]).removeClass('cell_xhr2');
+
+			console.log(j);
+		}
+			
+		}
 		console.log("++++\n", matchingEpisodes);
+		for(var i=0;i<matchingEpisodes.length;i++){
+			$(divs[(matchingEpisodes[i])]).addClass('cell_xhr2');
+
+		}
 	}
 	
 	// Search by text
@@ -431,6 +520,15 @@ function renderList(data) {
 		var matchingSourceEpisodes = searchByDomEventType(this.value);
 		var matchingTraceEpisodes = searchTraceByKeyword(this.value);
 		console.log("----\n", matchingSourceEpisodes);
+		for(var i=0;i<matchingSourceEpisodes.length;i++){
+			$(divs[(matchingSourceEpisodes[i])]).addClass('cell_xhr2');	
+
+		}
+
+		for(var x=0;x<matchingTraceEpisodes.length;x++){
+			$(divs[(matchingTraceEpisodes[x])]).addClass('cell_xhr2');	
+
+		}
 		console.log("****\n", matchingTraceEpisodes);
 	}
 	
@@ -449,13 +547,16 @@ tabs_div.style.width="100%";
 
 var list = document.createElement("ul");
 var elem1 = document.createElement("li");
+elem1.setAttribute('id','elem1EventType');
 var elem2 = document.createElement("li");
+elem2.setAttribute('id','elem2Mutation');
 var elem3 = document.createElement("li");
 var elem4 = document.createElement("li");
 
 var anchor1 = document.createElement("a");
 var anchor2 = document.createElement("a");
 var anchor3 = document.createElement("a");
+anchor3.setAttribute('id','anchor3');
 var anchor4 = document.createElement("a");
 
 anchor1.href="#tabs1";
@@ -501,65 +602,62 @@ tabs_div.appendChild(tabs4);
 
 $(tabs_div).tabs();
 
-var zoomLevel1=false;
+
 
 
 
 
 ////////////////////////////////////////////////////////////////////ZOOM LEVEL 1 /////////////////
+var tblLevel1=new Array;
+var tblBodyLevel1=new Array;
+var rowLevel1=new Array;
+var row2Level1=new Array;
+var cellLevel1=new Array;
+var cell2Level1=new Array;
+var row3Level1=new Array;
+var cell3Level1=new Array;
+var cell1SZ=new Array;
+var cell2SZ=new Array;
+var cell3SZ=new Array;
+for (var i=0; i<number_episodes; i++){
+	episodeContents[i].id=("episode-Contents"+i);
+	//episodeContents[i].style.border = " solid black";
+	episodeContents[i].style.display="table";
+	episodeContents[i].style.width="120px";
 
-	//var episodeContents = document.createElement("div"); // MOVED UP
-	episodeContents.id=("episode-Contents");
-
+	tblLevel1[i] = document.createElement("table");
+	tblBodyLevel1[i] = document.createElement("tbody");
 	
-	episodeContents.style.border = " solid black";
-	episodeContents.style.display="table";
-	
-	//episodeContents.style.left="390px";
-	//episodeContents.style.top="120px";
-	episodeContents.style.width="120px";
+	rowLevel1[i] = document.createElement("tr");
+ 	row2Level1[i] = document.createElement("tr");
+    cellLevel1[i]= document.createElement("td");
+    cellLevel1[i].id="CELL1"+i;
+    cell2Level1[i]= document.createElement("td");
+    cell2Level1[i].id="CELL2"+i;
 
-	var tblLevel1 = document.createElement("table");
-	var tblBodyLevel1 = document.createElement("tbody");
-	
-	var rowLevel1 = document.createElement("tr");
-	var row2Level1 = document.createElement("tr");
-    var cellLevel1= document.createElement("td");
-    cellLevel1.id="CELL1";
+    rowLevel1[i].appendChild(cellLevel1[i]);
+    row2Level1[i].appendChild(cell2Level1[i]);
     
-    var cell2Level1= document.createElement("td");
-    cell2Level1.id="CELL2";
-
+    tblBodyLevel1[i].appendChild(rowLevel1[i]);
+    tblBodyLevel1[i].appendChild(row2Level1[i]);
     
-    rowLevel1.appendChild(cellLevel1);
-    row2Level1.appendChild(cell2Level1);
-    
-    tblBodyLevel1.appendChild(rowLevel1);
-    tblBodyLevel1.appendChild(row2Level1);
-    
-    var row3Level1 = document.createElement("tr");
-    var cell3Level1= document.createElement("td");
-    cell3Level1.id="CELL3";
+    row3Level1[i] = document.createElement("tr");
+    cell3Level1[i]= document.createElement("td");
+    cell3Level1[i].id="CELL3"+i;
 
-    row3Level1.appendChild(cell3Level1);
-    tblBodyLevel1.appendChild(row3Level1); 
-    tblLevel1.appendChild(tblBodyLevel1);
-    tblLevel1.setAttribute("border","0");
-    //tblLevel1.style.border = " solid black";
+    row3Level1[i].appendChild(cell3Level1[i]);
+    tblBodyLevel1[i].appendChild(row3Level1[i]); 
+    tblLevel1[i].appendChild(tblBodyLevel1[i]);
+    tblLevel1[i].setAttribute("border","0");
 
-    episodeContents.appendChild(tblLevel1);
-
-   // episodeContents.style.overflow="auto";
+    episodeContents[i].appendChild(tblLevel1[i]);
 
 
-var zoomLevel1Container_DOM=document.createElement("div");
-var zoomLevel1Container_source=document.createElement("div");
-var zoomLevel1Container_trace=document.createElement("div");
+	 cell1SZ[i]=cellLevel1[i];	
+	 cell2SZ[i]=cell2Level1[i];		
+	 cell3SZ[i]=cell3Level1[i];		
 
-var cell1SZ=cellLevel1;	
-var cell2SZ=cell2Level1;		
-var cell3SZ=cell3Level1		
-
+}
 for (var i = 0, n = cells.length; i<n; i++) {
   var el = cells[i];
 
@@ -569,12 +667,12 @@ for (var i = 0, n = cells.length; i<n; i++) {
     	//jsPlumb.detachEveryConnection();
 
     	menuAnchor4.appendChild(fullScreen);
-    	if(zoomLevel1==false){
-			zoomLevel1=true;
+    	if(zoomLevel1[i]==false){
+			zoomLevel1[i]=true;
 			currentEpisode=i;
 
 	//Get the source for  zoom level 1, specifically we want to get the eventType and eventHandler from the the source
-	var url = 'http://localhost:8080/rest/clematis-api/episodes/'+i+'/source';
+	var url = 'http://localhost:8080/rest/clematis-api/episodes/'+i+'/trace';
     var tempDiv_source=document.createElement("div");
    	var tbl_source = document.createElement("table");
 	var tblBody_source = document.createElement("tbody");
@@ -624,37 +722,40 @@ for (var i = 0, n = cells.length; i<n; i++) {
 		
 
 	 	//if id != 0 then its an XHR or Timeout event
-		if(data.id==0){
+	 	if(data.trace[0].id !=0 && (data.trace[0].xhrId>=0)){
+
+			cells_source[1].appendChild(document.createTextNode("eventType"));
+	 		cells_source[2].appendChild(document.createTextNode("targetElement"));
+			cells_source[3].appendChild(document.createTextNode("XHR:"+JSON.stringify(data.trace[0].xhrId)));
+			cells_source[3].setAttribute('class','cell_source');
+			//cells_source[4].appendChild(document.createTextNode(JSON.stringify(data.trace[0].xhrId)));
+			$(episodeContents[i]).addClass('cell_xhr').removeClass('cell_to', 'cell_dom');
+
+
+		}
+		else if(data.trace[0].id !=0 && (data.trace[0].timeoutId>=0)){
+
+			cells_source[1].appendChild(document.createTextNode("eventType"));
+	 		cells_source[2].appendChild(document.createTextNode("targetElement"));
+			cells_source[3].appendChild(document.createTextNode("TO:"+JSON.stringify(data.trace[0].timeoutId)));
+			cells_source[3].setAttribute('class','cell_source');
+			//cells_source[4].appendChild(document.createTextNode(JSON.stringify(data.trace[0].timeoutId)));
+			$(episodeContents[i]).addClass('cell_to').removeClass('cell_xhr', 'cell_dom');
+		}
+
+
+		else{
 			cells_source[1].appendChild(document.createTextNode("eventType"));
 	 		cells_source[2].appendChild(document.createTextNode("targetElement id"));
-			cells_source[3].appendChild(document.createTextNode(JSON.stringify(data.eventType)));
+			cells_source[3].appendChild(document.createTextNode(JSON.stringify((data.trace[0].eventType))));
 			cells_source[3].setAttribute('class','cell_source');
-			cells_source[4].appendChild(document.createTextNode(JSON.stringify(data.targetElement.id)));
-			$(episodeContents).addClass('cell_dom').removeClass('cell_to' ,'cell_xhr');
+			//cells_source[4].appendChild(document.createTextNode(JSON.stringify(data.targetElement.id)));
+			$(episodeContents[i]).addClass('cell_dom').removeClass('cell_to' ,'cell_xhr');
 
 		
 		}
-		else if(data.id!=0 && (data.timeoutId==0 || data.timeoutId!=0)){
-
-			cells_source[1].appendChild(document.createTextNode("eventType"));
-	 		cells_source[2].appendChild(document.createTextNode("targetElement"));
-			cells_source[3].appendChild(document.createTextNode("TO:"+JSON.stringify(data.id)));
-			cells_source[3].setAttribute('class','cell_source');
-			cells_source[4].appendChild(document.createTextNode(JSON.stringify(data.id)));
-			$(episodeContents).addClass('cell_to').removeClass('cell_xhr', 'cell_dom');
-		}
-
-		else{
-
-			cells_source[1].appendChild(document.createTextNode("eventType"));
-	 		cells_source[2].appendChild(document.createTextNode("targetElement"));
-			cells_source[3].appendChild(document.createTextNode("XHR:"+JSON.stringify(data.id)));
-			cells_source[3].setAttribute('class','cell_source');
-			cells_source[4].appendChild(document.createTextNode(JSON.stringify(data.id)));
-			$(episodeContents).addClass('cell_xhr').removeClass('cell_to', 'cell_dom');
-
-
-		}
+		
+		
 		
 
 		rows_source[1].appendChild(cells_source[1]);
@@ -674,7 +775,7 @@ for (var i = 0, n = cells.length; i<n; i++) {
   	tbl_source.setAttribute("border","0");
   	tbl_source.appendChild(tblBody_source);
   	tempDiv_source.appendChild(tbl_source);
-	cell1SZ.appendChild(tempDiv_source);
+	cell1SZ[i].appendChild(tempDiv_source);
 
 
 
@@ -692,13 +793,13 @@ for (var i = 0, n = cells.length; i<n; i++) {
 		dom=document.createTextNode("Result");
 	}
 		});
-		cell3SZ.style.fontSize="20px";
+		cell3SZ[i].style.fontSize="20px";
 
-	 cell3SZ.style.color="black";
+	 cell3SZ[i].style.color="black";
 
 	 
-	 cell3SZ.style.fontFamily="TAHOMA";
-  		cell3SZ.appendChild(dom);
+	 cell3SZ[i].style.fontFamily="TAHOMA";
+  		cell3SZ[i].appendChild(dom);
 
 
 
@@ -828,9 +929,9 @@ for (var i = 0, n = cells.length; i<n; i++) {
 
   	
 
-		cell2SZ.appendChild(tempDiv);
+		cell2SZ[i].appendChild(tempDiv);
 		jsPlumb.detachEveryConnection();
-		$(divs[i]).replaceWith(episodeContents);
+		$(divs[i]).replaceWith(episodeContents[i]);
 		//$(divs[i]).replaceWith(episodeTable[i]);
 		//tabs3.appendChild(episodeTable[i]);
 		
@@ -841,14 +942,24 @@ for (var i = 0, n = cells.length; i<n; i++) {
 		
 		
 		else{
-			zoomLevel1=false;
+			zoomLevel1[i]=false;
+			
 
-			$(episodeContents).replaceWith(divs[i]);
-			cell1SZ.removeChild(cell1SZ.lastChild);
-			cell2SZ.removeChild(cell2SZ.lastChild);
-			cell3SZ.removeChild(cell3SZ.lastChild);
+			$(episodeContents[i]).replaceWith(divs[i]);
+			cell1SZ[i].removeChild(cell1SZ[i].lastChild);
+			cell2SZ[i].removeChild(cell2SZ[i].lastChild);
+			cell3SZ[i].removeChild(cell3SZ[i].lastChild);
 			//redrawLinks(temp_data);
-			renderListLinks(temp_data);
+			var counterForLinks=0;
+			for (var x = 0; x < zoomLevel1.length; x++) {
+				if(zoomLevel1[x]==false){
+					counterForLinks++;
+				}
+			}
+			if(counterForLinks==zoomLevel1.length){
+				renderListLinks(temp_data);
+			}
+			
 			//jsPlumb.repaintEverything();
 			
 		}
@@ -926,6 +1037,8 @@ function expandCurrentEpisode(i){
 		console.log(data);
 		dom=document.createTextNode(JSON.stringify(data.dom));
 	}
+		console.log("signalMutation:"+signalMutation);
+		
 		tabs2.appendChild(third_column);
 
 //get the trace of a specefic episode
@@ -954,21 +1067,31 @@ function expandCurrentEpisode(i){
 		var table_sequence=document.createElement('table');
 		var row_sequence=document.createElement('tr');
 		var row_extras=document.createElement('tr');
-
+	
 		var cell1_sequence=document.createElement('td');
 		var cell2_code=document.createElement('td');
+
 
 		row_sequence.appendChild(cell1_sequence);
 		row_extras.appendChild(cell2_code);
 		table_sequence.appendChild(row_sequence);
 		table_sequence.appendChild(row_extras);
 
+		
 		cell1_sequence.appendChild(episodeTraceDiv[i]);
 
 
 		//var div_code=second_column;//document.getElementById('second_column');
 		cell2_code.appendChild(second_column);
 		//code_div.appendChild(second_column);
+		if (allEpisodes[i].getMutations().length > 0) {
+    	
+       	 var mutationNotification = document.createElement('div');
+       	 mutationNotification.style.width="150px";
+       	 mutationNotification.className = 'mutationnotification';
+         mutationNotification.innerHTML="Mutation Present"
+         tabs3.appendChild(mutationNotification);
+   	 }
 		tabs3.appendChild(table_sequence);
     	$(episodeContainer).replaceWith(tabs_div);
 
@@ -1065,17 +1188,27 @@ function nextPreviousEpisode(i){
 		var cell1_sequence=document.createElement('td');
 		var cell2_code=document.createElement('td');
 
+
 		row_sequence.appendChild(cell1_sequence);
 		row_extras.appendChild(cell2_code);
 		table_sequence.appendChild(row_sequence);
 		table_sequence.appendChild(row_extras);
 
+		
 		cell1_sequence.appendChild(episodeTraceDiv[i]);
 
 
 		//var div_code=second_column;//document.getElementById('second_column');
 		cell2_code.appendChild(second_column);
 		//code_div.appendChild(second_column);
+		if (allEpisodes[i].getMutations().length > 0) {
+    	
+       	 var mutationNotification = document.createElement('div');
+       	 mutationNotification.style.width="150px";
+       	 mutationNotification.className = 'mutationnotification';
+         mutationNotification.innerHTML="Mutation Present"
+         tabs3.appendChild(mutationNotification);
+   	 }
 		tabs3.appendChild(table_sequence);
 
 
@@ -1151,7 +1284,7 @@ function redrawLinks(data) {
 
 $("#makeMeScrollable").smoothDivScroll({
 			mousewheelScrolling: "allDirections",
-			//manualContinuousScrolling: true,
+			manualContinuousScrolling: true,
 			autoScrollingMode: "onStart"
 });
 	
@@ -1223,7 +1356,7 @@ jsPlumb.bind("ready", function() {
 
 $(document).ready(function(){
 
-	menuContainer.appendChild(scaledDiv);
+	//menuContainer.appendChild(scaledDiv);
 /*	menuElem_map.appendChild(scaledDiv);
 	menuList.appendChild(menuElem_map);
 */

@@ -197,7 +197,7 @@ probably because of use from slf4j -->
 		<dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-servlet</artifactId>
-            <version>1.14</version>
+            <version>1.17</version>
         </dependency>        
 
 

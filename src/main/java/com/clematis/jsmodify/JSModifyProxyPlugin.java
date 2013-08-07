@@ -115,10 +115,20 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			Helper.directoryCheck(getOutputFolder());
 			setFileName(scopename);
 			PrintStream output = new PrintStream(getOutputFolder() + getFilename());
+			System.out.println("MOEEEEE" + getOutputFolder() + getFilename());
 			PrintStream oldOut = System.out;
 			System.setOut(output);
 			System.out.println(input);
 			System.setOut(oldOut);
+
+			PrintStream output2 =
+			        new PrintStream("src/main/webapp/fish-eye-zoom/" + getFilename());
+			System.out.println("MOEEEEE" +
+			        "src/main/webapp/fish-eye-zoom/" + getFilename());
+			PrintStream oldOut2 = System.out;
+			System.setOut(output2);
+			System.out.println(input);
+			System.setOut(oldOut2);
 
 			AstRoot ast = null;
 
@@ -218,6 +228,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 					if ((nType != null && nType.getTextContent() != null && nType
 					        .getTextContent().toLowerCase().contains("javascript"))) {
 						String content = nodes.item(i).getTextContent();
+
 						if (content.length() > 0) {
 							String js = modifyJS(content, request.getURL() + "script" + i);
 							System.out.println(js);

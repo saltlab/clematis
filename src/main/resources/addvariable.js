@@ -9,8 +9,12 @@ var stopButtonClicked = false;
 var recordingInProgress = false; // Can use this for determining if Clematis should be logging or not
 var myVar = 0;
 
-document.getElementById("recordButton").addEventListener('click', startRecording, false);
-document.getElementById("stopButton").addEventListener('click', stopRecording, false);
+
+
+window.onload = function () {
+	document.getElementById("recordButton").addEventListener('click', startRecording, false);
+	document.getElementById("stopButton").addEventListener('click', stopRecording, false);
+}
 
 function startRecording() {
 	console.log("recording");
@@ -27,7 +31,7 @@ function startRecording() {
 
 	//document.getElementById("visualizationLinkContainer").innerHTML = "";
 
-	captureButton.setAttribute("src","images/capture_green.png");
+	document.getElementById("recordButton").setAttribute("src","images/capture_green.png");
 
 	//myVar = setInterval(function(){blink()},1900);
 	
@@ -44,7 +48,7 @@ function stopRecording() {
 	recordButtonClicked = false;
 
 	//clearInterval(myVar);
-	captureButton.setAttribute("src","images/capture.gif");
+	document.getElementById("recordButton").setAttribute("src","images/capture.gif");
 	//document.getElementById("recordButton").style.opacity = 1;
 	//document.getElementById("stopButton").style.opacity = 0.5;
 	
