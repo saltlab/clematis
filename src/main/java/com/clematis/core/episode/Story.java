@@ -276,6 +276,8 @@ public class Story {
 							uselessEpisode = false;
 						}
 					}
+					if(((DOMEventTrace)episode.getSource()).getTargetElement().contains("bookmarkButton"))
+						uselessEpisode = false;
 					if (uselessEpisode)
 						uselessEpisodes.add(episode);
 				}

@@ -248,13 +248,86 @@ public class JSExecutionTracer {
 			
 			story = new Story(domEventTraces, functionTraces, timingTraces, XHRTraces);
 			story.setOrderedTraceList(sortTraceObjects());
+
+/*			ArrayList<TraceObject> bookmarkTraceObjects = new ArrayList<TraceObject>();
+			for (TraceObject to : story.getOrderedTraceList()) {
+				if (to instanceof DOMEventTrace) {
+					if (((DOMEventTrace)to).getEventType().equals("_BOOKMARK_")) {
+						bookmarkTraceObjects.add(to);
+						System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+					}
+				}
+			}
+*/			
+			
 			story.setEpisodes(buildEpisodes());
 			
 			System.out.println("# of trace objects: " + story.getOrderedTraceList().size());
 			System.out.println("# of episodes: " + story.getEpisodes().size());
-
+			/*
+			for (int i = 0; i < story.getEpisodes().size(); i ++) {
+				Episode episode = story.getEpisodes().get(i);
+				if (episode.getSource() instanceof DOMEventTrace) {
+					DOMEventTrace source = (DOMEventTrace)episode.getSource();
+					if(source.getTargetElement().contains("bookmarkButton")) {
+						System.out.println("***********");
+						if (i + 1 < story.getEpisodes().size()) {
+							story.getEpisodes().get(i).getSource().setIsBookmarked(true); // move isbookmarked to episode
+							System.out.println("* " + story.getEpisodes().get(i).getSource().toString());
+						}
+					}
+				}
+				
+			}*/
+/*	
+			for (int i = 0; i < story.getEpisodes().size(); i ++) {
+				Episode episode = story.getEpisodes().get(i);
+				ArrayList<TraceObject> bookmarkObjects = new ArrayList<TraceObject>();
+				for (int j = 0; j < episode.getTrace().getTrace().size(); j ++) {
+					if (episode.getTrace().getTrace().get(j) instanceof DOMEventTrace) {
+						DOMEventTrace domEventTrace = (DOMEventTrace)episode.getTrace().getTrace().get(j);
+						if (domEventTrace.getEventType().equals("_BOOKMARK_")) {
+							bookmarkObjects.add(domEventTrace);
+							System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+							if (i + 1 < story.getEpisodes().size()) {
+								story.getEpisodes().get(i + 1).getSource().setIsBookmarked(true);
+							}
+						}
+					}
+				}
+				episode.getTrace().getTrace().removeAll(bookmarkObjects);
+			}
+			
+			
+			for (Episode e : story.getEpisodes()) {
+				boolean bookmarkNextEpisode = false;
+//				if (e.getSource().getIsBookmarked())
+					System.out.println("============ " + e.getSource().getIsBookmarked());
+					for (TraceObject to : e.getTrace().getTrace()) {
+						if (to instanceof DOMEventTrace) {
+							if (((DOMEventTrace)to).getEventType().equals("_BOOKMARK_"))
+								System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+						}
+					}
+			}
+*/
 			// TODO TODO TODO project specific for photo gallery. eliminate unwanted episodes
 			story.removeUselessEpisodes();
+
+			for (int i = 0; i < story.getEpisodes().size(); i ++) {
+				Episode episode = story.getEpisodes().get(i);
+				if (episode.getSource() instanceof DOMEventTrace) {
+					DOMEventTrace source = (DOMEventTrace)episode.getSource();
+					if(source.getTargetElement().contains("bookmarkButton")) {
+						System.out.println("***********");
+						if (i + 1 < story.getEpisodes().size()) {
+							story.getEpisodes().get(i).getSource().setIsBookmarked(true); // move isbookmarked to episode
+							System.out.println("* " + story.getEpisodes().get(i).getSource().toString());
+						}
+					}
+				}
+				
+			}
 
 			System.out.println("# of episodes after trimming: " + story.getEpisodes().size());
 			

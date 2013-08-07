@@ -20,7 +20,12 @@ window.onload = function () {
 
 
 function bookmark(){
-	console.log("bookmarking");
+    bookmarkPressed = true;
+/*    if (recordingInProgress) {
+    	var date = Date.now();
+    	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: "_BOOKMARK_", targetElement: "{\"attributes\":{\"id\":\"bookmarkButton\",\"name\":\"capture\",\"value\":\"BookMark\",\"src\":\"images/favoritos.png\",\"type\":\"image\",\"original-title\":\"BookMark\"},\"elementType\":\"INPUT\"}"}));
+    }
+*/	console.log("bookmarking");
 }
 function startRecording() {
 	console.log("recording");

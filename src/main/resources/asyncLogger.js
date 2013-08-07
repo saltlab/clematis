@@ -299,10 +299,10 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 	}
 	*/
 	// todo /******************/
-	
+	/*
 	console.log("------------------------------------");
 	console.log("DOM EVENT HANDLED");
-	var date = Date.now();
+*/	var date = Date.now();
 
 	console.log(" + Event type: ", arguments[0]);
 	console.log(" + Target DOM element: ", arguments[1]);
@@ -314,6 +314,7 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 		jml = JSON.stringify(jml);
 	    //alert("dom event");
     	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
+      
 	}
 	checkValues();
 };
