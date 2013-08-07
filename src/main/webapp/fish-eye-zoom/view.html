@@ -155,11 +155,11 @@ var messagesByEpisode = new Array();
 var mutationsByEpisode = new Array();
 var lastMutationDisplay = -1;
 
-document.getElementById('first_column').width = window.innerWidth/3;
-document.getElementById('third_column').width = window.innerWidth/3;
-document.getElementById('code_code').width = window.innerWidth/3;
-document.getElementById('filename_div').width = window.innerWidth/3;
-document.getElementById('second_column').width = window.innerWidth/3;
+first_column.style.width = window.innerWidth/3;
+third_column.style.width = window.innerWidth/3;
+code.style.width = window.innerWidth/3;
+div.style.width = window.innerWidth/3;
+second_column.style.width = window.innerWidth/3;
 
 $("#first_column").prepend("DOM/Timing/XHR Event Info.");
 $("#second_column").prepend("JavaScript Source Code");

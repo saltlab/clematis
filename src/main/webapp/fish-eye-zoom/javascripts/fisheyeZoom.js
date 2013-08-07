@@ -76,7 +76,7 @@ function renderList(data) {
 	for (var i = 0; i < data.length; i++) {
 		//timeStamps[i]=data[i].source.timeStamp;
 		//console.log("timeStamps"+(timeStamps[i]));
-		 date[i] = new Date((data[i].source.timeStamp)*1000);
+		 date[i] = new Date((data[i].source.timeStamp));
 		// hours part from the timestamp
 		 hours[i] = date[i].getUTCHours()
 		// minutes part from the timestamp
@@ -122,6 +122,7 @@ function renderList(data) {
 
 	
 	var zoomLevel1=new Array;
+	var bookmarkButton=new Array;
 	//create the list of episodes, ZOOM  level 0
 	for (var i=0; i<number_episodes; i++){
 
@@ -140,12 +141,20 @@ function renderList(data) {
 		//episodes[i]=document.createTextNode("Episode #"+i); 
 		divs[i]=document.createElement("div");
 
-		episodes_map[i]=document.createTextNode("Episode #"+i); 
+		episodes_map[i]=document.createTextNode(i); 
 		divs_map[i]=document.createElement("div");
+		divs_map[i].style.width="4px";
+		divs_map[i].style.height="6px";
 
 		//divs[i].id="div"+i;
 		
-		
+		   bookmarkButton[i] = document.createElement("input");
+    		bookmarkButton[i].setAttribute("type", "image");
+   		 bookmarkButton[i].setAttribute("src","images/star.png");
+   		  bookmarkButton[i].style.background="#bb79d6";
+
+   		 //divs[2].appendChild(bookmarkButton[0]);
+		 divs[0].appendChild(bookmarkButton[0]);
 
     	 $.ajax({
 		type: 'GET',
@@ -155,8 +164,10 @@ function renderList(data) {
 		success: function show1(data) {
 
 
+
+
 		if(data.id==0){
-			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"DOM"); 
+			episodes[i]=document.createTextNode("Episode #"+i+"\n"+"Event"); 
 			$(divs[i]).addClass('cell_dom');
 			$(divs_map[i]).addClass('box');
 
@@ -195,7 +206,7 @@ function renderList(data) {
     
     	row.appendChild(cells[i]);
 
-    	divs_map[i].appendChild(episodes_map[i]);
+    	//divs_map[i].appendChild(episodes_map[i]);
 		links_map[i].appendChild(divs_map[i]);
 		
 		cells_map[i]=document.createElement("td");
@@ -364,6 +375,10 @@ function renderList(data) {
 	menuList.appendChild(menuElem_DOM);
 	menuList.appendChild(menuElem_XHR);
 	menuList.appendChild(menuElem_TO);
+
+	var menuElemMap=new Array;
+
+	
 	
 
 	
@@ -469,12 +484,21 @@ function renderList(data) {
 	searchTextInput.value = 'Search';
 	searchTextInput.style.width = '60px';
 	searchTextInput.style.height = '12px';
+	searchTextInput.style.marginRight="10px";
 
 	var menuElem_searchText = document.createElement("li");
 
 	menuElem_searchText.appendChild(searchTextInput);
 	menuList.appendChild(menuElem_searchText);
-	menuList.appendChild(scaledDiv);
+
+	for (var i=0; i<number_episodes; i++){
+		 menuElemMap[i] = document.createElement("li");
+		 menuElemMap[i].style.width="5px";
+		 menuElemMap[i].style.width="10px";
+ 		 menuElemMap[i].appendChild(divs_map[i]);
+		 menuList.appendChild(menuElemMap[i]);
+
+	}
 	
 	/********** End: Search by Text **********/
 
@@ -1284,7 +1308,7 @@ function redrawLinks(data) {
 
 $("#makeMeScrollable").smoothDivScroll({
 			mousewheelScrolling: "allDirections",
-			manualContinuousScrolling: true,
+			//manualContinuousScrolling: true,
 			autoScrollingMode: "onStart"
 });
 	
