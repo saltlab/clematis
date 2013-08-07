@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+	<title>My PhotoGallery</title>
+	<link>http://localhost/phormer331/</link>
+	<description>... contains my photos!</description>
+	<language>en</language>
+	<generator>http://p.horm.org/er</generator>
+	<lastBuildDate>Wed, 31 Jul 2013 21:24:20 +0200</lastBuildDate>
+	<managingEditor>myemail@mydomain.com</managingEditor>
+	<item>
+		<title>clem4</title>
+		<link>http://localhost/phormer331/?p=3</link>
+		<guid isPermaLink="true">http://localhost/phormer331/?p=3</guid>
+		<description>
+			<![CDATA[<img src="http://localhost/phormer331/images/000003_aygqj_9.jpg" alt="" />]]>
+		</description>
+		<pubDate>Wed, 31 Jul 2013 21:24:00 +0200</pubDate>
+		<category>Default Category</category>
+	</item>
+	<item>
+		<title>clem2</title>
+		<link>http://localhost/phormer331/?p=2</link>
+		<guid isPermaLink="true">http://localhost/phormer331/?p=2</guid>
+		<description>
+			<![CDATA[<img src="http://localhost/phormer331/images/000002_nrnvg_9.jpg" alt="" />]]>
+		</description>
+		<pubDate>Wed, 31 Jul 2013 21:23:00 +0200</pubDate>
+		<category>Default Category</category>
+	</item>
+	<item>
+		<title>clem1</title>
+		<link>http://localhost/phormer331/?p=1</link>
+		<guid isPermaLink="true">http://localhost/phormer331/?p=1</guid>
+		<description>
+			<![CDATA[<img src="http://localhost/phormer331/images/000001_jhaum_9.jpg" alt="" />]]>
+		</description>
+		<pubDate>Wed, 31 Jul 2013 21:23:00 +0200</pubDate>
+		<category>Default Category</category>
+	</item>
+</channel>
+</rss>

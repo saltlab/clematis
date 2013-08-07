@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<Xmldata>
+	<Visit id="archive">
+		<visitor id="d20130731"><![CDATA[68]]></visitor>
+		<visitor id="d20130801"><![CDATA[210]]></visitor>
+		<visitor id="d20130802"><![CDATA[467]]></visitor>
+		<visitor id="d20130803"><![CDATA[80]]></visitor>
+		<visitor id="d20130806"><![CDATA[249]]></visitor>
+		<visitor id="d20130807"><![CDATA[397]]></visitor>
+		<visitor id="d20130808"><![CDATA[127]]></visitor>
+	</Visit>
+	<Visit id="online">
+		<visitor id="s127.0.0.1huoflllgxmtcsbwnwgrwhygykcdcqlfy"><![CDATA[1375917731]]></visitor>
+		<visitor id="s127.0.0.1yotbuhnunjyitumcflzixwemrngvlnnk"><![CDATA[1375917737]]></visitor>
+		<visitor id="s127.0.0.1yqbipjckweqiezgadtsrzodmcnpjzlxy"><![CDATA[1375917738]]></visitor>
+		<visitor id="s127.0.0.1ptmgyqngwiyskjxxmjnxzsvgwqrjvnqk"><![CDATA[1375917745]]></visitor>
+		<visitor id="s127.0.0.1ahuziqvyztnektadpwnyaseylcecdrwe"><![CDATA[1375917748]]></visitor>
+		<visitor id="s127.0.0.1stmcnmgcjuakmfixhnalfxpepsmxrsfj"><![CDATA[1375917748]]></visitor>
+	</Visit>
+</Xmldata>

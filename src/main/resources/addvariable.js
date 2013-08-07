@@ -10,6 +10,8 @@ var recordingInProgress = false;//true;//////////false; // Can use this for dete
 ///////var recordingInProgress = false; // Can use this for determining if Clematis should be logging or not
 var myVar = 0;
 
+var bookmarkPressed = false;
+
 window.onload = function () {
 	document.getElementById("recordButton").addEventListener('click', startRecording, false);
 	document.getElementById("stopButton").addEventListener('click', stopRecording, false);
@@ -18,7 +20,12 @@ window.onload = function () {
 
 
 function bookmark(){
-	console.log("bookmarking");
+    bookmarkPressed = true;
+/*    if (recordingInProgress) {
+    	var date = Date.now();
+    	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: "_BOOKMARK_", targetElement: "{\"attributes\":{\"id\":\"bookmarkButton\",\"name\":\"capture\",\"value\":\"BookMark\",\"src\":\"images/favoritos.png\",\"type\":\"image\",\"original-title\":\"BookMark\"},\"elementType\":\"INPUT\"}"}));
+    }
+*/	console.log("bookmarking");
 }
 function startRecording() {
 	console.log("recording");

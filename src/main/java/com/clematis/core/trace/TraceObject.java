@@ -9,9 +9,11 @@ public class TraceObject implements Comparable<TraceObject> {
 	private String messageType;
 	private long timeStamp;
 	private boolean isEpisodeSource;
+	private boolean isBookmarked;
 	
 	public TraceObject() {
 		isEpisodeSource = false;
+		isBookmarked = false;
 	}
 	
 	public int getCounter() {
@@ -45,11 +47,21 @@ public class TraceObject implements Comparable<TraceObject> {
 			return 1;
 		return 0;
 	}
+	
 	public boolean isEpisodeSource() {
 		return isEpisodeSource;
 	}
+	
 	public void setEpisodeSource(boolean isEpisodeSource) {
 		this.isEpisodeSource = isEpisodeSource;
+	}
+
+	public boolean getIsBookmarked() {
+		return isBookmarked;
+	}
+
+	public void setIsBookmarked(boolean isBookmarked) {
+		this.isBookmarked = isBookmarked;
 	}
 	
 }

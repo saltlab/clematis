@@ -14,10 +14,12 @@ import com.clematis.core.trace.DOMEventTrace;
 import com.clematis.core.trace.DOMMutationTrace;
 import com.clematis.core.trace.TimeoutCallback;
 import com.clematis.core.trace.TimeoutSet;
+import com.clematis.core.trace.TimingTrace;
 import com.clematis.core.trace.TraceObject;
 import com.clematis.core.trace.XMLHttpRequestOpen;
 import com.clematis.core.trace.XMLHttpRequestResponse;
 import com.clematis.core.trace.XMLHttpRequestSend;
+import com.clematis.core.trace.XMLHttpRequestTrace;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
@@ -152,7 +154,7 @@ public class Story {
 	}
 
 	// Get information about the trace
-
+/*
 	public TraceObject getNextTraceObject(TraceObject to) {
 		for (int i = 0; i < orderedTraceList.size(); i++) {
 			if (orderedTraceList.get(i) == to) { // copy constructor (?)
@@ -162,7 +164,7 @@ public class Story {
 		}
 		return null;
 	}
-
+*/
 	public Episode getEpisode(TraceObject to) {
 		for (Episode e : episodes) {
 			if (e.getTrace().getTrace().contains(to))
@@ -255,6 +257,44 @@ public class Story {
 				        (DOMElementValueTrace) to);
 			else
 				System.err.println("invalid DOM trace");
+		}
+	}
+	
+	// todo todo todo
+	public void removeUselessEpisodes() {
+		ArrayList<Episode> uselessEpisodes = new ArrayList<Episode>();
+
+		for (Episode episode : this.getEpisodes()) {
+			if (episode.getSource() instanceof DOMEventTrace) {
+				String eventType = ((DOMEventTrace)episode.getSource()).getEventType();
+//				System.out.println(eventType);
+				if (eventType.equals("mouseover") || eventType.equals("mousemove") || eventType.equals("mouseout")) {
+					boolean uselessEpisode = true;
+					for (TraceObject traceObject : episode.getTrace().getTrace()) {
+						if (traceObject instanceof TimingTrace || traceObject instanceof XMLHttpRequestTrace) {
+							System.out.println("episode not useless, contains " + traceObject.getClass());
+							uselessEpisode = false;
+						}
+					}
+					if(((DOMEventTrace)episode.getSource()).getTargetElement().contains("bookmarkButton"))
+						uselessEpisode = false;
+					if (uselessEpisode)
+						uselessEpisodes.add(episode);
+				}
+			}
+		}
+		System.out.println("# of useless episodes: " + uselessEpisodes.size());
+		this.getEpisodes().removeAll(uselessEpisodes);
+		// TODO reset story's ordered trace list
+		resetOrderedTraceList();
+	}
+	
+	private void resetOrderedTraceList() {
+		orderedTraceList.clear();
+		for (int i = 0; i < episodes.size(); i ++) {
+			for (int j = 0; j < episodes.get(i).getTrace().getTrace().size(); j ++) {
+				orderedTraceList.add(episodes.get(i).getTrace().getTrace().get(j));
+			}
 		}
 	}
 
