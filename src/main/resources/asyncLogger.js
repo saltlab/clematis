@@ -81,17 +81,12 @@ var MsgConstants = {
  * Prints the information related to creation of a timeout to the console
  */
 logger.logSetTimeout = function(func, delay, params) {
-//	console.log("++++++++++++++++++++++++++++++++++ ", totalNumOfTimeouts);
 	if (!recordingInProgress) return;
-//	else console.log("logSetTimeout");
 	
-//    console.log("set timeout()");
-
 	if (!recordStarted)
 		return;
 	
     // todo todo
-//	console.log("(((delay))) " + delay);
 	if (delay == 0 || delay == null) {
 //		console.log("+++++ Ignore timeout with delay = 0 +++++");
 		func[totalNumOfTimeouts] = true;
@@ -148,9 +143,6 @@ logger.logSetTimeout = function(func, delay, params) {
  */
 logger.logTimeoutCallback = function(func) {
 	if (!recordingInProgress) return;
-//	else console.log("logTimeoutCallback");
-
-//	console.log("timeout callback");
 
     if (!recordStarted)
 		return;
@@ -161,12 +153,16 @@ logger.logTimeoutCallback = function(func) {
     	return;
     }
     
+    if (func.id == null) { // if settimeout was not captured but the callback is in the trace. assign an id to the callback
+    	totalNumOfTimeouts ++;
+    	func.id = totalNumOfTimeouts;
+    }
+    
 	console.log("------------------------------------");
 	console.log("TIMEOUT: CALLBACK");
 	var date = Date.now();
 
 	console.log(" + Timeout ID:", func.id);
-//	console.log(" + ignore?", func[totalNumOfTimeouts]);
 	console.log(" + Callback function: ", func);
 	console.log("Number of active timeouts: ", timeoutCounter);
 	if (timeoutCounter == 0) {
@@ -176,7 +172,6 @@ logger.logTimeoutCallback = function(func) {
 		// responsible unit.
 	}
 
-    //alert("timeout callback");
     send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func.name, counter: traceCounter++}));
     checkValues();
     
@@ -194,7 +189,6 @@ logger.logTimeoutCallback = function(func) {
  */
 logger.logXHROpen = function(xhr, method, url, async) {
 	if (!recordingInProgress) return;
-//	else console.log("logXHROpen");
 
 	if (!recordStarted)
 		return;
@@ -207,7 +201,6 @@ logger.logXHROpen = function(xhr, method, url, async) {
 	console.log(" + URL: ", url);
 	console.log(" + Async: ", async);
 
-    //alert("xhr open");
     send(JSON.stringify({messageType: "XHR_OPEN", timeStamp: date, id: xhr.id, methodType: method, url: url, async: async, counter: traceCounter++}));
 
 	checkValues();

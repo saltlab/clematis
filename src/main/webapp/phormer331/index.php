@@ -515,14 +515,8 @@
 						."\t ss_src [$n] = '{$val['src']}'; "
 						."\t ss_ttl [$n] = '".str_replace(array("\n", "'"), array('', '&#039;'), nl2br(strtr($val['name'], $transtable)))."'; "
 						."\t ss_desc[$n] = '".str_replace(array("\n", "'"), array('', '&#039;'), nl2br($val['desc']))."'; \n";
-//				echo "alert(\"before calling ss_update\");";
 				echo "\t".'ss_update();'."\n";
-				echo "\t"."console.log(\"before temp func\");"."\n";
-//				echo "alert(\"before timeout\");"."\n";
-///////				echo "\t"."temp_func();"."\n";
-//				echo "\t"."setTimeout(\"ss_slideshow();\", 10000);"."\n";
 				echo "\t".'setTimeout(ss_slideshow, 10000);'."\n";
-//				echo "alert(\"after timeout\");"."\n";
 			echo '</script>';
 
 ?>
@@ -809,7 +803,8 @@
 		</div>
 	</div>
 	</div>
-</div></center> <!-- Granny -->
+</div>
+</center> <!-- Granny -->
 <?php
 	$time_end = getmicrotime();
 	write_footer();
@@ -823,15 +818,19 @@
 </div>
 <script>
 
-document.getElementById("myDiv").addEventListener('click', myHandler, false);
-//document.getElementById("myDiv2").addEventListener('click', myHandler, false);
-
-function myHandler() {
-	alert("hello");
-	var div = document.createElement("div");
-	div.id = "myDiv2";
-	div.innerHTML = "Hello2";
-	document.body.appendChild(div);
+$("#Granny").bind('click', mp_granny);
+$("center").bind('click', mp_center);
+$("table").bind('click', mp_table);
+function mp_granny() {
+	$("#myDiv").innerHTML = "count";
+//	alert("mp_granny");
+}
+function mp_center() {
+//	alert("mp_center");
+	$("#myDiv").innerHTML = "";
+}
+function mp_table() {
+	alert("mp_table");
 }
 
 </script>

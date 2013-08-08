@@ -16,7 +16,6 @@ var ss_awaits = 1;
 function dg(x) {
 	var a = document.getElementById(x);
 	return a;
-//	return document.getElementById(x);
 }
 
 function setOpac(cur, strength) {
@@ -81,7 +80,6 @@ function reToggleInfo() {
 function rand(x) {
 	var a = Math.round(Math.random()*x);
 	return a;
-//	return Math.round(Math.random()*x);
 }
 
 function reshuffle() {
@@ -105,7 +103,6 @@ function updateIndic() {
 		dg('indicator').innerHTML = '&nbsp; '+v;
 	if (isAjaxing) {
 		setTimeout(updateIndic, 500);
-//		setTimeout("updateIndic();", 500);
 	}
 	else
 		dg('indicator').innerHTML = '';
@@ -173,13 +170,12 @@ function prepareBody() {
 	try {
 		isAjaxing = true;
 		makeRequest("./?cmd=wvcheck&md5="+md5.substr(0, 20)+"&r="+Math.round(Math.random()*100000)); // to avoid unwanted caching
-//		makeRequest("./?cmd=wvcheck&md5="+md5.substr(0, 20)+"&r="+Math.round(Math.random()*100000)); // to avoid unwanted caching
 	} catch(e) {}
 }
 
 function confirmDelete(x) {
-//	return confirm('Are you sure you want to delete?');
-//	return confirm('Are you sure you want to delete "'+x+'"?');
+	var ret = confirm('Are you sure you want to delete "'+x+'"?');
+	return ret;
 }
 
 function hideElem(x) {
@@ -250,6 +246,11 @@ function ss_prev() {
 	ss_update();
 }
 
+function changeUISet() {
+	alert("UI settings changed");
+	ss_slideshow();
+}
+
 function ss_update() {
 	ss_cur = Math.max(ss_cur, 0);
 
@@ -259,7 +260,6 @@ function ss_update() {
 		ss_cur = ss_date.length;
 		var a = dg('ss_n');
 		a.innerHTML = "Final";
-//		dg('ss_n').innerHTML = "Final";
 		if (ss_play)
 			ss_playpause();
 	}
@@ -303,7 +303,6 @@ function src_smaller(x) {
 		x = x.substr(3, x.length-4);
 	var a = x.substr(0, x.length-5)+"4.jpg";
 	return a;
-//	return x.substr(0, x.length-5)+"4.jpg";
 }
 
 function ss_toggleSmaller() {
@@ -317,8 +316,13 @@ function ss_run() {
 		ss_awaits++;
 		var lookup = parseInt(dg('ss_refresh').value);
 		setTimeout(ss_slideshow, lookup);
-//		setTimeout("ss_slideshow();", lookup);
 	}
+}
+
+function ss_manipulate() {
+	setTimeout(changeUISet, 2000);
+	dg('ss_smaller_link').innerHTML = (ss_smaller)?'Larger Size':'Smaller Size';
+	dg('ss_photo').src = ss_smaller?src_smaller(dg('ss_photo').src):ss_src[ss_cur];
 }
 
 function ss_slideshow() {
@@ -328,15 +332,4 @@ function ss_slideshow() {
 		ss_update();
 	}
 	ss_run();
-}
-
-function temp_func() {
-	setTimeout(temp_func2, 2000);
-}
-
-function temp_func2() {
-}
-
-function temp_func3() {
-//	alert("temp_func3");
 }
