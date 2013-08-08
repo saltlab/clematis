@@ -109,6 +109,21 @@ public class episodeResource {
 	}
 
 	@GET
+	@Path("/episodes/bookmarked")
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Integer> getBookmarks() {
+		intialize();
+		List<Integer> b1 = new ArrayList<Integer>();
+		for (int i = 0; i < this.s1.getEpisodes().size(); i++) {
+			if (this.s1.getEpisodes().get(i).getIsBookmarked() == true) {
+				b1.add(i);
+			}
+		}
+		return b1;
+
+	}
+
+	@GET
 	@Path("/episodes/pretty")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getEpisodesPretty() {

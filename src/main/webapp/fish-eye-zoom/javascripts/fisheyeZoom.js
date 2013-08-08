@@ -153,7 +153,23 @@ function renderList(data) {
    		 bookmarkButton[i].setAttribute("src","images/star.png");
    		
    		 //divs[2].appendChild(bookmarkButton[0]);
-		 divs[0].appendChild(bookmarkButton[0]);
+		 //divs[0].appendChild(bookmarkButton[0]);
+
+		 $.ajax({
+		type: 'GET',
+		url: 'http://localhost:8080/rest/clematis-api/episodes/'+i ,
+		dataType: "json",
+		async: false,
+		success: function show1(data) {
+
+		if(data.isBookmarked==true){
+			 divs[i].appendChild(bookmarkButton[i]);
+
+		}
+
+	
+			}
+		});
 
     	 $.ajax({
 		type: 'GET',
@@ -161,7 +177,6 @@ function renderList(data) {
 		dataType: "json",
 		async: false,
 		success: function show1(data) {
-
 
 
 
