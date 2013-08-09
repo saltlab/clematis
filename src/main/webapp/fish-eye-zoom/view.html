@@ -218,7 +218,8 @@ for (var i = 0; i < episodeCounter; i ++) {
 
 	episodeTraceDiv[i].id = "trace_div_" + i;
 	episodeTraceDiv[i].addEventListener('click', traceDivClickHandler, false);
-	episodeTraceDiv[i].addEventListener('click', printDOMMutation, false);
+	//episodeTraceDiv[i].addEventListener('click', printDOMMutation, false);
+
 
 
 	episodeTraceDiv[i].setAttribute('class', 'ud_diagram_div');
@@ -492,6 +493,40 @@ function printDOMMutation(e) {
     console.log(signalMutation);
     $("#third_column").effect("highlight", {}, 2000);
 }
+
+function printDOMMutation2(i) {
+	console.log("printing DOMMUTATION");
+	//var splitId = this.id.split("_");
+	var episodeNumber = i;
+
+    if (episodeNumber == lastMutationDisplay) return;
+
+    lastMutationDisplay = episodeNumber;
+
+    third_column.innerHTML = '';
+
+    $("#third_column").prepend("DOM Mutation Information for episode " + episodeNumber + ":");
+
+	for (var j=0; j<allEpisodes[episodeNumber].getMutations().length; j++){
+		signalMutation=true;
+		console.log(" DOMMUTATION Detected");
+        var jjson = mutationsByEpisode[episodeNumber][j]; 
+        third_column.appendChild(document.createElement('pre')).innerHTML = syntaxHighlight(JSON.stringify(jjson, undefined, 4));
+	}
+
+	if(signalMutation==true){
+			signalMutation=false;
+			$(document.getElementById('elem2Mutation')).effect("highlight", {}, 2000);
+			//var temp=document.getElementById('anchor3').innerHTML;
+			//document.getElementById('anchor3').innerHTML=temp+"\nMutation Present";
+	}	
+    if (allEpisodes[episodeNumber].getMutations().length < 1) {
+        third_column.appendChild(document.createElement('pre')).innerHTML = "N/A";
+    } 
+    console.log(signalMutation);
+    $("#third_column").effect("highlight", {}, 2000);
+}
+
 
 function traceDivClickHandler(e) {
 	
