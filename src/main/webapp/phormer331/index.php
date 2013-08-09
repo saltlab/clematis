@@ -830,7 +830,7 @@ function mp_center() {
 	$("#myDiv").innerHTML = "";
 }
 function mp_table() {
-	alert("mp_table");
+//	alert("mp_table");
 }
 
 </script>

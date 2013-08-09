@@ -268,17 +268,20 @@ public class Story {
 			if (episode.getSource() instanceof DOMEventTrace) {
 				String eventType = ((DOMEventTrace)episode.getSource()).getEventType();
 //				System.out.println(eventType);
-				if (eventType.equals("mouseover") || eventType.equals("mousemove") || eventType.equals("mouseout")) {
+				if (eventType.equals("mouseover") || eventType.equals("mousemove") || eventType.equals("mouseout") || eventType.equals("mousedown")) {
 					boolean uselessEpisode = true;
-					for (TraceObject traceObject : episode.getTrace().getTrace()) {
+					// todo oooooooooooooooooooooooooooooooooooooooooo
+/*					for (TraceObject traceObject : episode.getTrace().getTrace()) {
 						if (traceObject instanceof TimingTrace || traceObject instanceof XMLHttpRequestTrace) {
 							System.out.println("episode not useless, contains " + traceObject.getClass());
 							uselessEpisode = false;
 						}
 					}
-					if(((DOMEventTrace)episode.getSource()).getTargetElement().contains("bookmarkButton"))
+					if(((DOMEventTrace)episode.getSource()).getTargetElement().contains("bookmarkButton")) {
+						System.out.println("++++++++++++++ " + ((DOMEventTrace)episode.getSource()).getTargetElement());
 						uselessEpisode = false;
-					if (uselessEpisode)
+					}
+*/					if (uselessEpisode)
 						uselessEpisodes.add(episode);
 				}
 			}
@@ -287,6 +290,10 @@ public class Story {
 		this.getEpisodes().removeAll(uselessEpisodes);
 		// TODO reset story's ordered trace list
 		resetOrderedTraceList();
+	}
+	
+	public void removeUselessEpisodes(Collection<Episode> uselessEpisodes) {
+		this.episodes.removeAll(uselessEpisodes);
 	}
 	
 	private void resetOrderedTraceList() {

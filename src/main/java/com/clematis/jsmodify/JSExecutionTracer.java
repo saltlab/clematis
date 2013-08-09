@@ -288,7 +288,7 @@ public class JSExecutionTracer {
 						DOMEventTrace domEventTrace = (DOMEventTrace)episode.getTrace().getTrace().get(j);
 						if (domEventTrace.getEventType().equals("_BOOKMARK_")) {
 							bookmarkObjects.add(domEventTrace);
-							System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+							System.out.println("bookmark");
 							if (i + 1 < story.getEpisodes().size()) {
 								story.getEpisodes().get(i + 1).getSource().setIsBookmarked(true);
 							}
@@ -306,19 +306,30 @@ public class JSExecutionTracer {
 					for (TraceObject to : e.getTrace().getTrace()) {
 						if (to instanceof DOMEventTrace) {
 							if (((DOMEventTrace)to).getEventType().equals("_BOOKMARK_"))
-								System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+								System.out.println("bookmark");
 						}
 					}
 			}
 */
-			// TODO TODO TODO project specific for photo gallery. eliminate unwanted episodes
+/*			for (Episode episode : story.getEpisodes()) {
+				if (episode.getSource() instanceof DOMEventTrace) {
+					if (((DOMEventTrace)episode.getSource()).getTargetElement().contains("bookmarkButton")) {
+						System.out.print("**** " + ((DOMEventTrace)episode.getSource()).getEventType() + " * ");
+					}
+					System.out.println("---- " + ((DOMEventTrace)episode.getSource()).getTargetElement());
+				}
+			}
+*/			// TODO TODO TODO project specific for photo gallery. eliminate unwanted episodes
 			story.removeUselessEpisodes();
 
+			ArrayList<Episode> bookmarkEpisodes = new ArrayList<Episode>();
+			
 			for (int i = 0; i < story.getEpisodes().size(); i ++) {
 				Episode episode = story.getEpisodes().get(i);
 				if (episode.getSource() instanceof DOMEventTrace) {
 					DOMEventTrace source = (DOMEventTrace)episode.getSource();
 					if(source.getTargetElement().contains("bookmarkButton")) {
+						bookmarkEpisodes.add(episode);
 						if (i + 1 < story.getEpisodes().size()) {
 							story.getEpisodes().get(i + 1).setIsBookmarked(true);
 //							story.getEpisodes().get(i).getSource().setIsBookmarked(true); // move isbookmarked to episode
@@ -328,6 +339,8 @@ public class JSExecutionTracer {
 				}
 				
 			}
+			
+			story.removeUselessEpisodes(bookmarkEpisodes);
 
 			System.out.println("# of episodes after trimming: " + story.getEpisodes().size());
 			

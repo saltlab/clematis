@@ -307,6 +307,9 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 		jml = JSON.stringify(jml);
 	    //alert("dom event");
     	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
+    	console.log("-----------------------------------");
+    	console.log(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
+    	console.log("-----------------------------------");
       
 	}
 	checkValues();
