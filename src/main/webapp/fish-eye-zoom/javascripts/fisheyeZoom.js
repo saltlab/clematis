@@ -712,6 +712,7 @@ for (var i = 0, n = cells.length; i<n; i++) {
   el.addEventListener('click', (function(i, el) { 
     return function() {
     	//jsPlumb.detachEveryConnection();
+    
 
     	menuAnchor4.appendChild(fullScreen);
     	if(zoomLevel1[i]==false){
@@ -827,27 +828,60 @@ for (var i = 0, n = cells.length; i<n; i++) {
 
 
 //Get the Dom for  zoom level 1
-	 var url2 = 'http://localhost:8080/rest/clematis-api/episodes/'+i;
-	 var dom;
-	$.ajax({
-		type: 'GET',
-		url: url2 ,
-		dataType: "json",
-		async: false,
-		success: function renderList3(data) {
 
-		console.log(data);
-		dom=document.createTextNode("Result");
-	}
-		});
-		cell3SZ[i].style.fontSize="20px";
+	 var tempDiv_mutation=document.createElement("div");
+	 var tbl_mutation = document.createElement("table");
+	 var tblBody_mutation = document.createElement("tbody");
+	 var rows_mutation=new Array;
+	 rows_mutation[0] = document.createElement("tr");
+	 rows_mutation[1] = document.createElement("tr");
+	 var cells_mutation=new Array;
 
-	 cell3SZ[i].style.color="black";
+	 cells_mutation[0]=document.createElement("td");	 
+	 cells_mutation[0].style.fontSize="20px";
+	 cells_mutation[0].style.color="black";
+	 cells_mutation[0].style.fontFamily="TAHOMA";
 
-	 
-	 cell3SZ[i].style.fontFamily="TAHOMA";
-  		cell3SZ[i].appendChild(dom);
 
+	 cells_mutation[0].colSpan=3;
+	 cells_mutation[0].appendChild(document.createTextNode("Dom Mutations"));
+
+
+	 rows_mutation[0].appendChild(cells_mutation[0]);
+
+	 tblBody_mutation.appendChild(rows_mutation[0]);
+	
+			var counter_mutation=0;
+			var num_rows_mutation=1;
+			rows_mutation[num_rows_mutation+2]=document.createElement("tr");
+			for (var h=0; h<allEpisodes[i].getMutations().length; h++){
+
+				if(counter_mutation==3){
+					counter_mutation=0;
+					num_rows_mutation++;
+					rows_mutation[num_rows_mutation+2]=document.createElement("tr");
+
+				}
+				counter_mutation++;
+
+				cells_mutation[h+3]=document.createElement("td");
+				 var jjson = mutationsByEpisode[i][h];
+				 var str=JSON.stringify(jjson);
+				 var n=str.split(",");
+				 var one=n[1].split(":")[1].replace("}"," ");
+				 var two=n[3].split(":")[1].replace("}"," "); 
+
+    			cells_mutation[h+3].appendChild(document.createTextNode(one+" "+two));
+				cells_mutation[h+3].setAttribute('class','cell_source');
+
+
+				rows_mutation[num_rows_mutation+2].appendChild(cells_mutation[h+3]);
+				tblBody_mutation.appendChild(rows_mutation[num_rows_mutation+2]);
+			}
+			//tbl.setAttribute("border","3");
+			tbl_mutation.appendChild(tblBody_mutation);
+			tempDiv_mutation.appendChild(tbl_mutation);
+			cell3SZ[i].appendChild(tempDiv_mutation);
 
 
   	//Get the trace for  zoom level 1, specifically we want to get the trace and lineNo and targetfunction and scopeName from the the trace.	
