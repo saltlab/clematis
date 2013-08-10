@@ -169,7 +169,8 @@ public class JSUml2Story {
 				TimeoutCallback tcto = (TimeoutCallback) to;
 				System.out.println("var " + getDiagramIdentifier(to)
 				        + " = new TimingTrace(false);");
-				System.out.println(getDiagramIdentifier(to) + ".setTimeoutId(" + tcto.getId()
+				System.out.println(getDiagramIdentifier(to) + ".setTimeoutId("
+				        + tcto.getTimeoutId()
 				        + ");");
 				System.out.println(getDiagramIdentifier(to) + ".setCallbackFunction('"
 				        + tcto.getCallbackFunction() + "');");
@@ -177,7 +178,8 @@ public class JSUml2Story {
 				TimeoutSet tsto = (TimeoutSet) to;
 				System.out.println("var " + getDiagramIdentifier(to)
 				        + " = new TimingTrace(false);");
-				System.out.println(getDiagramIdentifier(to) + ".setTimeoutId(" + tsto.getId()
+				System.out.println(getDiagramIdentifier(to) + ".setTimeoutId("
+				        + tsto.getTimeoutId()
 				        + ");");
 				System.out.println(getDiagramIdentifier(to) + ".setCallbackFunction('"
 				        + tsto.getCallbackFunction() + "');");

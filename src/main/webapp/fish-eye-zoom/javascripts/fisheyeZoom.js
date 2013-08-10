@@ -25,7 +25,7 @@ var globalEpisodeContainer;
 
 	//$(episodeContainer).addClass('dock-container');
 	episodeContainer.id="makeMeScrollable";
-	episodeContainer.style.height="700px";
+	episodeContainer.style.height="1500px";
 	//episodeContainer.style.overflow="scroll"
 
 	var episode1Clicked=false;
@@ -497,7 +497,7 @@ function renderList(data) {
 	searchTextInput.id = 'searchTextInput';
 	searchTextInput.value = 'Search';
 	searchTextInput.style.width = '60px';
-	searchTextInput.style.height = '12px';
+	searchTextInput.style.height = '15px';
 	searchTextInput.style.marginRight="10px";
 
 	var menuElem_searchText = document.createElement("li");
@@ -533,7 +533,15 @@ function renderList(data) {
 	// Search by dom event select tag
 	document.getElementById('selectDomEventType').addEventListener('change', searchByDomEventClicked);
 	
+	function clear(){
+		for(var x=0;x<number_episodes;x++){
+			$(divs[x]).removeClass('cell_xhr2');
+			//console.log(x);
+		}
+	}
 	function searchByDomEventClicked() {
+		
+		clear();
 		var matchingEpisodes = searchByDomEventType(this.options[this.selectedIndex].value);
 		if(this.options[this.selectedIndex].value=="Default"){
 			console.log("Deafult");
@@ -555,6 +563,7 @@ function renderList(data) {
 	document.getElementById('searchTextInput').addEventListener('change', searchByTextValueChanged);
 	
 	function searchByTextValueChanged() {
+		clear();
 		var matchingSourceEpisodes = searchByDomEventType(this.value);
 		var matchingTraceEpisodes = searchTraceByKeyword(this.value);
 		console.log("----\n", matchingSourceEpisodes);
@@ -918,7 +927,7 @@ for (var i = 0, n = cells.length; i<n; i++) {
 			var counter=0;
 			var num_rows=1;
 			rows[num_rows+2]=document.createElement("tr");
-			for(var i=1;i<data.trace.length;i++){
+			for (var h = 0; h<allEpisodes[currentEpisode].internalComponents.length; h++){
 
 				if(counter==3){
 					counter=0;
@@ -928,10 +937,12 @@ for (var i = 0, n = cells.length; i<n; i++) {
 				}
 				counter++;
 
-				cells[i+3]=document.createElement("td");
+				cells[h+3]=document.createElement("td");
 
 
-				var eventHandler= new String(JSON.stringify(data.trace[i].eventHandler));
+				//var eventHandler= new String(JSON.stringify(data.trace[i].eventHandler));
+
+				/*
 				if(data.trace[i].id==0 && eventHandler=="\"anonymous\""){
 					cells[i+3].appendChild(document.createTextNode("Anonymous"));
 					cells[i+3].setAttribute("title","Anonymous");
@@ -952,11 +963,38 @@ for (var i = 0, n = cells.length; i<n; i++) {
 					cells[i+3].setAttribute("title","DOM Event");
 					$(cells[i+3]).tipsy({gravity:'nw'});
 				}
+	
+				*/
 
-				cells[i+3].setAttribute('class','cell_source');
+		
+	    	//console.log("creating actors");
+			if (allEpisodes[currentEpisode].internalComponents[h] instanceof DOMEventTrace) {
+			// DOM event, Actor should be created for sequence diagram
+
+    			cells[h+3].appendChild(document.createTextNode('Event type:' + allEpisodes[currentEpisode].internalComponents[h].getEventType() ));
+
+			} else if (allEpisodes[currentEpisode].internalComponents[h] instanceof XHREvent) {
+
+			    cells[h+3].appendChild(document.createTextNode('XHR ID: ' + allEpisodes[currentEpisode].internalComponents[h].getXHRId().toString()));
+	
+			} else if (allEpisodes[currentEpisode].internalComponents[h] instanceof TimingTrace) {
+
+    			cells[h+3].appendChild(document.createTextNode('TID: ' + allEpisodes[currentEpisode].internalComponents[h].getTimeoutId().toString()));
+			} else {
+			// Function trace, create lifeline
+
+			    cells[h+3].appendChild(document.createTextNode(allEpisodes[currentEpisode].internalComponents[h].getName()));
+	
+			}
 
 
-				rows[num_rows+2].appendChild(cells[i+3]);
+	      	
+	    	
+
+				cells[h+3].setAttribute('class','cell_source');
+
+
+				rows[num_rows+2].appendChild(cells[h+3]);
 				tblBody.appendChild(rows[num_rows+2]);
 			}
 			//tbl.setAttribute("border","3");
@@ -1025,6 +1063,10 @@ function getType(data,i){
 //Function to zoom into the current episode(ZOOM level 2)
 function expandCurrentEpisode(i){
 
+
+
+	printDOMMutation2(i);
+	viewEventInformation(lifeLinesByEpisode[i][0]);
 	while (tabs1.hasChildNodes()) {
     tabs1.removeChild(tabs1.lastChild);
 	}
@@ -1139,6 +1181,7 @@ function expandCurrentEpisode(i){
 // function to navigate to the next or previous episode in zoom level 2
 
 function nextPreviousEpisode(i){
+
 	while (first_column.hasChildNodes()) {
     first_column.removeChild(first_column.lastChild);
 	}
@@ -1146,7 +1189,8 @@ function nextPreviousEpisode(i){
     third_column.removeChild(third_column.lastChild);
 	}	
 
-
+	printDOMMutation2(i);
+	viewEventInformation(lifeLinesByEpisode[i][0]);
 	console.log(divs_map.length);
 	for (var j = 0; j < divs_map.length; j++) {
 		 divs_map[j].setAttribute('class','box');
