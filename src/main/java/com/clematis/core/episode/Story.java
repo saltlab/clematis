@@ -296,6 +296,17 @@ public class Story {
 		this.episodes.removeAll(uselessEpisodes);
 	}
 	
+	public void removeToolbarEpisodes() {
+		if (this.episodes == null)
+			return;
+		if (this.episodes.size() > 1)
+			this.episodes.remove(0);
+		if (this.episodes.size() > 1) {
+			int numOfEpisodes = this.episodes.size();
+			this.episodes.remove(numOfEpisodes - 1);
+		}
+	}
+	
 	private void resetOrderedTraceList() {
 		orderedTraceList.clear();
 		for (int i = 0; i < episodes.size(); i ++) {

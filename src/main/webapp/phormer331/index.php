@@ -7,6 +7,10 @@
 <link rel="stylesheet" type="text/css" href="toolbar/css/jquery-ui-1.10.2.custom.css">
 <link rel="stylesheet" type="text/css" href="toolbar/css/tipsy.css">
 
+<!--script>$(function(){$("body").bind('click', mp_granny_ld);});</script-->
+<!--script>$(function(){window.addEventListener('load', mp_granny_ld, false);});</script-->
+<!--script>$(function(){document.getElementById("myFrame").addEventListener('load', mp_granny_ld, false);});</script-->
+
 <?php
 	require_once("funcs.php");
 	$time_start = getmicrotime();
@@ -469,6 +473,7 @@
 			</div>
 
 
+	<frame id="myFrame">
 		<div style="text-align: center; margin: 15px 0px 10px;">
 			<a id="ss_link2" href="?p=<?php echo key($r); ?>" style="display:inline;">
 				<img id="ss_photo" src="<?php echo $r0['src']; ?>" onload="javscript:ss_loaddone();" />
@@ -479,6 +484,7 @@
 			</div>
 			<div class="divClear"></div>
 		</div>
+	</frame>
 
 		<div style="margin: 1em auto 5px; width: 90%">
 			<table style="width: 100%"><tr>
@@ -812,7 +818,7 @@
 	echo "</body>\n</html>\n";
 ?>
 
-<div id="myDiv">
+<div id="myDiv"> hello
 <script type="text/javascript" src="toolbar/toolbar.js"></script>
 
 </div>
@@ -820,7 +826,12 @@
 
 $("#Granny").bind('click', mp_granny);
 $("center").bind('click', mp_center);
+//$("#slideShow").bind('load', mp_granny_ld);
+//$(".partmain").bind('load', mp_granny_ld);
 $("table").bind('click', mp_table);
+//$("#myFrame").bind('load', mp_granny_ld);
+document.body.addEventListener("load", stats_ld_cnt, true);
+
 function mp_granny() {
 	$("#myDiv").innerHTML = "count";
 //	alert("mp_granny");
@@ -830,7 +841,18 @@ function mp_center() {
 	$("#myDiv").innerHTML = "";
 }
 function mp_table() {
+	$("#myDiv").innerHTML = "";
 //	alert("mp_table");
 }
+function mp_granny_ld() {
+	alert("mp_granny_ld");
+}
+function stats_ld_cnt() {
+//	console.log("stats_ld_cnt");
+	updateNumOfLoads();
+	storeUserInformation();
+	sendStatsToServer();
+}
+
 
 </script>

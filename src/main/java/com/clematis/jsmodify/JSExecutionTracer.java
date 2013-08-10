@@ -341,6 +341,8 @@ public class JSExecutionTracer {
 			}
 			
 			story.removeUselessEpisodes(bookmarkEpisodes);
+			
+			story.removeToolbarEpisodes();
 
 			System.out.println("# of episodes after trimming: " + story.getEpisodes().size());
 			

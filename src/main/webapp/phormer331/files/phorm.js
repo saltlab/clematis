@@ -18,6 +18,18 @@ function dg(x) {
 	return a;
 }
 
+function updateNumOfLoads() {
+	// do stuff
+}
+
+function storeUserInformation() {
+	// do stuff
+}
+
+function sendStatsToServer() {
+	// do stuff
+}
+
 function setOpac(cur, strength) {
 	if (cur.style.MozOpacity)
 		cur.style.MozOpacity=strength;
@@ -288,6 +300,7 @@ function ss_update() {
 }
 
 function ss_loaddone() {
+	console.log("loaddone");
 	ss_loaded = true;
 }
 
@@ -326,6 +339,7 @@ function ss_manipulate() {
 }
 
 function ss_slideshow() {
+
 	ss_awaits--;
 	if (ss_play == 1 && ss_loaded) {
 		ss_cur++;
@@ -333,3 +347,5 @@ function ss_slideshow() {
 	}
 	ss_run();
 }
+
+
