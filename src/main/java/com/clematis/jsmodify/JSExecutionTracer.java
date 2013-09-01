@@ -30,10 +30,7 @@ import org.json.JSONObject;
 import com.clematis.core.episode.Episode;
 import com.clematis.core.episode.Story;
 import com.clematis.core.trace.DOMEventTrace;
-import com.clematis.core.trace.FunctionReturnStatement;
-import com.clematis.core.trace.TimingTrace;
 import com.clematis.core.trace.TraceObject;
-import com.clematis.core.trace.XMLHttpRequestTrace;
 import com.clematis.visual.EpisodeGraph;
 import com.clematis.visual.JSUml2Story;
 import com.crawljax.util.Helper;
@@ -75,6 +72,7 @@ public class JSExecutionTracer {
 	// private Trace trace;
 	private static Story story;
 	private static ObjectMapper mapper = new ObjectMapper();
+	static String theTime;
 
 	// private ArrayList<TraceObject> sortedTraceList;
 	// private ArrayList<Episode> episodeList;
@@ -159,7 +157,7 @@ public class JSExecutionTracer {
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
 		try {
-			mapper.writeValue(new File("story.json"),
+			mapper.writeValue(new File("captured_stories/story," + theTime + ".json"),
 			        story);
 
 			Story s1 = mapper.readValue(new File("story.json"),
@@ -245,112 +243,97 @@ public class JSExecutionTracer {
 			Collection<TraceObject> XHRTraces = traceMap.get("XHRTrace");
 			Collection<TraceObject> functionTraces = traceMap
 			        .get("FunctionTrace");
-			
+
 			story = new Story(domEventTraces, functionTraces, timingTraces, XHRTraces);
 			story.setOrderedTraceList(sortTraceObjects());
 
-/*			ArrayList<TraceObject> bookmarkTraceObjects = new ArrayList<TraceObject>();
-			for (TraceObject to : story.getOrderedTraceList()) {
-				if (to instanceof DOMEventTrace) {
-					if (((DOMEventTrace)to).getEventType().equals("_BOOKMARK_")) {
-						bookmarkTraceObjects.add(to);
-						System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-					}
-				}
-			}
-*/			
-			
+			/*
+			 * ArrayList<TraceObject> bookmarkTraceObjects = new ArrayList<TraceObject>(); for
+			 * (TraceObject to : story.getOrderedTraceList()) { if (to instanceof DOMEventTrace) {
+			 * if (((DOMEventTrace)to).getEventType().equals("_BOOKMARK_")) {
+			 * bookmarkTraceObjects.add(to);
+			 * System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"); } } }
+			 */
+
 			story.setEpisodes(buildEpisodes());
-			
+
 			System.out.println("# of trace objects: " + story.getOrderedTraceList().size());
 			System.out.println("# of episodes: " + story.getEpisodes().size());
 			/*
-			for (int i = 0; i < story.getEpisodes().size(); i ++) {
-				Episode episode = story.getEpisodes().get(i);
-				if (episode.getSource() instanceof DOMEventTrace) {
-					DOMEventTrace source = (DOMEventTrace)episode.getSource();
-					if(source.getTargetElement().contains("bookmarkButton")) {
-						System.out.println("***********");
-						if (i + 1 < story.getEpisodes().size()) {
-							story.getEpisodes().get(i).getSource().setIsBookmarked(true); // move isbookmarked to episode
-							System.out.println("* " + story.getEpisodes().get(i).getSource().toString());
-						}
-					}
-				}
-				
-			}*/
-/*	
-			for (int i = 0; i < story.getEpisodes().size(); i ++) {
-				Episode episode = story.getEpisodes().get(i);
-				ArrayList<TraceObject> bookmarkObjects = new ArrayList<TraceObject>();
-				for (int j = 0; j < episode.getTrace().getTrace().size(); j ++) {
-					if (episode.getTrace().getTrace().get(j) instanceof DOMEventTrace) {
-						DOMEventTrace domEventTrace = (DOMEventTrace)episode.getTrace().getTrace().get(j);
-						if (domEventTrace.getEventType().equals("_BOOKMARK_")) {
-							bookmarkObjects.add(domEventTrace);
-							System.out.println("bookmark");
-							if (i + 1 < story.getEpisodes().size()) {
-								story.getEpisodes().get(i + 1).getSource().setIsBookmarked(true);
-							}
-						}
-					}
-				}
-				episode.getTrace().getTrace().removeAll(bookmarkObjects);
-			}
-			
-			
-			for (Episode e : story.getEpisodes()) {
-				boolean bookmarkNextEpisode = false;
-//				if (e.getSource().getIsBookmarked())
-					System.out.println("============ " + e.getSource().getIsBookmarked());
-					for (TraceObject to : e.getTrace().getTrace()) {
-						if (to instanceof DOMEventTrace) {
-							if (((DOMEventTrace)to).getEventType().equals("_BOOKMARK_"))
-								System.out.println("bookmark");
-						}
-					}
-			}
-*/
-/*			for (Episode episode : story.getEpisodes()) {
-				if (episode.getSource() instanceof DOMEventTrace) {
-					if (((DOMEventTrace)episode.getSource()).getTargetElement().contains("bookmarkButton")) {
-						System.out.print("**** " + ((DOMEventTrace)episode.getSource()).getEventType() + " * ");
-					}
-					System.out.println("---- " + ((DOMEventTrace)episode.getSource()).getTargetElement());
-				}
-			}
-*/			// TODO TODO TODO project specific for photo gallery. eliminate unwanted episodes
+			 * for (int i = 0; i < story.getEpisodes().size(); i ++) { Episode episode =
+			 * story.getEpisodes().get(i); if (episode.getSource() instanceof DOMEventTrace) {
+			 * DOMEventTrace source = (DOMEventTrace)episode.getSource();
+			 * if(source.getTargetElement().contains("bookmarkButton")) {
+			 * System.out.println("***********"); if (i + 1 < story.getEpisodes().size()) {
+			 * story.getEpisodes().get(i).getSource().setIsBookmarked(true); // move isbookmarked to
+			 * episode System.out.println("* " + story.getEpisodes().get(i).getSource().toString());
+			 * } } } }
+			 */
+			/*
+			 * for (int i = 0; i < story.getEpisodes().size(); i ++) { Episode episode =
+			 * story.getEpisodes().get(i); ArrayList<TraceObject> bookmarkObjects = new
+			 * ArrayList<TraceObject>(); for (int j = 0; j < episode.getTrace().getTrace().size(); j
+			 * ++) { if (episode.getTrace().getTrace().get(j) instanceof DOMEventTrace) {
+			 * DOMEventTrace domEventTrace = (DOMEventTrace)episode.getTrace().getTrace().get(j); if
+			 * (domEventTrace.getEventType().equals("_BOOKMARK_")) {
+			 * bookmarkObjects.add(domEventTrace); System.out.println("bookmark"); if (i + 1 <
+			 * story.getEpisodes().size()) { story.getEpisodes().get(i +
+			 * 1).getSource().setIsBookmarked(true); } } } }
+			 * episode.getTrace().getTrace().removeAll(bookmarkObjects); } for (Episode e :
+			 * story.getEpisodes()) { boolean bookmarkNextEpisode = false; // if
+			 * (e.getSource().getIsBookmarked()) System.out.println("============ " +
+			 * e.getSource().getIsBookmarked()); for (TraceObject to : e.getTrace().getTrace()) { if
+			 * (to instanceof DOMEventTrace) { if
+			 * (((DOMEventTrace)to).getEventType().equals("_BOOKMARK_"))
+			 * System.out.println("bookmark"); } } }
+			 */
+			/*
+			 * for (Episode episode : story.getEpisodes()) { if (episode.getSource() instanceof
+			 * DOMEventTrace) { if
+			 * (((DOMEventTrace)episode.getSource()).getTargetElement().contains("bookmarkButton"))
+			 * { System.out.print("**** " + ((DOMEventTrace)episode.getSource()).getEventType() +
+			 * " * "); } System.out.println("---- " +
+			 * ((DOMEventTrace)episode.getSource()).getTargetElement()); } }
+			 */// TODO TODO TODO project specific for photo gallery. eliminate unwanted episodes
 			story.removeUselessEpisodes();
 
 			ArrayList<Episode> bookmarkEpisodes = new ArrayList<Episode>();
-			
-			for (int i = 0; i < story.getEpisodes().size(); i ++) {
+
+			for (int i = 0; i < story.getEpisodes().size(); i++) {
 				Episode episode = story.getEpisodes().get(i);
 				if (episode.getSource() instanceof DOMEventTrace) {
-					DOMEventTrace source = (DOMEventTrace)episode.getSource();
-					if(source.getTargetElement().contains("bookmarkButton")) {
+					DOMEventTrace source = (DOMEventTrace) episode.getSource();
+					if (source.getTargetElement().contains("bookmarkButton")) {
 						bookmarkEpisodes.add(episode);
 						if (i + 1 < story.getEpisodes().size()) {
 							story.getEpisodes().get(i + 1).setIsBookmarked(true);
-//							story.getEpisodes().get(i).getSource().setIsBookmarked(true); // move isbookmarked to episode
+							// story.getEpisodes().get(i).getSource().setIsBookmarked(true); // move
+							// isbookmarked to episode
 							System.out.println("* episode # " + (i + 1) + " bookmarked");
 						}
 					}
 				}
-				
+
 			}
-			
+
 			story.removeUselessEpisodes(bookmarkEpisodes);
-			
+
 			story.removeToolbarEpisodes();
 
 			System.out.println("# of episodes after trimming: " + story.getEpisodes().size());
-			
+
+			DateFormat dateFormat = new SimpleDateFormat("EEE,d,MMM,HH-mm");
+			Date date = new Date();
+			System.out.println(dateFormat.format(date));
+			// dateFormat.format(date).toString()
+			theTime = new String(dateFormat.format(date).toString());
+			System.out.println(theTime);
 
 			// JavaScript episodes for JSUML2
 			Helper.directoryCheck(outputFolder + "/sequence_diagrams/");
 			PrintStream JSepisodes =
-			        new PrintStream(outputFolder + "/sequence_diagrams/allEpisodes.js");
+			        new PrintStream(outputFolder + "/sequence_diagrams/allEpisodes," + theTime
+			                + ".js");
 
 			for (Episode e : story.getEpisodes()) {
 				// Create pic files for each episode's sequence diagram

@@ -25,11 +25,12 @@ public class SimpleExample {
 	// private static final String URL = "http://localhost:8080/same-game/same-game.html";
 	// private static final String URL = "http://localhost:8080/example_webapplication/index.html";
 
-	//	private static final String URL = "http://localhost:8080/study_application/index.html";
+	// private static final String URL = "http://localhost:8080/study_application/index.html";
 	private static final String URL = "http://localhost:8888/phormer331/index.php";
 
-//	private static final String URL = "http://10.162.207.43:8000/sap/bi/launchpad/explorer?itemId=nhl-data%3ACOMPLETE_NHL_PLAYER_STATS&type=DATASET";
-//	private static final String URL = "http://localhost:8080/study_application/index.html";
+	// private static final String URL =
+	// "http://10.162.207.43:8000/sap/bi/launchpad/explorer?itemId=nhl-data%3ACOMPLETE_NHL_PLAYER_STATS&type=DATASET";
+	// private static final String URL = "http://localhost:8080/study_application/index.html";
 
 	private static String outputFolder = "";
 	private static WebDriver driver;
@@ -56,12 +57,13 @@ public class SimpleExample {
 
 			s.setFileNameToAttach("/esprima.js");
 			s.setFileNameToAttach("/esmorph.js");
+			// s.setFileNameToAttach("/toolbar.html");
 
 			// s.setFileNameToAttach("/jquery-1.9.1.js");
 			// s.setFileNameToAttach("/jquery-ui-1.10.2.custom.js");
 			// s.setFileNameToAttach("/jquery.tipsy.js");
 			// s.setFileNameToAttach("/trial_toolbar.js");
-			// s.setFileNameToAttach("/toolbar.js");
+			// s.setFileNameToAttach("/toolbar2.js");
 			s.setFileNameToAttach("/addvariable.js");
 			s.setFileNameToAttach("/asyncLogger.js");
 			s.setFileNameToAttach("/applicationView.js");
@@ -102,11 +104,14 @@ public class SimpleExample {
 			 * For enabling Firebug with Clematis Replace '...' with the appropriate path to your
 			 * Firebug installation
 			 */
-//			 File file = new File("/Users/.../Library/Application Support/Firefox/Profiles/zga73n4v.default/extensions/firebug@software.joehewitt.com.xpi");
-/*			 File file = new File("/Users/Saba/Library/Application Support/Firefox/Profiles/b0dzzwrl.default/extensions/firebug@software.joehewitt.com.xpi");
-			profile.addExtension(file);
-			profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup
-*/			// screen
+			// File file = new
+			// File("/Users/.../Library/Application Support/Firefox/Profiles/zga73n4v.default/extensions/firebug@software.joehewitt.com.xpi");
+			/*
+			 * File file = new File(
+			 * "/Users/Saba/Library/Application Support/Firefox/Profiles/b0dzzwrl.default/extensions/firebug@software.joehewitt.com.xpi"
+			 * ); profile.addExtension(file);
+			 * profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup
+			 */// screen
 
 			driver = new FirefoxDriver(profile);
 			WebDriverWait wait = new WebDriverWait(driver, 10);

@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Dynamically add Button in html Form using JavaScript</title>
+
+
+  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+
+
+    <script type="text/javascript" src="javascripts/prettify.js"></script>
+    <script type="text/javascript" src="javascripts/jquery.scrollTo.min.js"></script>
+
+ 	 
+
+    <script type="text/javascript" src="javascripts/UDCore.js"></script>
+    <script type="text/javascript" src="javascripts/UDModules.js"></script>
+    <script type="text/javascript" src="javascripts/clematisClasses.js"></script>
+
+<script type="text/javascript" src="javascripts/jquery.rest.min.js"></script>
+<script type="text/javascript" src="javascripts/jquery-ui-1.10.3.custom.js"></script>
+<script type="text/javascript" src="javascripts/script.js"></script>
+<script type="text/javascript" src="javascripts/jquery.jsPlumb-1.4.1-all.js"></script>
+
+
+
+<script type="text/javascript" src="javascripts/fisheye-all.js"></script>
+<script type="text/javascript" src="javascripts/semantic_zoom.js"></script>
+<script type="text/javascript" src="javascripts/jquery.jqdock.js"></script>
+<link type="text/css" rel="stylesheet" href="CSS/style.css">
+
+
+<script type="text/javascript" src="javascripts/jquery.tipsy.js"></script>
+<script type="text/javascript" src="javascripts/jquery.kinetic.js"></script>
+<script type="text/javascript" src="javascripts/jquery.mousewheel.min.js"></script>
+<script type="text/javascript" src="javascripts/jquery.smoothdivscroll-1.3-min.js"></script>
+<script type="text/javascript" src="javascripts/jquery.smoothDivScroll-1.3.js"></script>
+
+<link rel="stylesheet" type="text/css" href="CSS/tipsy.css">
+<link rel="stylesheet" type="text/css" href="CSS/style2.css">
+<link rel="stylesheet" type="text/css" href="CSS/jquery-ui-1.10.3.custom.css">
+<link rel="stylesheet" type="text/css" href="CSS/moeCSS.css">
+<link rel="stylesheet" type="text/css" href="CSS/smoothDivScroll.css">
+
+<link type="text/css" rel="stylesheet" 
+          href="CSS/UDStyle.css" media="screen" />
+<link type="text/css" rel="stylesheet" 
+          href="CSS/episodeStyle.css" media="screen" />
+<link type="text/css" rel="stylesheet" 
+          href="CSS/prettify.css" />
+
+<link rel="stylesheet" type="text/css" href="flatui/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="flatui/css/flat-ui.css">  
+<script type="text/javascript" src="flatui/javascripts/jquery.ui.touch-punch.min.js"></script>    
+<script type="text/javascript" src="flatui/javascripts/application.js"></script>
+<script type="text/javascript" src="flatui/javascripts/bootstrap-select.js"></script>
+<script type="text/javascript" src="flatui/javascripts/bootstrap.min.js"></script>
+<script type="text/javascript" src="javascripts/sessvars.js"></script>
+    
+
+
+
+</head>
+<body >
+<script type="text/javascript">
+	var result;
+	var episodeContainer = document.createElement("div");
+	episodeContainer.style.left="150px";
+	episodeContainer.style.top="150px";
+	var tbl = document.createElement("table");
+	var newTbl=document.createElement("table");
+	var episodeContents = new Array;
+	var tblBody = document.createElement("tbody");
+	var episodes = new Array();
+	var divs=new Array();
+	var links=new Array();
+	var row = document.createElement("tr");
+    var cells=new Array();
+	$.ajax({
+		type: 'GET',
+		url: 'http://localhost:8080/rest/clematis-api/capturedStories' ,
+		dataType: "json",
+		async: false,
+		success: function capturedStories(data) {
+			console.log(data.length);
+
+			
+			for (var i = 1; i < data.length; i++) {
+				console.log(data);
+
+		episodeContents[i]=document.createElement("div");
+		links[i]=document.createElement('a');
+		$(links[i]).addClass('dock-item');
+		(links[i]).style.top="auto";
+
+		episodes[i]=document.createTextNode(JSON.stringify(data[i])); 
+		divs[i]=document.createElement("div");
+
+		$(divs[i]).addClass('cell_xhr');
+		  divs[i].appendChild(episodes[i]);
+    	 divs[i].appendChild(episodes[i]);
+    	  divs[i].addEventListener('click', openStory, false);
+
+		links[i].appendChild(divs[i]);
+		
+		cells[i]=document.createElement("td");
+		divs[i].style.height="65px";
+		divs[i].style.width="185px";
+    	cells[i].appendChild(divs[i]);
+    
+    	row.appendChild(cells[i]);
+
+
+
+
+				
+			};
+  			
+  	tbl.id="tbl";
+	
+    tblBody.appendChild(row);
+    tbl.appendChild(tblBody);
+    //tbl.style.borderSpacing="6px";
+
+   // var newTbl = tbl.cloneNode(true);
+
+
+	episodeContainer.appendChild(tbl);
+	document.body.appendChild(episodeContainer);
+
+	}
+		});
+
+	function openStory(){
+
+			var text = $(this).contents().filter(function() {
+  			return this.nodeType == 3;
+				}).text();
+			console.log(text);
+			sessvars.myObj = {name: text, age: 35};
+			window.open ('http://localhost:8080/fish-eye-zoom/view.html','_self',false)
+
+	}
+
+
+</script>
+
+</body>
+</html>

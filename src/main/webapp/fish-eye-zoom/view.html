@@ -57,6 +57,7 @@
 <script type="text/javascript" src="flatui/javascripts/application.js"></script>
 <script type="text/javascript" src="flatui/javascripts/bootstrap-select.js"></script>
 <script type="text/javascript" src="flatui/javascripts/bootstrap.min.js"></script>
+<script type="text/javascript" src="javascripts/sessvars.js"></script>
     
 
 
@@ -86,7 +87,9 @@
 </table-->
 
 <script type="text/javascript">
-var signalMutation=false;
+var str=sessvars.myObj.name;
+var str2=str.replace(".json","");
+var fileName=str2.substr(1,(str2.length)-2)
 var signalMutation2=false;
 var signalActor=false;
 var tableExtras=document.createElement('table');
@@ -123,10 +126,10 @@ tableExtras.appendChild(row);
 
 <script type="text/javascript">  
 
-	 var result;
+	var result;
 	$.ajax({
 		type: 'GET',
-		url: 'http://localhost:8080/rest/clematis-api/story/sequenceDiagram2' ,
+		url: 'http://localhost:8080/rest/clematis-api/'+fileName+'/story/sequenceDiagram2' ,
 		dataType: "text",
 		async: false,
 		success: function sequenceDiagram(data) {
