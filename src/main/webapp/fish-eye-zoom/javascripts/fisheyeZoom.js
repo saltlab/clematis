@@ -355,9 +355,7 @@ function renderList(data) {
 
     	//if(zoomLevel1==true){
     		expandCurrentEpisode(currentEpisode);
-    	//}
-    	//else
-    	//{}
+  
 	});
 
 
@@ -365,17 +363,8 @@ function renderList(data) {
     	window.location.reload();
 
     }
-	
-	//menuAnchor1.text = "Item1";
-	//menuAnchor2.text = "Item2";
-	//menuAnchor3.text = "Item3";
 
-	
 	menuAnchor1.appendChild(homeButton);
-	//menuAnchor2.appendChild(backButton);
-	//menuAnchor3.appendChild(forwardButton);
-	//menuAnchor4.appendChild(fullScreen);
-
 	menuElem1.value=1;
 	menuElem1.appendChild(menuAnchor1);
 	menuElem2.appendChild(menuAnchor2);
@@ -884,7 +873,7 @@ for (var i = 0, n = cells.length; i<n; i++) {
 			cell3SZ[i].appendChild(tempDiv_mutation);
 
 
-  	//Get the trace for  zoom level 1, specifically we want to get the trace and lineNo and targetfunction and scopeName from the the trace.	
+  	//Get the trace for  zoom level 1.
   	 var url3 = 'http://localhost:8080/rest/clematis-api/'+fileName+'/episodes/'+i+'/trace';
 	 var trace=new Array;
 	 var tempDiv=document.createElement("div");
@@ -936,28 +925,6 @@ for (var i = 0, n = cells.length; i<n; i++) {
 		async: false,
 		success: function renderList4(data) {
 	
-	
-			/*
-			for(var i=1;i<data.trace.length;i++){
-				rows[i+2]=document.createElement("tr");
-
-				cells[i+4]=document.createElement("td");
-				cells[i+5]=document.createElement("td");
-				cells[i+6]=document.createElement("td");
-
-
-				cells[i+4].appendChild(document.createTextNode(JSON.stringify(data.trace[i].lineNo)));
-				cells[i+5].appendChild(document.createTextNode(JSON.stringify(data.trace[i].targetFunction)));
-				cells[i+6].appendChild(document.createTextNode(JSON.stringify(data.trace[i].scopeName)));
-
-				rows[i+2].appendChild(cells[i+4]);
-				rows[i+2].appendChild(cells[i+5]);
-				rows[i+2].appendChild(cells[i+6]);
-				tblBody.appendChild(rows[i+2]);
-				//tempDiv.appendChild(trace[i]);
-			}
-
-			*/
 			var counter=0;
 			var num_rows=1;
 			rows[num_rows+2]=document.createElement("tr");
@@ -973,35 +940,6 @@ for (var i = 0, n = cells.length; i<n; i++) {
 
 				cells[h+3]=document.createElement("td");
 
-
-				//var eventHandler= new String(JSON.stringify(data.trace[i].eventHandler));
-
-				/*
-				if(data.trace[i].id==0 && eventHandler=="\"anonymous\""){
-					cells[i+3].appendChild(document.createTextNode("Anonymous"));
-					cells[i+3].setAttribute("title","Anonymous");
-					$(cells[i+3]).tipsy({gravity:'nw'});
-				}
-				else if(data.trace[i].id !=0 && (data.trace[i].xhrId>=0)){
-					cells[i+3].appendChild(document.createTextNode("XHR id:"+JSON.stringify(data.trace[i].xhrId)));
-					cells[i+3].setAttribute("title","XHR Event");
-					$(cells[i+3]).tipsy({gravity:'nw'});
-				}
-				else if(data.trace[i].id !=0 && (data.trace[i].timeoutId>=0)){
-					cells[i+3].appendChild(document.createTextNode("TimeOut id:"+JSON.stringify(data.trace[i].timeoutId)));
-					cells[i+3].setAttribute("title","Timeout Event");
-					$(cells[i+3]).tipsy({gravity:'nw'});
-				}
-				else{
-					cells[i+3].appendChild(document.createTextNode(JSON.stringify(data.trace[i].targetFunction)));
-					cells[i+3].setAttribute("title","DOM Event");
-					$(cells[i+3]).tipsy({gravity:'nw'});
-				}
-	
-				*/
-
-		
-	    	//console.log("creating actors");
 			if (allEpisodes[currentEpisode].internalComponents[h] instanceof DOMEventTrace) {
 			// DOM event, Actor should be created for sequence diagram
 
@@ -1094,10 +1032,8 @@ function getType(data,i){
 	}
 
 }
-//Function to zoom into the current episode(ZOOM level 2)
+//Function to zoom into the current episode(ZOOM level 2), the various components of the episode are created in  view.html, and are just being used here as is.
 function expandCurrentEpisode(i){
-
-
 
 	printDOMMutation2(i);
 	viewEventInformation(lifeLinesByEpisode[i][0]);
@@ -1116,67 +1052,14 @@ function expandCurrentEpisode(i){
 
 	anchor4.text="Episode  "+i;
 	anchor3.text ="Trace of Episode "+i;
-	var url = 'http://localhost:8080/rest/clematis-api/'+fileName+'/episodes/'+i+'/source';
-    var eventType;
-   
 
-  	$.ajax({
-		type: 'GET',
-		url: url ,
-		dataType: "json",
-		async: false,
-		success: renderList2
-		});
-
-  	function renderList2(data) {
-
-		console.log(data.eventType);
-		eventType=document.createTextNode(data.eventType);
-	}
-
-		//var temp_event=first_column;//document.getElementById('first_column');
 		tabs1.appendChild(first_column);
 //get the DOM of a speceifc episode
- 	var url2 = 'http://localhost:8080/rest/clematis-api/'+fileName+'/episodes/'+i;
-	 var dom;
-	$.ajax({
-		type: 'GET',
-		url: url2 ,
-		dataType: "json",
-		async: false,
-		success: renderList3
-		});
 
-  	function renderList3(data) {
-		console.log(data);
-		dom=document.createTextNode(JSON.stringify(data.dom));
-	}
-		console.log("signalMutation:"+signalMutation);
 		
 		tabs2.appendChild(third_column);
 
 //get the trace of a specefic episode
-	var url3 = 'http://localhost:8080/rest/clematis-api/'+fileName+'/episodes/'+i+'/trace';
-	 var trace=new Array;
-	 var tempDiv=document.createElement("div");
-	 var myBr = document.createElement('br');
-	$.ajax({
-		type: 'GET',
-		url: url3 ,
-		dataType: "json",
-		async: false,
-		success: function renderList4(data) {
-				
-			
-			for(var i=0;i<data.trace.length;i++){
-				trace[i]=document.createTextNode(JSON.stringify(data.trace)+"\n");
-				tempDiv.appendChild(trace[i]);
-			}
-
-	
-	}
-		});
-
 
 		var table_sequence=document.createElement('table');
 		var row_sequence=document.createElement('tr');
@@ -1330,13 +1213,11 @@ function nextPreviousEpisode(i){
 
 }
 
+//function to redraw the causal links after returning to zoom level 0
 function renderListLinks(data) {
 
 		temp_data=data;
 		for (var i = 0; i < data.length; i++) {
-			//links[i]=jsPlumb.addEndpoint(cells[data[i].source]);
-			//links[i+1]=jsPlumb.addEndpoint(cells[data[i].target]);
-			//jsPlumb.connect({ source:links[i], target:links[i+1],endpoint:["rectangle"],connector:["Bezier", { curviness:30 }] });
 			var color_link=get_random_color();
 			jsPlumb.connect({
                 source: (cells[data[i].target]), //flipped these so arrows point in right direction
@@ -1364,16 +1245,7 @@ function renderListLinks(data) {
 
 	}
 function redrawLinks(data) {
-
-		//temp_data=data;
-		//alert("REDRAW");
 		for (var i = 0; i < data.length; i++) {
-			console.log("redrawring");
-			console.log(data[i].source);
-			console.log(data[i].target);
-			//links[i]=jsPlumb.addEndpoint(cells[data[i].source]);
-			//links[i+1]=jsPlumb.addEndpoint(cells[data[i].target]);
-			//jsPlumb.connect({ source:links[i], target:links[i+1],endpoint:["rectangle"],connector:["Bezier", { curviness:30 }] });
 			jsPlumb.connect({
                 source: (cells[data[i].source]),
                 target: (cells[data[i].target]),
@@ -1421,6 +1293,8 @@ function get_random_color() {
     return color;
 }
 
+
+//Draw causal Links, first made a call to the REST api, then used a library called jsPlumb to draw lines between the episodes.
 jsPlumb.bind("ready", function() {
 
 	var url = 'http://localhost:8080/rest/clematis-api/'+fileName+'/story/causalLinks';
@@ -1438,9 +1312,6 @@ jsPlumb.bind("ready", function() {
 
 		temp_data=data;
 		for (var i = 0; i < data.length; i++) {
-			//links[i]=jsPlumb.addEndpoint(cells[data[i].source]);
-			//links[i+1]=jsPlumb.addEndpoint(cells[data[i].target]);
-			//jsPlumb.connect({ source:links[i], target:links[i+1],endpoint:["rectangle"],connector:["Bezier", { curviness:30 }] });
 			var color_link=get_random_color();
 			jsPlumb.connect({
                 source: (divs[data[i].target]), //flipped these so arrows point in right direction
@@ -1472,21 +1343,13 @@ jsPlumb.bind("ready", function() {
 
 $(document).ready(function(){
 
-	//menuContainer.appendChild(scaledDiv);
-/*	menuElem_map.appendChild(scaledDiv);
-	menuList.appendChild(menuElem_map);
-*/
-
 	menuSlider.init('menu','slide');
    	
 });
 
 //Create the overview bar on top of the series of episodes
 //shade the current episode you are on.
-//window.onload=function() {
-	
-   // tableNew = document.getElementById('newTbl');
-   // cellsNew = tableNew.getElementsByTagName('div');
+
 
 
     table2 = document.getElementById('tbl');
@@ -1515,9 +1378,6 @@ for (var i = 0, n = cells2.length; i<n; i++) {
   })(i, el), false);
 }
 
-
-
-//};	
 
 
 	

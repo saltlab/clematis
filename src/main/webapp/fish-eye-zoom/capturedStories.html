@@ -59,9 +59,6 @@
 <script type="text/javascript" src="flatui/javascripts/bootstrap.min.js"></script>
 <script type="text/javascript" src="javascripts/sessvars.js"></script>
     
-
-
-
 </head>
 <body >
 <script type="text/javascript">
@@ -78,6 +75,8 @@
 	var links=new Array();
 	var row = document.createElement("tr");
     var cells=new Array();
+
+    //Make a call to the REST api to retrieve all the captured stories, when the user clicks on a specified story, save the name of that story and pass it on to the html file called "fisheye.html" located in the same directory as this file.
 	$.ajax({
 		type: 'GET',
 		url: 'http://localhost:8080/rest/clematis-api/capturedStories' ,
