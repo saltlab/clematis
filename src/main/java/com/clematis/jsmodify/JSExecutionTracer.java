@@ -157,10 +157,10 @@ public class JSExecutionTracer {
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
 		try {
-			mapper.writeValue(new File("captured_stories/story," + theTime + ".json"),
+			mapper.writeValue(new File("captured_stories/story"/*," + theTime*/ + ".json"),
 			        story);
 
-			Story s1 = mapper.readValue(new File("story.json"),
+			Story s1 = mapper.readValue(new File("captured_stories/story.json"),
 			        Story.class);
 
 			if (story.equals(s1)) {

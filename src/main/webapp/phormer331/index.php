@@ -2,10 +2,11 @@
 		<script type="text/javascript" src="toolbar/toolbar.js"></script>
 </div-->
 <script type="text/javascript" src="toolbar/jquery-1.9.1.js"></script>
-<script type="text/javascript" src="toolbar/jquery-ui-1.10.2.custom.js"></script>
+<!--script type="text/javascript" src="toolbar/jquery-ui-1.10.2.custom.js"></script>
 <script type="text/javascript" src="toolbar/jquery.tipsy.js"></script>
 <link rel="stylesheet" type="text/css" href="toolbar/css/jquery-ui-1.10.2.custom.css">
 <link rel="stylesheet" type="text/css" href="toolbar/css/tipsy.css">
+<script type="text/javascript" src="toolbar/toolbar.js"></script-->
 
 <!--script>$(function(){$("body").bind('click', mp_granny_ld);});</script-->
 <!--script>$(function(){window.addEventListener('load', mp_granny_ld, false);});</script-->
@@ -819,7 +820,6 @@
 ?>
 
 <div id="myDiv"> hello
-<script type="text/javascript" src="toolbar/toolbar.js"></script>
 
 </div>
 <script>

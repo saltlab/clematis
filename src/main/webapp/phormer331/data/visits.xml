@@ -8,13 +8,11 @@
 		<visitor id="d20130806"><![CDATA[249]]></visitor>
 		<visitor id="d20130807"><![CDATA[397]]></visitor>
 		<visitor id="d20130808"><![CDATA[127]]></visitor>
+		<visitor id="d20140123"><![CDATA[34]]></visitor>
 	</Visit>
 	<Visit id="online">
-		<visitor id="s127.0.0.1huoflllgxmtcsbwnwgrwhygykcdcqlfy"><![CDATA[1375917731]]></visitor>
-		<visitor id="s127.0.0.1yotbuhnunjyitumcflzixwemrngvlnnk"><![CDATA[1375917737]]></visitor>
-		<visitor id="s127.0.0.1yqbipjckweqiezgadtsrzodmcnpjzlxy"><![CDATA[1375917738]]></visitor>
-		<visitor id="s127.0.0.1ptmgyqngwiyskjxxmjnxzsvgwqrjvnqk"><![CDATA[1375917745]]></visitor>
-		<visitor id="s127.0.0.1ahuziqvyztnektadpwnyaseylcecdrwe"><![CDATA[1375917748]]></visitor>
-		<visitor id="s127.0.0.1stmcnmgcjuakmfixhnalfxpepsmxrsfj"><![CDATA[1375917748]]></visitor>
+		<visitor id="s::1rmdcyufpxdpwlbycdpmnueskjutfmwnd"><![CDATA[1390517826]]></visitor>
+		<visitor id="s::1qmfbnedrtqeouxzessjepxiyppfbbckr"><![CDATA[1390517831]]></visitor>
+		<visitor id="s::1qtjsfloppihlhswcacdmpgeeiegzwgpn"><![CDATA[1390517840]]></visitor>
 	</Visit>
 </Xmldata>

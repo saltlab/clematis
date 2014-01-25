@@ -12,11 +12,14 @@ var myVar = 0;
 
 var bookmarkPressed = false;
 
+/*
+Already done on line 11-21 of applicationView.js (not boobkmark though)
+
 window.onload = function () {
 	document.getElementById("recordButton").addEventListener('click', startRecording, false);
 	document.getElementById("stopButton").addEventListener('click', stopRecording, false);
 	document.getElementById("bookmarkButton").addEventListener('click', bookmark, false);
-}
+}*/
 
 
 function bookmark(){
@@ -42,7 +45,7 @@ function startRecording() {
 
 	//document.getElementById("visualizationLinkContainer").innerHTML = "";
 
-	captureButton.setAttribute("src","images/capture_green.png");
+	document.getElementById('recordButton').setAttribute("src","/images-clematis/capture_green.png");
 
 	//myVar = setInterval(function(){blink()},1900);
 	
@@ -59,7 +62,7 @@ function stopRecording() {
 	recordButtonClicked = false;
 
 	//clearInterval(myVar);
-	captureButton.setAttribute("src","images/capture.gif");
+	document.getElementById('recordButton').setAttribute("src","images-clematis/capture.gif");
 	//document.getElementById("recordButton").style.opacity = 1;
 	//document.getElementById("stopButton").style.opacity = 0.5;
 	

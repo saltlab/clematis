@@ -28,7 +28,7 @@ public abstract class AstInstrumenter extends JSASTModifier {
 	 * List with regular expressions that should not be instrumented.
 	 */
 	private List<String> excludeVariableNamesList = new ArrayList<String>();
-	ArrayList<String> jsFileNameToAttach = new ArrayList<String>();
+	private ArrayList<String> jsFileNameToAttach = new ArrayList<String>();
 
 	private boolean domModifications = false;
 
@@ -67,7 +67,7 @@ public abstract class AstInstrumenter extends JSASTModifier {
 	 */
 	protected AstNode jsLoggingFunctions() {
 		String code = "";
-	
+
 		for (int i = 0; i < jsFileNameToAttach.size(); i ++) {
 			try {
 				code += Resources.toString(AstInstrumenter.class.getResource(jsFileNameToAttach.get(i)), Charsets.UTF_8);
@@ -77,6 +77,22 @@ public abstract class AstInstrumenter extends JSASTModifier {
 		}
 
 		return parse(code);
+	}
+
+	public ArrayList<String> getFilesToPrepend() {
+		return this.jsFileNameToAttach;
+	}
+
+	public ArrayList<String> getToolbarFiles() {
+		ArrayList<String> toolbarFiles = new ArrayList<String>();
+		toolbarFiles.add("/toolbar-clematis/jquery-1.9.1.js");
+		toolbarFiles.add("/toolbar-clematis/jquery-ui-1.10.2.custom.js");
+		toolbarFiles.add("/toolbar-clematis/jquery.tipsy.js");
+		toolbarFiles.add("/toolbar-clematis/css/jquery-ui-1.10.2.custom.css");
+		toolbarFiles.add("/toolbar-clematis/css/tipsy.css");
+		toolbarFiles.add("/toolbar-clematis/toolbar.js");
+		
+		return toolbarFiles;
 	}
 
 	protected AstRoot rhinoCreateNode(String code) {
@@ -146,7 +162,7 @@ public abstract class AstInstrumenter extends JSASTModifier {
 	@Override
 	public AstRoot finish(AstRoot node) {
 		/* add initialization code for the function and logging array */
-		node.addChildToFront(jsLoggingFunctions());
+		//node.addChildToFront(jsLoggingFunctions());
 		return null;
 	}
 

@@ -256,7 +256,6 @@
             tree = esprima.parse(code, { range: true, loc: true });
             callList = collectCall(code, tree);
 
-            window.console.log(callList);
 
             // Populate the fragments to be inserted into the code.
             fragments = [];

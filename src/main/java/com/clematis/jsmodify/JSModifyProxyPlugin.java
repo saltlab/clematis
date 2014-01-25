@@ -1,9 +1,13 @@
 package com.clematis.jsmodify;
 
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Writer;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -17,10 +21,17 @@ import org.owasp.webscarab.model.Request;
 import org.owasp.webscarab.model.Response;
 import org.owasp.webscarab.plugin.proxy.ProxyPlugin;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.clematis.instrument.AstInstrumenter;
 import com.crawljax.util.Helper;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+
+import com.sun.jersey.core.header.HttpDateFormat;
+import com.yahoo.platform.yui.compressor.*;
 
 /**
  * The JSInstrument proxy plugin used to add instrumentation code to JavaScript files.
@@ -136,19 +147,15 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			Helper.directoryCheck(getOutputFolder());
 			setFileName(scopename);
 			PrintStream output = new PrintStream(getOutputFolder() + getFilename());
-			System.out.println("MOEEEEE" + getOutputFolder() + getFilename());
 			PrintStream oldOut = System.out;
 			System.setOut(output);
-			System.out.println(input);
 			System.setOut(oldOut);
 
 			PrintStream output_visual =
-			        new PrintStream("src/main/webapp/fish-eye-zoom/" + getFilename());
-			System.out.println("MOEEEEE" +
-			        "src/main/webapp/fish-eye-zoom/" + getFilename());
+					new PrintStream("src/main/webapp/fish-eye-zoom/" + getFilename());
+
 			PrintStream oldOut2_visual = System.out;
 			System.setOut(output_visual);
-			System.out.println(input);
 			System.setOut(oldOut2_visual);
 
 			AstRoot ast = null;
@@ -213,13 +220,11 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			/* clean up */
 			Context.exit();
 
-			System.out.println(">>>>");
-
 			return ast.toSource();
 		} catch (RhinoException re) {
 			System.err.println(re.getMessage()
-			        + "Unable to instrument. This might be a JSON response sent"
-			        + " with the wrong Content-Type or a syntax error.");
+					+ "Unable to instrument. This might be a JSON response sent"
+					+ " with the wrong Content-Type or a syntax error.");
 
 			System.err.println("details: " + re.details());
 			System.err.println("getLocalizedMessage: " + re.getLocalizedMessage());
@@ -270,28 +275,32 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 * @return The modified response.
 	 */
 	private Response createResponse(Response response, Request request) {
-		System.out.println("~~~~~~~~~ request begin ~~~~~~~~~");
+		ArrayList<String> scriptNodesToCreate;
+		Element newNodeToAdd;
+
 		if (request == null) {
 			System.err.println("JSModifyProxyPlugin::createResponse: request is null");
 			return response;
 		}
-		System.out.println(request.getURL());
+
 		if (request.getURL() == null) {
 			System.err.println("JSModifyProxyPlugin::createResponse: request url is null");
 			return response;
-		}
-		else if (request.getURL().toString().isEmpty()) {
+		} else if (request.getURL().toString().isEmpty()) {
 			System.err.println("JSModifyProxyPlugin::createResponse: request url is empty");
 			return response;
-		}
-		else if (response == null) {
+		} else if (response == null) {
 			System.err.println("JSModifyProxyPlugin::createResponse: response is null");
 			return response;
+		} else if (modifier.getFilesToPrepend().contains(request.getURL().toString().replace("http://localhost:8888", ""))
+				&& Integer.parseInt(response.getStatus()) == 404) {			
+			return packageMessage(request, request.getURL().toString().replace("http://localhost:8888", ""));			
+		} else if (modifier.getToolbarFiles().contains(request.getURL().toString().replace("http://localhost:8888", ""))) {			
+			return packageMessage(request,request.getURL().toString().replace("http://localhost:8888", ""));
+		} else if (request.getURL().toString().replace("http://localhost:8888", "").contains("-clematis")) {	
+			return packageMessage(request, request.getURL().toString().replace("http://localhost:8888", ""));
 		}
-		System.out.println("~~~~~~~~~ request end ~~~~~~~~~");
-		System.out.println("~~~~~~~~~ response begin ~~~~~~~~~");
-		System.out.println(response.getStatus());
-		System.out.println("~~~~~~~~~ response end ~~~~~~~~~");
+
 		String type = response.getHeader("Content-Type");
 
 		if (request.getURL().toString().contains("?beginrecord")) {
@@ -312,9 +321,24 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 		if (type != null && type.contains("javascript")) {
 
+			System.out.println("HER:");
+			System.out.println(response.getMessage());
+
+			String[] headerss = response.getHeaderNames();
+
+			System.out.println("Headersss:");
+			for (int h = 0; h < headerss.length; h++) {
+				System.out.println("1: " + (headerss[h]));
+				System.out.println("value: " + response.getHeader(headerss[h]));
+			}
+			System.out.println("==`=`=`=");
+
+			System.out.println(response.getMessage());
+			System.out.println("==`=`=`=`=`=`=`=`=`=`=`=`=`=`=`=`=");
+
 			/* instrument the code if possible */
 			response.setContent(modifyJS(new String(response.getContent()),
-			        request.getURL().toString()).getBytes());
+					request.getURL().toString()).getBytes());
 		} else if (type != null && type.contains("html")) {
 			try {
 				Document dom = Helper.getDocument(new String(response.getContent()));
@@ -325,14 +349,14 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 					Node nType = nodes.item(i).getAttributes().getNamedItem("type");
 					/* instrument if this is a JavaScript node */
 					if ((nType != null && nType.getTextContent() != null && nType
-					        .getTextContent().toLowerCase().contains("javascript"))) {
+							.getTextContent().toLowerCase().contains("javascript"))) {
 						String content = nodes.item(i).getTextContent();
 
 						if (content.length() > 0) {
 							String js = modifyJS(content, request.getURL() + "script" + i);
-							System.out.println(js);
+							//System.out.println(js);
 							nodes.item(i).setTextContent(js);
-							System.out.println(nodes.item(i).getTextContent());
+							//System.out.println(nodes.item(i).getTextContent());
 							continue;
 						}
 					}
@@ -340,7 +364,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 					/* also check for the less used language="javascript" type tag */
 					nType = nodes.item(i).getAttributes().getNamedItem("language");
 					if ((nType != null && nType.getTextContent() != null && nType
-					        .getTextContent().toLowerCase().contains("javascript"))) {
+							.getTextContent().toLowerCase().contains("javascript"))) {
 						String content = nodes.item(i).getTextContent();
 						if (content.length() > 0) {
 							String js = modifyJS(content, request.getURL() + "script" + i);
@@ -348,7 +372,46 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 						}
 
 					}
+
 				}
+
+				// Add our JavaScript as script nodes instead of appending the file contents to existing JavaScript
+				scriptNodesToCreate = modifier.getFilesToPrepend();
+				for (int p = 0; p < scriptNodesToCreate.size(); p++) {
+					newNodeToAdd = dom.createElement("script");					
+					newNodeToAdd.setAttribute("src", scriptNodesToCreate.get(p));//(AstInstrumenter.class.getResource(scriptNodesToCreate.get(p)));
+					newNodeToAdd.setAttribute("language", "javascript");
+					newNodeToAdd.setAttribute("type", "text/javascript");					
+					if (dom.getElementsByTagName("meta").getLength() != 0 && dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
+						dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
+					}
+				}
+				// Inject toolbar and its dependencies
+				scriptNodesToCreate = modifier.getToolbarFiles();
+				for (int t = 0; t < scriptNodesToCreate.size(); t++) {
+
+					if (scriptNodesToCreate.get(t).contains(".js")) {
+						// JavaScript
+						newNodeToAdd = dom.createElement("script");	
+						newNodeToAdd.setAttribute("language", "javascript");
+						newNodeToAdd.setAttribute("type", "text/javascript");	
+						newNodeToAdd.setAttribute("src", scriptNodesToCreate.get(t));
+					} else if (scriptNodesToCreate.get(t).contains(".css")) {
+						// CSS
+						newNodeToAdd = dom.createElement("link");			
+						newNodeToAdd.setAttribute("rel", "stylesheet");
+						newNodeToAdd.setAttribute("type", "text/css");
+						newNodeToAdd.setAttribute("href", scriptNodesToCreate.get(t));
+					} else {
+						// File type not supported
+						continue;
+					}
+
+					if (dom.getElementsByTagName("meta").getLength() != 0 && dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
+						dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
+					}
+				}
+
 				/* only modify content when we did modify anything */
 				if (nodes.getLength() > 0) {
 					/* set the new content */
@@ -360,6 +423,27 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		}
 		/* return the response to the webbrowser */
 		return response;
+	}
+	
+	private Response packageMessage(Request request, String file) {
+		Response intrResponse = new Response();
+		intrResponse.setStatus("200");
+		intrResponse.setVersion("HTTP/1.1");
+		intrResponse.setRequest(request);
+		intrResponse.setMessage("OK");
+		intrResponse.setHeader("Connection", "close");
+
+		try {
+			intrResponse.setContent(Resources.toByteArray(AstInstrumenter.class.getResource(file)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println(file);
+		} catch (NullPointerException npe) {
+			npe.printStackTrace();
+			System.out.println(file);
+		}
+		return intrResponse;
 	}
 
 	/**

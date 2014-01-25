@@ -207,18 +207,6 @@ public class FunctionTrace extends AstInstrumenter {
 				return iscNode;
 			}
 		}
-		/*******************/
-		/////// TODO JUST A HACK FOR RUNNING THE EXPERIMENT. MUST BE REMOVED AFTER
-//		if (baseUrl.equals("http://localhost:8888/files/phorm.js"))
-		if (baseUrl.equals("http://localhost:8888/phormer331/"))
-			return iscNode;
-			
-	/////// TODO JUST A HACK FOR RUNNING THE EXPERIMENT. MUST BE REMOVED AFTER
-		if (baseUrl.contains("skeleton.js") || baseUrl.contains("help.js") || baseUrl.contains("upload.js"))
-			return iscNode;
-		/*******************/
-		// Add wrapper functions to top of JS node
-		iscNode.addChildToFront(jsLoggingFunctions());
 
 		// Return new instrumented node/code
 		return iscNode;
@@ -458,7 +446,7 @@ public class FunctionTrace extends AstInstrumenter {
 
 		if (node.getReturnValue() != null) {
 			// Wrap return value
-			newRV = parse("RSW("+ node.getReturnValue().toSource() + ", '" + node.getReturnValue().toSource()+ "' ," + lineNo +");");
+			newRV = parse("RSW("+ node.getReturnValue().toSource() + ", '" + node.getReturnValue().toSource().replace("'", "\\'")+ "' ," + lineNo +");");
 //			newRV = parse("RSW("+ node.getReturnValue().toSource() + ", '" + 'a' + "' ," + lineNo +");");
 //			newRV = parse("RSW("+ node.getReturnValue().toSource() + ", \"val\" ," + lineNo +");");
 			newRV.setLineno(node.getReturnValue().getLineno());

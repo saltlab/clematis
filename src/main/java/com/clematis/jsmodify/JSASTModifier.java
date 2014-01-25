@@ -1,5 +1,7 @@
 package com.clematis.jsmodify;
 
+import java.util.ArrayList;
+
 import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.Parser;
 import org.mozilla.javascript.ast.AstNode;
@@ -175,5 +177,9 @@ public abstract class JSASTModifier implements NodeVisitor {
 	 * This method is called before the AST is going to be traversed.
 	 */
 	public abstract void start(String node);
+	
+	public abstract ArrayList<String> getFilesToPrepend();
+	
+	public abstract ArrayList<String> getToolbarFiles();
 }
 

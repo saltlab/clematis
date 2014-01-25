@@ -19,7 +19,7 @@ function enableControlPanel() {
         document.getElementById("stopButton").addEventListener('click', stopRecord);
     }
 } 
-document.addEventListener("DOMContentLoaded", enableControlPanel, false);
+//document.addEventListener("DOMContentLoaded", enableControlPanel, false);
 
 // Function which enables logging to console of DOM events, XmlHttpRequests etc.
 // Can be called directly from console or by clicking the 'record' button
