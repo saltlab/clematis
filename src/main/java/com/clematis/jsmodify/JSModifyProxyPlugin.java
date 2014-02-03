@@ -320,22 +320,6 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		}
 
 		if (type != null && type.contains("javascript")) {
-
-			System.out.println("HER:");
-			System.out.println(response.getMessage());
-
-			String[] headerss = response.getHeaderNames();
-
-			System.out.println("Headersss:");
-			for (int h = 0; h < headerss.length; h++) {
-				System.out.println("1: " + (headerss[h]));
-				System.out.println("value: " + response.getHeader(headerss[h]));
-			}
-			System.out.println("==`=`=`=");
-
-			System.out.println(response.getMessage());
-			System.out.println("==`=`=`=`=`=`=`=`=`=`=`=`=`=`=`=`=");
-
 			/* instrument the code if possible */
 			response.setContent(modifyJS(new String(response.getContent()),
 					request.getURL().toString()).getBytes());
@@ -354,13 +338,10 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 						if (content.length() > 0) {
 							String js = modifyJS(content, request.getURL() + "script" + i);
-							//System.out.println(js);
 							nodes.item(i).setTextContent(js);
-							//System.out.println(nodes.item(i).getTextContent());
 							continue;
 						}
 					}
-
 					/* also check for the less used language="javascript" type tag */
 					nType = nodes.item(i).getAttributes().getNamedItem("language");
 					if ((nType != null && nType.getTextContent() != null && nType
@@ -370,9 +351,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 							String js = modifyJS(content, request.getURL() + "script" + i);
 							nodes.item(i).setTextContent(js);
 						}
-
 					}
-
 				}
 
 				// Add our JavaScript as script nodes instead of appending the file contents to existing JavaScript
@@ -406,7 +385,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 						// File type not supported
 						continue;
 					}
-
+					// Insert our scripts in the <head> right after the <meta> tags (before all applications scripts)
 					if (dom.getElementsByTagName("meta").getLength() != 0 && dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
 						dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
 					}

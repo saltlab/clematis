@@ -63,9 +63,7 @@ public abstract class JSASTModifier implements NodeVisitor {
 	public AstNode parse(String code) {
 		Parser p = new Parser(compilerEnvirons, null);
 		return p.parse(code, null, 0);
-
 	}
-
 	
 	/**
 	 * Find out the function name of a certain node and return "anonymous" if it's an anonymous
