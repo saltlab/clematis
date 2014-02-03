@@ -54,10 +54,13 @@
 <link rel="stylesheet" type="text/css" href="flatui/css/bootstrap.css">
 <link rel="stylesheet" type="text/css" href="flatui/css/flat-ui.css">  
 <script type="text/javascript" src="flatui/javascripts/jquery.ui.touch-punch.min.js"></script>    
+<script type="text/javascript" src="flatui/javascripts/jquery.tagsinput.min.js"></script>
+<script type="text/javascript" src="flatui/javascripts/jquery.placeholder.js"></script>
+<script type="text/javascript" src="flatui/javascripts/bootstrap-switch.min.js"></script>
 <script type="text/javascript" src="flatui/javascripts/application.js"></script>
 <script type="text/javascript" src="flatui/javascripts/bootstrap-select.js"></script>
 <script type="text/javascript" src="flatui/javascripts/bootstrap.min.js"></script>
-<script type="text/javascript" src="javascripts/sessvars.js"></script>
+<!--script type="text/javascript" src="javascripts/sessvars.js"></script-->
     
 
 
@@ -87,9 +90,9 @@
 </table-->
 
 <script type="text/javascript">
-var str=sessvars.myObj.name;
-var str2=str.replace(".json","");
-var fileName=str2.substr(1,(str2.length)-2)
+//var str=sessvars.myObj.name;
+//var str2=str.replace(".json","");
+//var fileName=str2.substr(1,(str2.length)-2)
 var signalMutation=false;
 var signalMutation2=false;
 var signalActor=false;
@@ -130,7 +133,8 @@ tableExtras.appendChild(row);
 	var result;
 	$.ajax({
 		type: 'GET',
-		url: 'http://localhost:8080/rest/clematis-api/'+fileName+'/story/sequenceDiagram2' ,
+		//url: 'http://localhost:8080/rest/clematis-api/'+fileName+'/story/sequenceDiagram2' ,
+		url: 'http://localhost:8080/rest/clematis-api/allEpisodes/story/sequenceDiagram2' ,
 		dataType: "text",
 		async: false,
 		success: function sequenceDiagram(data) {

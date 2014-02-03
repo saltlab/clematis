@@ -332,8 +332,7 @@ public class JSExecutionTracer {
 			// JavaScript episodes for JSUML2
 			Helper.directoryCheck(outputFolder + "/sequence_diagrams/");
 			PrintStream JSepisodes =
-			        new PrintStream(outputFolder + "/sequence_diagrams/allEpisodes," + theTime
-			                + ".js");
+			        new PrintStream(outputFolder + "/sequence_diagrams/allEpisodes.js");
 
 			for (Episode e : story.getEpisodes()) {
 				// Create pic files for each episode's sequence diagram

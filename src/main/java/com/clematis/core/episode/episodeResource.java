@@ -539,7 +539,6 @@ public class episodeResource {
 
 		}
 		return causalLinkss;
-
 	}
 
 	@GET

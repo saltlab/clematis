@@ -56,7 +56,7 @@ var hours=new Array;
 var minutes=new Array;
 var seconds=new Array;
 var formattedTime=new Array;	
- var url = 'http://localhost:8080/rest/clematis-api/'+fileName+'/episodes/';
+var url = 'http://localhost:8080/rest/clematis-api/story/episodes/';
 
   $.ajax({
 		type: 'GET',
@@ -157,7 +157,7 @@ function renderList(data) {
 
 		 $.ajax({
 		type: 'GET',
-		url: 'http://localhost:8080/rest/clematis-api/'+fileName+'/episodes/'+i ,
+		url: 'http://localhost:8080/rest/clematis-api/story/episodes/'+i ,
 		dataType: "json",
 		async: false,
 		success: function show1(data) {
@@ -173,7 +173,7 @@ function renderList(data) {
 
     	 $.ajax({
 		type: 'GET',
-		url: 'http://localhost:8080/rest/clematis-api/'+fileName+'/episodes/'+i+'/source' ,
+		url: 'http://localhost:8080/rest/clematis-api/story/episodes/'+i+'/source' ,
 		dataType: "json",
 		async: false,
 		success: function show1(data) {
@@ -709,7 +709,7 @@ for (var i = 0, n = cells.length; i<n; i++) {
 			currentEpisode=i;
 
 	//Get the source for  zoom level 1, specifically we want to get the eventType and eventHandler from the the source
-	var url = 'http://localhost:8080/rest/clematis-api/'+fileName+'/episodes/'+i+'/trace';
+	var url = 'http://localhost:8080/rest/clematis-api/story/episodes/'+i+'/trace';
     var tempDiv_source=document.createElement("div");
    	var tbl_source = document.createElement("table");
 	var tblBody_source = document.createElement("tbody");
@@ -874,7 +874,7 @@ for (var i = 0, n = cells.length; i<n; i++) {
 
 
   	//Get the trace for  zoom level 1.
-  	 var url3 = 'http://localhost:8080/rest/clematis-api/'+fileName+'/episodes/'+i+'/trace';
+  	 var url3 = 'http://localhost:8080/rest/clematis-api/story/episodes/'+i+'/trace';
 	 var trace=new Array;
 	 var tempDiv=document.createElement("div");
 	 var myBr = document.createElement('br');
@@ -1122,7 +1122,7 @@ function nextPreviousEpisode(i){
 
 	anchor4.text="Episode  "+i;
 	anchor3.text="Trace of Episode "+i;
-	var url = 'http://localhost:8080/rest/clematis-api/'+fileName+'/episodes/'+i+'/source';
+	var url = 'http://localhost:8080/rest/clematis-api/story/episodes/'+i+'/source';
     var eventType;
    
 
@@ -1142,7 +1142,7 @@ function nextPreviousEpisode(i){
 		//tabs1.appendChild(eventType);
 		tabs1.appendChild(first_column);
 //get the DOM of a speceifc episode
- 	var url2 = 'http://localhost:8080/rest/clematis-api/'+fileName+'/episodes/'+i;
+ 	var url2 = 'http://localhost:8080/rest/clematis-api/story/episodes/'+i;
 	 var dom;
 	$.ajax({
 		type: 'GET',
@@ -1159,7 +1159,7 @@ function nextPreviousEpisode(i){
 		tabs2.appendChild(third_column);
 
 //get the trace of a specefic episode
-	var url3 = 'http://localhost:8080/rest/clematis-api/'+fileName+'/episodes/'+i+'/trace';
+	var url3 = 'http://localhost:8080/rest/clematis-api/story/episodes/'+i+'/trace';
 	 var trace=new Array;
 	 var tempDiv=document.createElement("div");
 	 var myBr = document.createElement('br');
@@ -1297,7 +1297,7 @@ function get_random_color() {
 //Draw causal Links, first made a call to the REST api, then used a library called jsPlumb to draw lines between the episodes.
 jsPlumb.bind("ready", function() {
 
-	var url = 'http://localhost:8080/rest/clematis-api/'+fileName+'/story/causalLinks';
+	var url = 'http://localhost:8080/rest/clematis-api/story/story/causalLinks';
 	var links=new Array;
 
  	 $.ajax({
