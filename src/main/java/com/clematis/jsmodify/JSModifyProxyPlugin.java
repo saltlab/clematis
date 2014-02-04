@@ -282,6 +282,9 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			System.err.println("JSModifyProxyPlugin::createResponse: request is null");
 			return response;
 		}
+		
+		System.out.println("Request URL:");
+		System.out.println(request.getURL().toString());
 
 		if (request.getURL() == null) {
 			System.err.println("JSModifyProxyPlugin::createResponse: request url is null");
@@ -292,13 +295,28 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		} else if (response == null) {
 			System.err.println("JSModifyProxyPlugin::createResponse: response is null");
 			return response;
-		} else if (modifier.getFilesToPrepend().contains(request.getURL().toString().replace("http://localhost:8888", ""))
-				&& Integer.parseInt(response.getStatus()) == 404) {			
-			return packageMessage(request, request.getURL().toString().replace("http://localhost:8888", ""));			
-		} else if (modifier.getToolbarFiles().contains(request.getURL().toString().replace("http://localhost:8888", ""))) {			
-			return packageMessage(request,request.getURL().toString().replace("http://localhost:8888", ""));
-		} else if (request.getURL().toString().replace("http://localhost:8888", "").contains("-clematis")) {	
-			return packageMessage(request, request.getURL().toString().replace("http://localhost:8888", ""));
+		} else if (!request.getURL().toString().contains("-clematis")
+				&& Integer.parseInt(response.getStatus()) == 404) {		
+			/* modifier.getFilesToPrepend().contains(request.getURL().toString().replace("http://localhost:8888", "")) */
+
+			
+			return packageMessage(request, request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/")));	
+			
+			
+			
+		} else if (request.getURL().toString().contains("toolbar-clematis") && Integer.parseInt(response.getStatus()) == 404) {		
+			
+
+			
+			return packageMessage(request,request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/toolbar-clematis/")));
+			
+			
+			
+		} else if (request.getURL().toString().contains("/images-clematis/") && Integer.parseInt(response.getStatus()) == 404) {
+			System.out.println("Shouldn't be here!");
+			System.out.println(request.getURL().toString());
+			
+			return packageMessage(request, request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/images-clematis/")));
 		}
 
 		String type = response.getHeader("Content-Type");
