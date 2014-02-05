@@ -81,14 +81,17 @@ var MsgConstants = {
  * Prints the information related to creation of a timeout to the console
  */
 logger.logSetTimeout = function(func, delay, params) {
-	if (!recordingInProgress) return;
+window.console.log('logger.logSetTimeout');
+/*	if (!recordingInProgress) return;
 	
 	if (!recordStarted)
 		return;
-	
-    // todo todo
+*/	
+
+
+
 	if (delay == 0 || delay == null) {
-//		console.log("+++++ Ignore timeout with delay = 0 +++++");
+		console.log("+++++ Ignore timeout with delay = 0 +++++");
 		func[totalNumOfTimeouts] = true;
 		return;
 	}
@@ -172,13 +175,18 @@ logger.logTimeoutCallback = function(func) {
 		// responsible unit.
 	}
 
-    send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func.name, counter: traceCounter++}));
+    if (Object.prototype.toString.apply(func) === '[object Function]') {
+	// Callback is Function object
+		send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func.name, counter: traceCounter++}));
+	} else if (Object.prototype.toString.apply(func) === '[object String]') {
+	// Callback is String
+		send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func, counter: traceCounter++}));
+	} else {
+	// Callback is unknown type
+		send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func.name, counter: traceCounter++}));
+	}
     checkValues();
     
-    
-    console.log(func.apply(null));
-    
-    console.log("end of timeout callback");
     
     
 };
@@ -272,45 +280,20 @@ logger.logXHRResponse = function(xhr) {
  * Prints the information related to a DOM event on the console
  */
 logger.logDOMEvent = function(type, targetEl, callback) {
-	if (!recordingInProgress) return;
-//	else console.log("logDOMEvent");
-
-	var jml;
-	console.log("------------------------------------");
-	console.log("DOM EVENT HANDLED");
-
-	//if (!recordStarted || arguments[0].toString().indexOf("webdriver-evaluate") >= 0)
-	if (!recordStarted)
-		return;
-	
-	// todo /******************/
-	/*
-	var eventType = arguments[0];
-	if (eventType == "mouseover" || eventType == "mousemove" || eventType == "mouseout") {
-		console.log(eventType, " not logged");
+	if (!recordingInProgress) {
 		return;
 	}
-	*/
-	// todo /******************/
-	/*
-	console.log("------------------------------------");
-	console.log("DOM EVENT HANDLED");
-*/	var date = Date.now();
 
-	console.log(" + Event type: ", arguments[0]);
-	console.log(" + Target DOM element: ", arguments[1]);
-	console.log(" + Handler function: ", arguments[2]);
+	var jml;
+	var date = Date.now();
+
+	if (!recordStarted)
+		return;
 
     jml = JsonML.fromHTML(arguments[1]);
-	//if (jml && recordingInProgress == true) {
 	if (jml) {
 		jml = JSON.stringify(jml);
-	    //alert("dom event");
     	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
-    	console.log("-----------------------------------");
-    	console.log(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
-    	console.log("-----------------------------------");
-      
 	}
 	checkValues();
 };
@@ -420,7 +403,7 @@ logger.logDOMMutation = function() {
  * ** *** ** TIMEOUTS *** ** ***
  ******************************************************************************/
 
-
+window.console.log('instrumenting timeout');
 // Keep the current setTimeout function
 window.oldSetTimeout = window.setTimeout;
 
@@ -430,7 +413,7 @@ window.setTimeout = function(func, delay, params) {
 	timeoutCounter++;
 	totalNumOfTimeouts++;
 
-///////////////////////////////	var timeoutArgs = Array.prototype.slice.call(arguments, 2);
+    //var timeoutArgs = Array.prototype.slice.call(arguments, 2);
 	var timeoutArgs = null;
 
 	// Log the creation of the timeout
@@ -439,16 +422,21 @@ window.setTimeout = function(func, delay, params) {
 
 	// Call the original timeout after logging
 	window.oldSetTimeout(function(/* params */) {
+window.console.log('window.oldSetTimeout');
 		try {
 			logger.logTimeoutCallback(func);
 
-//////////////////////////			func.apply(null, timeoutArgs);
-			func.apply(null);
-//////////////////////////			
+			if (Object.prototype.toString.apply(func) === '[object Function]') {
+				func.apply(null);
+			} else if (Object.prototype.toString.apply(func) === '[object String]') {
+				window.console.log('Timeout callback is a String.');
+					eval(func);
+			} else {
+				window.console.log('Invalid timeout callback, must be Function or String.');
+			}
 			timeoutCounter--;
-
 		} catch (exception) {
-//			alert("Timeout exception");
+			// alert("Timeout exception");
 		}
 	}, delay);
 };

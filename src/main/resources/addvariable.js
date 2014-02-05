@@ -32,26 +32,16 @@ function bookmark(){
 }
 function startRecording() {
 	console.log("recording");
-	if (recordButtonClicked == true)
+	if (recordButtonClicked == true) {
 		return;
+	}
 
     window.buffer = new Array();
-
 	recordButtonClicked = true;
 	stopButtonClicked = false;
-
-	//document.getElementById("recordButton").style.opacity = 0.5;
-	//document.getElementById("stopButton").style.opacity = 1;
-
-	//document.getElementById("visualizationLinkContainer").innerHTML = "";
-
 	document.getElementById('recordButton').setAttribute("src","/images-clematis/capture_green.png");
-
-	//myVar = setInterval(function(){blink()},1900);
-	
 	// Recording has started
     sendRecordStart();
-    
 }
 
 function stopRecording() {

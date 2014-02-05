@@ -25,15 +25,15 @@ public class SimpleExample {
 	// private static final String URL = "http://localhost:8080/same-game/same-game.html";
 	// private static final String URL = "http://localhost:8080/example_webapplication/index.html";
 
-//	private static final String URL = "http://localhost:8888/phormer331/index.php";
-	private static final String URL = "http://www.themaninblue.com/experiment/BunnyHunt/";
+	private static final String URL = "http://localhost:8888/phormer331/index.php";
+//	private static final String URL = "http://www.themaninblue.com/experiment/BunnyHunt/";
 
 	// private static final String URL =
 	// "http://10.162.207.43:8000/sap/bi/launchpad/explorer?itemId=nhl-data%3ACOMPLETE_NHL_PLAYER_STATS&type=DATASET";
 	// private static final String URL = "http://localhost:8080/study_application/index.html";
 
 	private static String outputFolder = "";
-	private static WebDriver driver;
+	public static WebDriver driver;
 
 	public static void main(String[] args) {
 		try {

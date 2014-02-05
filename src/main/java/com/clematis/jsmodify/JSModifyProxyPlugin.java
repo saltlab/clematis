@@ -16,6 +16,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Parser;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.ast.AstRoot;
+import org.openqa.selenium.JavascriptExecutor;
 import org.owasp.webscarab.httpclient.HTTPClient;
 import org.owasp.webscarab.model.Request;
 import org.owasp.webscarab.model.Response;
@@ -25,6 +26,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.clematis.core.SimpleExample;
 import com.clematis.instrument.AstInstrumenter;
 import com.crawljax.util.Helper;
 import com.google.common.base.Charsets;
@@ -44,6 +46,8 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	public static String scopeNameForExternalUse; // //// todo ********** change this later
 
 	private final JSASTModifier modifier;
+	
+	private boolean areWeRecording = false;
 
 	private static String outputFolder = "";
 	private static String jsFilename = "";
@@ -146,17 +150,12 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			// Save original JavaScript files/nodes
 			Helper.directoryCheck(getOutputFolder());
 			setFileName(scopename);
-			PrintStream output = new PrintStream(getOutputFolder() + getFilename());
 			PrintStream oldOut = System.out;
-			System.setOut(output);
-			System.setOut(oldOut);
-
-			PrintStream output_visual =
+			PrintStream outputVisual =
 					new PrintStream("src/main/webapp/fish-eye-zoom/" + getFilename());
-
-			PrintStream oldOut2_visual = System.out;
-			System.setOut(output_visual);
-			System.setOut(oldOut2_visual);
+			System.setOut(outputVisual);
+			System.out.println(input);
+			System.setOut(oldOut);
 
 			AstRoot ast = null;
 
@@ -179,9 +178,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 			ast = modifier.finish(ast);
 
-			/****************************/
 			// todo todo todo do not instrument again if visited before
-			System.out.println("--------------------------------");
 			StringTokenizer tokenizer = new StringTokenizer(scopename, "?");
 			String newBaseUrl = "";
 			if (tokenizer.hasMoreTokens()) {
@@ -214,9 +211,6 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 				e.printStackTrace();
 			}
 
-			System.out.println("--------------------------------");
-			/***************************/
-
 			/* clean up */
 			Context.exit();
 
@@ -243,7 +237,6 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			iae.printStackTrace();
 		} catch (IOException ioe) {
 			System.err.println("Error saving original javascript files.");
-
 			System.err.println("getMessage: " + ioe.getMessage());
 			ioe.printStackTrace();
 		}
@@ -283,8 +276,10 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			return response;
 		}
 		
-		System.out.println("Request URL:");
-		System.out.println(request.getURL().toString());
+		if (request != null && request.getURL() != null) {
+			System.out.println("Request URL:");
+			System.out.println(request.getURL().toString());
+		}
 
 		if (request.getURL() == null) {
 			System.err.println("JSModifyProxyPlugin::createResponse: request url is null");
@@ -295,53 +290,45 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		} else if (response == null) {
 			System.err.println("JSModifyProxyPlugin::createResponse: response is null");
 			return response;
+		// Proxy can provide Clematis files to prepend to application (specified in SimpleExample.java)
 		} else if (!request.getURL().toString().contains("-clematis")
-				&& Integer.parseInt(response.getStatus()) == 404) {		
-			/* modifier.getFilesToPrepend().contains(request.getURL().toString().replace("http://localhost:8888", "")) */
-
-			
+				&& Integer.parseInt(response.getStatus()) == 404
+				&& modifier.getFilesToPrepend().contains(request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/")))) {		
 			return packageMessage(request, request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/")));	
-			
-			
-			
+		// Proxy can provide JavaScript and CSS specific to toolbar
 		} else if (request.getURL().toString().contains("toolbar-clematis") && Integer.parseInt(response.getStatus()) == 404) {		
-			
-
-			
 			return packageMessage(request,request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/toolbar-clematis/")));
-			
-			
-			
+		// Proxy can provide images for toolbar rendering
 		} else if (request.getURL().toString().contains("/images-clematis/") && Integer.parseInt(response.getStatus()) == 404) {
-			System.out.println("Shouldn't be here!");
-			System.out.println(request.getURL().toString());
-			
 			return packageMessage(request, request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/images-clematis/")));
 		}
 
 		String type = response.getHeader("Content-Type");
 
+		// Communication with client in regards to recording
 		if (request.getURL().toString().contains("?beginrecord")) {
+			areWeRecording = true;
 			JSExecutionTracer.preCrawling();
 			return response;
 		}
-
 		if (request.getURL().toString().contains("?stoprecord")) {
+			areWeRecording = false;
 			JSExecutionTracer.postCrawling();
 			return response;
 		}
-
 		if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
 			String rawResponse = new String(request.getContent());
 			JSExecutionTracer.addPoint(rawResponse);
 			return response;
 		}
 
+		// Intercept and instrument relevant files (JavaScript and HTML)
 		if (type != null && type.contains("javascript")) {
 			/* instrument the code if possible */
 			response.setContent(modifyJS(new String(response.getContent()),
 					request.getURL().toString()).getBytes());
 		} else if (type != null && type.contains("html")) {
+			
 			try {
 				Document dom = Helper.getDocument(new String(response.getContent()));
 				/* find script nodes in the html */
@@ -376,13 +363,15 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 				scriptNodesToCreate = modifier.getFilesToPrepend();
 				for (int p = 0; p < scriptNodesToCreate.size(); p++) {
 					newNodeToAdd = dom.createElement("script");					
-					newNodeToAdd.setAttribute("src", scriptNodesToCreate.get(p));//(AstInstrumenter.class.getResource(scriptNodesToCreate.get(p)));
+					newNodeToAdd.setAttribute("src", scriptNodesToCreate.get(p));
 					newNodeToAdd.setAttribute("language", "javascript");
 					newNodeToAdd.setAttribute("type", "text/javascript");					
-					if (dom.getElementsByTagName("meta").getLength() != 0 && dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
+					if (dom.getElementsByTagName("meta").getLength() != 0 
+							&& dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
 						dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
 					}
 				}
+				
 				// Inject toolbar and its dependencies
 				scriptNodesToCreate = modifier.getToolbarFiles();
 				for (int t = 0; t < scriptNodesToCreate.size(); t++) {
@@ -405,6 +394,18 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 					}
 					// Insert our scripts in the <head> right after the <meta> tags (before all applications scripts)
 					if (dom.getElementsByTagName("meta").getLength() != 0 && dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
+						dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
+					}
+				}
+				// Inter-page recording (add extra JavaScript to enable recording right away)
+				if (areWeRecording) {
+					// Page probably changed and we were recording on previous page...so start recording immediately
+					newNodeToAdd = dom.createElement("script");					
+					newNodeToAdd.setAttribute("language", "javascript");
+					newNodeToAdd.setAttribute("type", "text/javascript");
+					newNodeToAdd.setTextContent("resumeRecording();");
+					if (dom.getElementsByTagName("meta").getLength() != 0 
+							&& dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
 						dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
 					}
 				}
@@ -434,11 +435,11 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			intrResponse.setContent(Resources.toByteArray(AstInstrumenter.class.getResource(file)));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			System.out.println(file);
 			e.printStackTrace();
-			System.out.println(file);
 		} catch (NullPointerException npe) {
-			npe.printStackTrace();
 			System.out.println(file);
+			npe.printStackTrace();
 		}
 		return intrResponse;
 	}

@@ -523,6 +523,7 @@
 						."\t ss_ttl [$n] = '".str_replace(array("\n", "'"), array('', '&#039;'), nl2br(strtr($val['name'], $transtable)))."'; "
 						."\t ss_desc[$n] = '".str_replace(array("\n", "'"), array('', '&#039;'), nl2br($val['desc']))."'; \n";
 				echo "\t".'ss_update();'."\n";
+				echo "window.console.log('phormer setting');\n";
 				echo "\t".'setTimeout(ss_slideshow, 10000);'."\n";
 			echo '</script>';
 

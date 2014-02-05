@@ -636,7 +636,17 @@ for (var i = 0, n = cells.length; i < n; i++) {
                 var counter_mutation = 0;
                 var num_rows_mutation = 1;
                 rows_mutation[num_rows_mutation + 2] = document.createElement("tr");
+
+window.console.log('+++++++++++++++++++++++++++++++++++');
+window.console.log('h = '+ h);
+window.console.log('i = '+ i);
+window.console.log('allEpisodes.length = '+ allEpisodes.length);
+window.console.log('+++++++++++++++++++++++++++++++++++');
                 for (var h = 0; h < allEpisodes[i].getMutations().length; h++) {
+window.console.log('----------------------------------');
+window.console.log('h = '+ h);
+window.console.log('i = '+ i);
+window.console.log('----------------------------------');
                     if (counter_mutation == 3) {
                         counter_mutation = 0;
                         num_rows_mutation++;

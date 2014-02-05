@@ -118,3 +118,16 @@ document.getElementById("stopButton").addEventListener('click', stopRecording, f
 }
 
 $(document).ready(loadToolbar);
+
+$(window).bind('beforeunload', sendReally);
+
+function resumeRecording() {
+    window.buffer = new Array();
+	console.log("resuming");
+	recordButtonClicked = true;
+	stopButtonClicked = false;
+	recordingInProgress = true;
+	$(document).ready(function(){
+		document.getElementById('recordButton').setAttribute("src","/images-clematis/capture_green.png");
+	});	
+}

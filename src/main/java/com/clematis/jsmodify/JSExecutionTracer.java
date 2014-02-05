@@ -160,14 +160,15 @@ public class JSExecutionTracer {
 			mapper.writeValue(new File("captured_stories/story"/*," + theTime*/ + ".json"),
 			        story);
 
-			Story s1 = mapper.readValue(new File("captured_stories/story.json"),
+			/*Story s1 = mapper.readValue(new File("captured_stories/story.json"),
 			        Story.class);
 
 			if (story.equals(s1)) {
 				System.out.print("SUCCESS\n");
-			}
-			else
+			} else {
 				System.out.print("SUCCESSS\n");
+			}
+			*/
 		} catch (JsonGenerationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

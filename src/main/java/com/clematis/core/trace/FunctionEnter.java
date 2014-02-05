@@ -1,9 +1,12 @@
 package com.clematis.core.trace;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonSetter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.fasterxml.jackson.annotation.JsonGetter;
 
 public class FunctionEnter extends FunctionTrace {
 	private String TargetFunction;
