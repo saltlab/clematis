@@ -33,7 +33,7 @@ public class SimpleExample {
 	// private static final String URL = "http://localhost:8080/study_application/index.html";
 
 	private static String outputFolder = "";
-	public static WebDriver driver;
+	private static WebDriver driver;
 
 	public static void main(String[] args) {
 		try {
