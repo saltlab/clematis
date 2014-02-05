@@ -33,12 +33,5 @@ More documentation (and fewer bugs) coming soon.
 
 Your feedback is valued! Please use the [Issue tracker](https://github.com/saltlab/clematis/issues) for reporting bugs or feature requests.
 
-## Notes
 
-The provided demo application [.../example_webapplication/index.html](https://github.com/saltlab/clematis/blob/master/example_webapplication/index.html) is not fully compatible with Google Chrome. Specifically, an attempt to retrieve data from a local file is made by each of the 3 XMLHttpRequests within the example/demo (GET, POST, Delayed). This type of local access operation is not permitted from Chrome as a seurity feature ([See More](http://renard.github.com/o-blog/faq.html)). Therefore, the following output is expected when attempting to load local files through Chrome: 
-
-```
-XMLHttpRequest cannot load file://.../clematis/example_webapplication/local_url.txt. Cross origin requests are only supported for HTTP.
-Uncaught Error: NETWORK_ERR: XMLHttpRequest Exception 101
-```
 
