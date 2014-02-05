@@ -33,6 +33,5 @@ More documentation (and fewer bugs) coming soon.
 
 Your feedback is valued! Please use the [Issue tracker](https://github.com/saltlab/clematis/issues) for reporting bugs or feature requests.
 
-Uncaught Error: NETWORK_ERR: XMLHttpRequest Exception 101
-```
+
 
