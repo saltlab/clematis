@@ -64,11 +64,11 @@ public class SimpleExample {
 			// s.setFileNameToAttach("/jquery.tipsy.js");
 			// s.setFileNameToAttach("/trial_toolbar.js");
 			// s.setFileNameToAttach("/toolbar2.js");
+			s.setFileNameToAttach("/jsonml-dom.js");
 			s.setFileNameToAttach("/addvariable.js");
 			s.setFileNameToAttach("/asyncLogger.js");
 			s.setFileNameToAttach("/applicationView.js");
 			s.setFileNameToAttach("/eventlistenersMirror.js");
-			s.setFileNameToAttach("/jsonml-dom.js");
 			s.setFileNameToAttach("/domMutations.js");
 			s.setFileNameToAttach("/mutation_summary.js");
 			s.instrumentDOMModifications();

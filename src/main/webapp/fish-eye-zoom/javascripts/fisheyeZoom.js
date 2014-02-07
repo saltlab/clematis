@@ -114,11 +114,11 @@ for (var i = 0; i < number_episodes; i++) {
         dataType: "json",
         async: false,
         success: function show1(data) {
-            if (data.id == 0) {
+            if (data.eventType !== undefined) {
                 episodes[i] = document.createTextNode("Episode #" + i + "\n" + "Event");
                 $(divs[i]).addClass('cell_dom');
                 $(divs_map[i]).addClass('box');
-            } else if (data.id != 0 && data.callbackFunction.length > 0) {
+            } else if (data.timeoutId !== undefined && data.callbackFunction.length > 0) {
                 episodes[i] = document.createTextNode("Episode #" + i + "\n" + "Timeout");
                 $(divs[i]).addClass('cell_to');
                 $(divs_map[i]).addClass('box');
@@ -581,19 +581,22 @@ for (var i = 0, n = cells.length; i < n; i++) {
                     async: false,
                     success: function show1(data) {
                         //if id != 0 then its an XHR or Timeout event
-                        if (data.trace[0].id != 0 && (data.trace[0].xhrId >= 0)) {
+                        if (data.trace[0].xhrId !== undefined && (data.trace[0].xhrId >= 0)) {
+                            // XHR
                             cells_source[1].appendChild(document.createTextNode("eventType"));
                             cells_source[2].appendChild(document.createTextNode("targetElement"));
-                            cells_source[3].appendChild(document.createTextNode("XHR:" + JSON.stringify(data.trace[0].xhrId)));
+                            cells_source[3].appendChild(document.createTextNode("XHR:" + data.trace[0].xhrId));
                             cells_source[3].setAttribute('class', 'cell_source');
                             $(episodeContents[i]).addClass('cell_xhr').removeClass('cell_to', 'cell_dom');
-                        } else if (data.trace[0].id != 0 && (data.trace[0].timeoutId >= 0)) {
+                        } else if (data.trace[0].timeoutId !== undefined && (data.trace[0].timeoutId >= 0)) {
+                            // Timeout 
                             cells_source[1].appendChild(document.createTextNode("eventType"));
                             cells_source[2].appendChild(document.createTextNode("targetElement"));
-                            cells_source[3].appendChild(document.createTextNode("TO:" + JSON.stringify(data.trace[0].timeoutId)));
+                            cells_source[3].appendChild(document.createTextNode("TO:" + data.trace[0].timeoutId));
                             cells_source[3].setAttribute('class', 'cell_source');
                             $(episodeContents[i]).addClass('cell_to').removeClass('cell_xhr', 'cell_dom');
                         } else {
+                            // DOMEvent
                             cells_source[1].appendChild(document.createTextNode("eventType"));
                             cells_source[2].appendChild(document.createTextNode("targetElement id"));
                             cells_source[3].appendChild(document.createTextNode(JSON.stringify((data.trace[0].eventType))));
@@ -637,16 +640,7 @@ for (var i = 0, n = cells.length; i < n; i++) {
                 var num_rows_mutation = 1;
                 rows_mutation[num_rows_mutation + 2] = document.createElement("tr");
 
-window.console.log('+++++++++++++++++++++++++++++++++++');
-window.console.log('h = '+ h);
-window.console.log('i = '+ i);
-window.console.log('allEpisodes.length = '+ allEpisodes.length);
-window.console.log('+++++++++++++++++++++++++++++++++++');
                 for (var h = 0; h < allEpisodes[i].getMutations().length; h++) {
-window.console.log('----------------------------------');
-window.console.log('h = '+ h);
-window.console.log('i = '+ i);
-window.console.log('----------------------------------');
                     if (counter_mutation == 3) {
                         counter_mutation = 0;
                         num_rows_mutation++;
@@ -1026,6 +1020,8 @@ jsPlumb.bind("ready", function () {
 
     function renderListLinks(data) {
         temp_data = data;
+window.console.log('[renderListLinks]: ');
+window.console.log(data);
         for (var i = 0; i < data.length; i++) {
             var color_link = get_random_color();
             jsPlumb.connect({

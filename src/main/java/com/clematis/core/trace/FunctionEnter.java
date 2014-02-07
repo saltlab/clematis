@@ -43,17 +43,17 @@ public class FunctionEnter extends FunctionTrace {
 		}
 	}
 
+	@JsonIgnore
 	public String getArgsString() {
-
 		String arguments = "";
 
 		for (int i = 0; i < args.length(); i++) {
 			try {
 				String labels[] = JSONObject.getNames(args.getJSONObject(i));
-				arguments +=
-				        ", "
-				                + args.getJSONObject(i).get(labels[0]).toString()
-				                        .replaceAll("\"", "");
+				if (labels != null) {
+					arguments += ", " + args.getJSONObject(i).get(labels[0]).toString()
+							.replaceAll("\"", "");
+				}
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -62,6 +62,7 @@ public class FunctionEnter extends FunctionTrace {
 		return arguments.replaceFirst(", ", "");
 	}
 
+	@JsonIgnore
 	public String getArgsLabels() {
 		if (args == null) {
 			return "";
@@ -70,10 +71,17 @@ public class FunctionEnter extends FunctionTrace {
 
 			for (int i = 0; i < args.length(); i++) {
 				try {
+
 					String labels[] = JSONObject.getNames(args.getJSONObject(i));
-					argumentLabels += ", " + labels[0].toString().replaceAll("\"", "");
+					if (labels != null) {
+						argumentLabels += ", " + labels[0].toString().replaceAll("\"", "");
+					}  
 				} catch (JSONException e) {
+					System.out.println(i);
+					System.out.println(args.length());
 					e.printStackTrace();
+				} catch (NullPointerException npe) {
+					npe.printStackTrace();
 				}
 			}
 

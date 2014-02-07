@@ -2,8 +2,10 @@ package com.clematis.core.episode;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +54,8 @@ public class episodeResource {
 	public void configureObjectMapper() {
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance()
-		        .withFieldVisibility(
-		                Visibility.ANY));
+				.withFieldVisibility(
+						Visibility.ANY));
 		mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		// to allow coercion of JSON empty String ("") to null Object value:
@@ -68,7 +70,7 @@ public class episodeResource {
 		configureObjectMapper();
 		try {
 			this.s1 = mapper.readValue(new File("captured_stories/" + fileName + ".json"),
-			        Story.class);
+					Story.class);
 		} catch (JsonParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -185,7 +187,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/source")
 	@Produces(MediaType.APPLICATION_JSON)
 	public TraceObject getEpisodeSource(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		return episodeMap.get(id).getSource();
 	}
@@ -194,7 +196,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace")
 	@Produces(MediaType.APPLICATION_JSON)
 	public EpisodeTrace getEpisodeTrace(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		return episodeMap.get(id).getTrace();
 	}
@@ -203,7 +205,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/functionTrace")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<FunctionTrace> getFunctionTrace(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		List<FunctionTrace> functionTraces = new ArrayList<FunctionTrace>();
 
@@ -219,7 +221,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/DOMMutationTrace")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<DOMMutationTrace> getDOMMutationTrace(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		List<DOMMutationTrace> DOMMutationTraces = new ArrayList<DOMMutationTrace>();
 
@@ -235,7 +237,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/DOMElementValueTrace")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<DOMElementValueTrace> getDOMElementValueTrace(
-	        @PathParam("fileName") String fileName, @PathParam("id") String id) {
+			@PathParam("fileName") String fileName, @PathParam("id") String id) {
 		intialize(fileName);
 		List<DOMElementValueTrace> DOMElementValueTraces = new ArrayList<DOMElementValueTrace>();
 
@@ -251,7 +253,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/XMLHttpRequestTrace")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<XMLHttpRequestTrace> getXMLHttpRequestTrace(
-	        @PathParam("fileName") String fileName, @PathParam("id") String id) {
+			@PathParam("fileName") String fileName, @PathParam("id") String id) {
 		intialize(fileName);
 		List<XMLHttpRequestTrace> XMLHttpRequestTraces = new ArrayList<XMLHttpRequestTrace>();
 
@@ -267,7 +269,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/TimingTrace")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<TimingTrace> getTimingTrace(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		List<TimingTrace> TimingTraces = new ArrayList<TimingTrace>();
 
@@ -283,7 +285,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/DOMEventTrace")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<DOMEventTrace> getDOMEventTrace(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		List<DOMEventTrace> DOMEventTraces = new ArrayList<DOMEventTrace>();
 
@@ -302,7 +304,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/functionTrace/FunctionCall")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<FunctionCall> getFunctionCall(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		List<FunctionCall> FunctionCalls = new ArrayList<FunctionCall>();
 
@@ -318,7 +320,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/functionTrace/FunctionEnter")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<FunctionEnter> getFunctionEnter(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		List<FunctionEnter> FunctionEnters = new ArrayList<FunctionEnter>();
 
@@ -334,7 +336,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/functionTrace/FunctionExit")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<FunctionExit> getFunctionExit(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		List<FunctionExit> FunctionExits = new ArrayList<FunctionExit>();
 
@@ -350,10 +352,10 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/functionTrace/FunctionReturnStatement")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<FunctionReturnStatement> getFunctionReturnStatement(
-	        @PathParam("fileName") String fileName, @PathParam("id") String id) {
+			@PathParam("fileName") String fileName, @PathParam("id") String id) {
 		intialize(fileName);
 		List<FunctionReturnStatement> FunctionReturnStatements =
-		        new ArrayList<FunctionReturnStatement>();
+				new ArrayList<FunctionReturnStatement>();
 
 		for (TraceObject to : getFunctionTrace(fileName, id)) {
 			if (to instanceof FunctionReturnStatement) {
@@ -371,7 +373,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/TimingTrace/TimeoutCallback")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<TimeoutCallback> getTimeoutCallback(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		List<TimeoutCallback> TimeoutCallbacks = new ArrayList<TimeoutCallback>();
 
@@ -387,7 +389,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/TimingTrace/TimeoutSet")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<TimeoutSet> getTimeoutSet(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		List<TimeoutSet> TimeoutSets = new ArrayList<TimeoutSet>();
 
@@ -407,7 +409,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/XMLHttpRequestTrace/XMLHttpRequestOpen")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<XMLHttpRequestOpen> getXMLHttpRequestOpen(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		List<XMLHttpRequestOpen> XMLHttpRequestOpens = new ArrayList<XMLHttpRequestOpen>();
 
@@ -423,10 +425,10 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/XMLHttpRequestTrace/XMLHttpRequestResponse")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<XMLHttpRequestResponse> getXMLHttpRequestResponse(
-	        @PathParam("fileName") String fileName, @PathParam("id") String id) {
+			@PathParam("fileName") String fileName, @PathParam("id") String id) {
 		intialize(fileName);
 		List<XMLHttpRequestResponse> XMLHttpRequestResponses =
-		        new ArrayList<XMLHttpRequestResponse>();
+				new ArrayList<XMLHttpRequestResponse>();
 
 		for (TraceObject to : getXMLHttpRequestTrace(fileName, id)) {
 			if (to instanceof XMLHttpRequestResponse) {
@@ -440,7 +442,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/{id}/trace/XMLHttpRequestTrace/XMLHttpRequestSend")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<XMLHttpRequestSend> getXMLHttpRequestSend(@PathParam("fileName") String fileName,
-	        @PathParam("id") String id) {
+			@PathParam("id") String id) {
 		intialize(fileName);
 		List<XMLHttpRequestSend> XMLHttpRequestSends = new ArrayList<XMLHttpRequestSend>();
 
@@ -494,52 +496,63 @@ public class episodeResource {
 
 		intialize(fileName);
 		List<causalLinks> causalLinkss = new ArrayList<causalLinks>();
+		
+		for (int i = 0; i< this.s1.getEpisodes().size(); i++) {
+			// Add causal edges between episodes
+			Episode currentEpisode = this.s1.getEpisodes().get(i);
 
-		for (int i = 0; i < episodeMap.size(); i++) {
-			String strI = "" + i;
-			getTimeoutSet(fileName, strI);
-			// if episode contains a timeout, find the corresponding callback
-			if (getTimeoutSet(fileName, strI).size() > 0) {
-				for (int x = 0; x < getTimeoutSet(fileName, strI).size(); x++) {
-					for (int z = 0; z < episodeMap.size(); z++) {
-						String strZ = "" + z;
-						if (getTimeoutCallback(fileName, strZ).size() > 0)
-						{
-							for (int zz = 0; zz < getTimeoutCallback(fileName, strZ).size(); zz++) {
-								if (getTimeoutSet(fileName, strI).get(x).getTimeoutId() == getTimeoutCallback(
-								        fileName, strZ)
-								        .get(zz).getTimeoutId()) {
-									causalLinkss.add(new causalLinks(i, z));
-								}
-							}
-						}
-					}
-				}
+			// If the source is not included in the trace, add it
+			if(!currentEpisode.getTrace().getTrace().contains(currentEpisode.getSource())) {
+				// Need entire episode (including source) when looking for causality
+				currentEpisode.getTrace().addToTrace(currentEpisode.getSource());
 			}
 
-			if (getXMLHttpRequestOpen(fileName, strI).size() > 0) {
-				for (int x = 0; x < getXMLHttpRequestOpen(fileName, strI).size(); x++) {
-					for (int z = 0; z < episodeMap.size(); z++) {
-						String strZ = "" + z;
-						if (getXMLHttpRequestResponse(fileName, strZ).size() > 0)
-						{
-							for (int zz = 0; zz < getXMLHttpRequestResponse(fileName, strZ)
-							        .size(); zz++) {
-								if (getXMLHttpRequestOpen(fileName, strI).get(x).getXhrId() == getXMLHttpRequestResponse(
-								        fileName,
-								        strZ)
-								        .get(zz).getXhrId()) {
-									causalLinkss.add(new causalLinks(i, z));
-								}
+			for (TraceObject to : currentEpisode.getTrace().getTrace()) {
+				// Iterate through each TraceObject in the Episode
+				if (to.getClass().toString().contains("TimeoutCallback")
+						|| to.getClass().toString().contains("XMLHttpRequestResponse")) {
+					System.out.println("Found tailend!");
+					
+					// Need to look for origin of Timeout or XMLHttpRequest in other Episodes
+					for (int j = 0; j < i; j++) {
+						System.out.println("Checking source in episode " + j);
+
+						Episode otherEpisode = this.s1.getEpisodes().get(j);
+
+						// Add source to trace since it could be the callback's source as well
+						if (!otherEpisode.getTrace().getTrace().contains(otherEpisode.getSource())) {
+							otherEpisode.getTrace().addToTrace(otherEpisode.getSource());
+						}
+
+						for (TraceObject to2 : otherEpisode.getTrace().getTrace()) {
+							System.out.println("next traceobject in trace of " + j);
+							
+							if (to.getClass().toString().contains("XMLHttpRequestResponse")
+									&& to2.getClass().toString().contains("XMLHttpRequest")
+									&& to2.getId() == to.getId()){
+								// Found source of XMLHttpRequest
+								causalLinkss.add(new causalLinks(i, j));
+
+								break;
+							} else if (to2.getClass().toString().contains("TimeoutSet")
+									&& to.getClass().toString().contains("TimeoutCallback")
+									&& to.getId() == to2.getId()){
+								// Found source of TimingEvent
+System.out.println("found front end/source!");
+								causalLinkss.add(new causalLinks(i, j));
+
+								break;
 							}
 						}
-					}
-				}
-			}
 
+					}
+				} // Otherwise no need to add causal link for TraceObject
+			}
 		}
+		
 		return causalLinkss;
 	}
+
 
 	@GET
 	@Path("{fileName}/story/sequenceDiagram2")
@@ -551,9 +564,9 @@ public class episodeResource {
 		System.out.println(temp2);
 		try {
 			output =
-			        new Scanner(new File(
-			                "clematis-output/ftrace/sequence_diagrams/" + temp2))
-			                .useDelimiter("\\Z").next();
+					new Scanner(new File(
+							"clematis-output/ftrace/sequence_diagrams/" + temp2))
+			.useDelimiter("\\Z").next();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

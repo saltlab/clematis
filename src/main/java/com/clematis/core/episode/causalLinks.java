@@ -9,10 +9,8 @@ public class causalLinks {
 	}
 
 	public causalLinks(int source, int target) {
-
 		this.source = source;
 		this.target = target;
-
 	}
 
 	public void setSource(int source) {

@@ -1,1 +1,0 @@
-var causalLinks = new Array();

@@ -91,6 +91,7 @@ public class EpisodeGraph {
 							continue;
 						}
 
+						// Add source to trace since it could be the callback's source as well
 						if (!otherEpisode.getTrace().getTrace().contains(otherEpisode.getSource())) {
 							otherEpisode.getTrace().addToTrace(otherEpisode.getSource());
 						}

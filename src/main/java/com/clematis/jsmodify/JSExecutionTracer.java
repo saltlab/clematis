@@ -73,6 +73,7 @@ public class JSExecutionTracer {
 	private static Story story;
 	private static ObjectMapper mapper = new ObjectMapper();
 	static String theTime;
+	private static int counter = 0;
 
 	// private ArrayList<TraceObject> sortedTraceList;
 	// private ArrayList<Episode> episodeList;
@@ -531,6 +532,7 @@ public class JSExecutionTracer {
 		JSONObject targetAttributes = null;
 		JSONObject targetElement = null;
 		String JSONLabel = new String();
+		int i;
 
 		try {
 			/* save the current System.out for later usage */
@@ -539,7 +541,7 @@ public class JSExecutionTracer {
 			System.setOut(output);
 
 			buffer = new JSONArray(string);
-			for (int i = 0; i < buffer.length(); i++) {
+			for (i = 0; i < buffer.length(); i++) {
 
 				if (points.length() > 0) {
 					// Add comma after previous trace object
@@ -670,10 +672,18 @@ public class JSExecutionTracer {
 			/* Restore the old system.out */
 			System.setOut(oldOut);
 
+			if (i > 0) {
+				counter = buffer.getJSONObject(buffer.length()-1).getInt("counter")+1;
+			}
+			
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public static int getCounter() {
+		return counter;
 	}
 
 }

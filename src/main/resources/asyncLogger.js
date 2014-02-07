@@ -81,7 +81,6 @@ var MsgConstants = {
  * Prints the information related to creation of a timeout to the console
  */
 logger.logSetTimeout = function(func, delay, params) {
-window.console.log('logger.logSetTimeout');
 /*	if (!recordingInProgress) return;
 	
 	if (!recordStarted)
@@ -102,7 +101,7 @@ window.console.log('logger.logSetTimeout');
 	
 	console.log("totalNumOfTimeouts: ", totalNumOfTimeouts);
 
-	func.id = totalNumOfTimeouts;
+	//func.id = totalNumOfTimeouts;
 	console.log(" + Timeout ID:", func.id);
 	console.log(" + Callback function: ", func);
 	console.log(" + Delay: ", delay);
@@ -412,6 +411,7 @@ window.setTimeout = function(func, delay, params) {
 	// Increase the number of active timeouts
 	timeoutCounter++;
 	totalNumOfTimeouts++;
+	func.id = totalNumOfTimeouts;
 
     //var timeoutArgs = Array.prototype.slice.call(arguments, 2);
 	var timeoutArgs = null;
@@ -492,3 +492,4 @@ XMLHttpRequest = function() {
 
 	return xhr;
 }
+

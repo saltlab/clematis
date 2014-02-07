@@ -121,7 +121,8 @@ $(document).ready(loadToolbar);
 
 $(window).bind('beforeunload', sendReally);
 
-function resumeRecording() {
+function resumeRecording(previousCounterLeftOff) {
+	traceCounter = previousCounterLeftOff || 0;
     window.buffer = new Array();
 	console.log("resuming");
 	recordButtonClicked = true;
@@ -130,4 +131,13 @@ function resumeRecording() {
 	$(document).ready(function(){
 		document.getElementById('recordButton').setAttribute("src","/images-clematis/capture_green.png");
 	});	
+    
+    var jml;
+	var date = Date.now();
+
+    jml = JsonML.fromHTML(document);
+	if (jml) {
+		jml = JSON.stringify(jml);
+        send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: 'aaaload', eventHandler: undefined, targetElement: jml,counter: traceCounter++}));
+    }
 }

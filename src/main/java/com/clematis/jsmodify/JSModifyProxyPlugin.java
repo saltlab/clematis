@@ -403,7 +403,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 					newNodeToAdd = dom.createElement("script");					
 					newNodeToAdd.setAttribute("language", "javascript");
 					newNodeToAdd.setAttribute("type", "text/javascript");
-					newNodeToAdd.setTextContent("resumeRecording();");
+					newNodeToAdd.setTextContent("resumeRecording("+JSExecutionTracer.getCounter()+");");
 					if (dom.getElementsByTagName("meta").getLength() != 0 
 							&& dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
 						dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
