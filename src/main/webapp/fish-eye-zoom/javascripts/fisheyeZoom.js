@@ -925,38 +925,6 @@ function nextPreviousEpisode(i) {
 }
 
 //function to redraw the causal links after returning to zoom level 0
-function renderListLinks(data) {
-    temp_data = data;
-    for (var i = 0; i < data.length; i++) {
-        var color_link = get_random_color();
-        jsPlumb.connect({
-            source: (cells[data[i].target]), //flipped these so arrows point in right direction
-            target: (cells[data[i].source]),
-            connector: ["Bezier", {
-                curviness: 30
-            }],
-            cssClass: "c1",
-            endpoint: "Blank",
-            endpointClass: "c1Endpoint",
-            paintStyle: {
-                lineWidth: 1,
-                strokeStyle: color_link,
-                outlineWidth: 1,
-                outlineColor: "#666"
-            },
-            endpointStyle: {
-                fillStyle: "#a7b04b"
-            },
-            overlays: [
-                ["Arrow", {
-                    location: .955,
-                    width: 15,
-                    length: 10
-                }],
-            ]
-        });
-    };
-}
 
 function redrawLinks(data) {
     for (var i = 0; i < data.length; i++) {
@@ -1004,24 +972,11 @@ function get_random_color() {
     return color;
 }
 
-//Draw causal Links, first made a call to the REST api, then used a library called jsPlumb to draw lines between the episodes.
-jsPlumb.bind("ready", function () {
-
-    var url = 'http://localhost:8080/rest/clematis-api/story/story/causalLinks';
-    var links = new Array;
-
-    $.ajax({
-        type: 'GET',
-        url: url,
-        dataType: "json",
-        async: false,
-        success: renderListLinks
-    });
-
-    function renderListLinks(data) {
+function renderListLinks(data) {
         temp_data = data;
 window.console.log('[renderListLinks]: ');
 window.console.log(data);
+window.console.log(data.length);
         for (var i = 0; i < data.length; i++) {
             var color_link = get_random_color();
             jsPlumb.connect({
@@ -1034,7 +989,7 @@ window.console.log(data);
                 endpoint: "Blank",
                 endpointClass: "c1Endpoint",
                 paintStyle: {
-                    lineWidth: 1,
+                    lineWidth: 0,
                     strokeStyle: color_link,
                     outlineWidth: 1,
                     outlineColor: "#666"
@@ -1051,7 +1006,22 @@ window.console.log(data);
                 ]
             });
         };
-    }
+}
+
+//Draw causal Links, first made a call to the REST api, then used a library called jsPlumb to draw lines between the episodes.
+jsPlumb.bind("ready", function () {
+
+    var url = 'http://localhost:8080/rest/clematis-api/story/story/causalLinks';
+    var links = new Array;
+
+    $.ajax({
+        type: 'GET',
+        url: url,
+        dataType: "json",
+        async: false,
+        success: renderListLinks
+    });
+
 });
 
 $(document).ready(function () {

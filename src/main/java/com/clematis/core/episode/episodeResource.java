@@ -496,22 +496,19 @@ public class episodeResource {
 
 		intialize(fileName);
 		List<causalLinks> causalLinkss = new ArrayList<causalLinks>();
+		boolean foundFlag = false;
 		
+		// Add causal edges between episodes
 		for (int i = 0; i< this.s1.getEpisodes().size(); i++) {
-			// Add causal edges between episodes
 			Episode currentEpisode = this.s1.getEpisodes().get(i);
-
-			// If the source is not included in the trace, add it
-			if(!currentEpisode.getTrace().getTrace().contains(currentEpisode.getSource())) {
-				// Need entire episode (including source) when looking for causality
-				currentEpisode.getTrace().addToTrace(currentEpisode.getSource());
-			}
 
 			for (TraceObject to : currentEpisode.getTrace().getTrace()) {
 				// Iterate through each TraceObject in the Episode
 				if (to.getClass().toString().contains("TimeoutCallback")
 						|| to.getClass().toString().contains("XMLHttpRequestResponse")) {
-					System.out.println("Found tailend!");
+					System.out.println(to.getClass().toString().contains("TimeoutCallback"));
+					System.out.println(to.getClass().toString().contains("XMLHttpRequestResponse"));
+					System.out.println(to.getCounter());
 					
 					// Need to look for origin of Timeout or XMLHttpRequest in other Episodes
 					for (int j = 0; j < i; j++) {
@@ -519,36 +516,47 @@ public class episodeResource {
 
 						Episode otherEpisode = this.s1.getEpisodes().get(j);
 
-						// Add source to trace since it could be the callback's source as well
-						if (!otherEpisode.getTrace().getTrace().contains(otherEpisode.getSource())) {
-							otherEpisode.getTrace().addToTrace(otherEpisode.getSource());
-						}
 
 						for (TraceObject to2 : otherEpisode.getTrace().getTrace()) {
-							System.out.println("next traceobject in trace of " + j);
 							
 							if (to.getClass().toString().contains("XMLHttpRequestResponse")
 									&& to2.getClass().toString().contains("XMLHttpRequest")
 									&& to2.getId() == to.getId()){
 								// Found source of XMLHttpRequest
 								causalLinkss.add(new causalLinks(i, j));
-
+								foundFlag = true;
 								break;
 							} else if (to2.getClass().toString().contains("TimeoutSet")
 									&& to.getClass().toString().contains("TimeoutCallback")
-									&& to.getId() == to2.getId()){
+									&& ((TimeoutCallback)to).getTimeoutId() == ((TimeoutSet)to2).getTimeoutId()){
 								// Found source of TimingEvent
-System.out.println("found front end/source!");
+								System.out.println("found front end/source!");
+								System.out.println("in episode number " + j);
 								causalLinkss.add(new causalLinks(i, j));
-
+								foundFlag = true;
 								break;
 							}
+						}
+						// If source of this timeout callback/XHR response was found, move onto next trace object in episode with callback
+						if (foundFlag) {
+							foundFlag = false;
+							break;
 						}
 
 					}
 				} // Otherwise no need to add causal link for TraceObject
 			}
 		}
+		
+		System.out.println("============================");
+		System.out.println("[causalLinks]:");
+		System.out.println(causalLinkss.size());
+		
+		for (int j = 0; j < causalLinkss.size(); j++) {
+			System.out.println(causalLinkss.get(j).getSource() + " to " + causalLinkss.get(j).getTarget());
+		}
+		System.out.println("============================");
+
 		
 		return causalLinkss;
 	}

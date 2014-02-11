@@ -134,7 +134,7 @@ logger.logSetTimeout = function(func, delay, params) {
         send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: date, id: func.id, callbackFunction: func.name, delay: delay, args: argsJSONObject, counter: traceCounter++}));
     }
 */
-    send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: date, id: func.id, callbackFunction: func.name, delay: delay, counter: traceCounter++}));
+    send(JSON.stringify({messageType: "TIMEOUT_SET", timeStamp: date, timeoutId: func.id, callbackFunction: func.name, delay: delay, counter: traceCounter++}));
 	checkValues();
 
 };
@@ -176,13 +176,13 @@ logger.logTimeoutCallback = function(func) {
 
     if (Object.prototype.toString.apply(func) === '[object Function]') {
 	// Callback is Function object
-		send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func.name, counter: traceCounter++}));
+		send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, timeoutId: func.id, callbackFunction: func.name, counter: traceCounter++}));
 	} else if (Object.prototype.toString.apply(func) === '[object String]') {
 	// Callback is String
-		send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func, counter: traceCounter++}));
+		send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, timeoutId: func.id, callbackFunction: func, counter: traceCounter++}));
 	} else {
 	// Callback is unknown type
-		send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, id: func.id, callbackFunction: func.name, counter: traceCounter++}));
+		send(JSON.stringify({messageType: "TIMEOUT_CALLBACK", timeStamp: date, timeoutId: func.id, callbackFunction: func.name, counter: traceCounter++}));
 	}
     checkValues();
     
@@ -408,29 +408,38 @@ window.oldSetTimeout = window.setTimeout;
 
 // Redefine setTimeout
 window.setTimeout = function(func, delay, params) {
+	var wrapperFunc = new Object();
+
 	// Increase the number of active timeouts
 	timeoutCounter++;
 	totalNumOfTimeouts++;
-	func.id = totalNumOfTimeouts;
 
     //var timeoutArgs = Array.prototype.slice.call(arguments, 2);
 	var timeoutArgs = null;
 
+	if (Object.prototype.toString.apply(func) === '[object String]') {
+		wrapperFunc._original = func;
+		wrapperFunc.name = func;
+		func = wrapperFunc;
+	}
+	func.id = totalNumOfTimeouts;
+
 	// Log the creation of the timeout
 	logger.logSetTimeout(func, delay, timeoutArgs);
 
-
 	// Call the original timeout after logging
 	window.oldSetTimeout(function(/* params */) {
-window.console.log('window.oldSetTimeout');
 		try {
 			logger.logTimeoutCallback(func);
 
 			if (Object.prototype.toString.apply(func) === '[object Function]') {
 				func.apply(null);
 			} else if (Object.prototype.toString.apply(func) === '[object String]') {
-				window.console.log('Timeout callback is a String.');
-					eval(func);
+				window.console.log('Shouldn\'t be here, String should have been replaced as Object. ');
+				// eval(func);
+			} else if (Object.prototype.toString.apply(func) === '[object Object]' && func._original) {
+				window.console.log('Executing wrapped string callback');
+				eval(func._original);
 			} else {
 				window.console.log('Invalid timeout callback, must be Function or String.');
 			}

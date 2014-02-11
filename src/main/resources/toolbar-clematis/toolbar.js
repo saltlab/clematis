@@ -138,6 +138,6 @@ function resumeRecording(previousCounterLeftOff) {
     jml = JsonML.fromHTML(document);
 	if (jml) {
 		jml = JSON.stringify(jml);
-        send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: 'aaaload', eventHandler: undefined, targetElement: jml,counter: traceCounter++}));
+        send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: 'pageload', eventHandler: undefined, targetElement: jml,counter: traceCounter++}));
     }
 }
