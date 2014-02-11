@@ -91,9 +91,11 @@
     async: false,
     success: function sequenceDiagram(data) {
       result=data;
+window.console.log("error getting allEpsiodes / sequenceDiagram2");
+      eval(result);  
+window.console.log("evaluated result properly!");
     }
   });
-  document.write(eval(result));  
 </script> 
 
 <script>

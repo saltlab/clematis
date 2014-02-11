@@ -22,7 +22,13 @@ public class FunctionEnter extends FunctionTrace {
 	}
 
 	public String getTargetFunction() {
-		return TargetFunction.trim().replaceAll(" ", "");
+		String justName = TargetFunction.trim().replaceAll(" ", "");
+
+		if (justName.length() == 0) {
+			return "anonymous";
+		} else {
+			return justName;
+		}
 	}
 
 	public void setTargetFunction(String targetFunction) {
