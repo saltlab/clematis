@@ -228,10 +228,14 @@ function viewDetailedCode(lifeline) {
 
             var lineOfInterest = $("#code_code").contents().filter(function () {
                 if (this.previousSibling != null) {
-                    return this.textContent.contains(lifeline.getName().substring(0, lifeline.getName().indexOf('(')))
-                               && (this.previousSibling.textContent.contains('function') 
-                               || this.previousSibling.textContent.contains('var')
-                               || this.previousSibling.textContent.contains('.'));
+                    if (lifeline.getName().substring(0, lifeline.getName().indexOf('(')) === 'anonymous') {
+                        return this.textContent.contains('function');
+                    } else {
+                        return this.textContent.contains(lifeline.getName().substring(0, lifeline.getName().indexOf('(')))
+                                   && (this.previousSibling.textContent.contains('function') 
+                                   || this.previousSibling.textContent.contains('var')
+                                   || this.previousSibling.textContent.contains('.'));
+                    }
                 }
             });
 

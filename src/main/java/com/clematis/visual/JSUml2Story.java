@@ -315,6 +315,9 @@ public class JSUml2Story {
 				// Function ends execution, not return statement
 				initialY += 30;
 				functionExitMessage(initialY);
+				if (functionTraceObjects.get(i - 1).getClass().toString().contains("TimeoutCallback")) {
+					pop();
+				}
 			} else if (to.getClass().toString().contains("ReturnStatement")) {
 				// Return to previous function
 				initialY += 30;
@@ -334,6 +337,8 @@ public class JSUml2Story {
 				TimeoutSetMessage(functionTraceObjects.get(i - 1), to, initialY);
 			} else if (to.getClass().toString().contains("TimeoutCallback")) {
 				// TODO
+				initialY += 60;
+				push(getDiagramIdentifier(to));
 			}
 		}
 		System.setOut(oldOut);
@@ -513,7 +518,7 @@ public class JSUml2Story {
 			// Create actors for child timing events, that is, timing events that spawned as a
 			// result of the origin event
 			TimingTrace ttto = (TimingTrace) tObject;
-			return "Timeout" + ttto.getId() + "_" + episodeSource.getCounter();
+			return "Timeout" + ttto.getTimeoutId() + "_" + episodeSource.getCounter();
 		} else if (tObject.getClass().toString().contains("DOMEventTrace")) {
 			// Create actors for child DOM events
 			DOMEventTrace deto = (DOMEventTrace) tObject;
