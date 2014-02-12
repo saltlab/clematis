@@ -750,6 +750,7 @@ for (var i = 0, n = cells.length; i < n; i++) {
                 cell2SZ[i].appendChild(tempDiv);
                 jsPlumb.detachEveryConnection();
                 $(divs[i]).replaceWith(episodeContents[i]);
+                renderListLinks(temp_data);
             } else {
                 zoomLevel1[i] = false;
                 $(episodeContents[i]).replaceWith(divs[i]);
@@ -763,6 +764,7 @@ for (var i = 0, n = cells.length; i < n; i++) {
                     }
                 }
                 if (counterForLinks == zoomLevel1.length) {
+                    jsPlumb.reset();
                     renderListLinks(temp_data);
                 }
             }
@@ -974,16 +976,42 @@ function get_random_color() {
 
 function renderListLinks(data) {
         temp_data = data;
-window.console.log('[renderListLinks]: ');
-window.console.log(data);
-window.console.log(data.length);
+        var causalSource;
+        var causalTarget;
+        var howMuchCurve;
+        var arrowLocation;
         for (var i = 0; i < data.length; i++) {
+            howMuchCurve = 30;
+            arrowLocation = .955;
             var color_link = get_random_color();
+ 
+            if ($(divs[data[i].target]).is(":visible")) {
+                causalTarget = divs[data[i].target]; 
+            } else if ($(episodeContents[data[i].target]).is(":visible")) {
+                causalTarget = episodeContents[data[i].target];
+                howMuchCurve = 300;
+                arrowLocation = 1.0;
+            } else {
+                // Episode is not being reprsented/displayed (error)
+                continue;
+            }
+
+            if ($(divs[data[i].source]).is(":visible")) {
+                causalSource = divs[data[i].source]; 
+            } else if ($(episodeContents[data[i].source]).is(":visible")) {
+                causalSource = episodeContents[data[i].source];
+                howMuchCurve = 300;
+                arrowLocation = 1.0;
+            } else {
+                // Episode is not being reprsented/displayed (error)
+                continue;
+            }
+
             jsPlumb.connect({
-                source: (divs[data[i].target]), //flipped these so arrows point in right direction
-                target: (divs[data[i].source]),
+                source: (causalSource), //flipped these so arrows point in right direction
+                target: (causalTarget),
                 connector: ["Bezier", {
-                    curviness: 30
+                    curviness: howMuchCurve
                 }],
                 cssClass: "c1",
                 endpoint: "Blank",
@@ -999,7 +1027,7 @@ window.console.log(data.length);
                 },
                 overlays: [
                     ["Arrow", {
-                        location: .955,
+                        location: arrowLocation,
                         width: 15,
                         length: 10
                     }],
@@ -1010,7 +1038,6 @@ window.console.log(data.length);
 
 //Draw causal Links, first made a call to the REST api, then used a library called jsPlumb to draw lines between the episodes.
 jsPlumb.bind("ready", function () {
-
     var url = 'http://localhost:8080/rest/clematis-api/story/story/causalLinks';
     var links = new Array;
 
