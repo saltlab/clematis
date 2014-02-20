@@ -653,8 +653,8 @@ for (var i = 0, n = cells.length; i < n; i++) {
                     var jjson = mutationsByEpisode[i][h];
                     var str = JSON.stringify(jjson);
                     var n = str.split(",");
-                    var one = n[1].split(":")[1].replace("}", " ");
-                    var two = n[3].split(":")[1].replace("}", " ");
+                    var one = jjson['Type of value changed'];
+                    var two = jjson['Mutation type'];
 
                     cells_mutation[h + 3].appendChild(document.createTextNode(one + " " + two));
                     cells_mutation[h + 3].setAttribute('class', 'cell_source');

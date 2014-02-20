@@ -187,7 +187,6 @@
             tree = esprima.parse(code, { range: true, loc: true });
             returnList = collectReturn(code, tree);
 
-            window.console.log(returnList);
 
             // Populate the fragments to be inserted into the code.
             fragments = [];

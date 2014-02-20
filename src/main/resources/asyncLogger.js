@@ -81,30 +81,23 @@ var MsgConstants = {
  * Prints the information related to creation of a timeout to the console
  */
 logger.logSetTimeout = function(func, delay, params) {
-/*	if (!recordingInProgress) return;
+	if (!recordingInProgress) return;
 	
 	if (!recordStarted)
 		return;
-*/	
+	
 
 
 
 	if (delay == 0 || delay == null) {
-		console.log("+++++ Ignore timeout with delay = 0 +++++");
 		func[totalNumOfTimeouts] = true;
 		return;
 	}
 
-	console.log("------------------------------------");
-	console.log("TIMEOUT: NEW");
 	var date = Date.now();
 	
-	console.log("totalNumOfTimeouts: ", totalNumOfTimeouts);
 
 	//func.id = totalNumOfTimeouts;
-	console.log(" + Timeout ID:", func.id);
-	console.log(" + Callback function: ", func);
-	console.log(" + Delay: ", delay);
 //	var args = func.toString().match(/function\s+\w*\s*\((.*?)\)/)[1]
 //			.split(/\s*,\s*/);
 //	console.log(" + Function args: ", args);
@@ -113,7 +106,6 @@ logger.logSetTimeout = function(func, delay, params) {
 	 * var allArgs = ''; for (int i = 0; i < args.length; i ++) allArgs =
 	 * allArgs + '$' + args[i];
 	 */
-	console.log("Number of active timeouts: ", timeoutCounter);
 
 /*    if (args.length == 0 || args[0] == "") {
     	alert("2");
@@ -160,16 +152,9 @@ logger.logTimeoutCallback = function(func) {
     	func.id = totalNumOfTimeouts;
     }
     
-	console.log("------------------------------------");
-	console.log("TIMEOUT: CALLBACK");
 	var date = Date.now();
 
-	console.log(" + Timeout ID:", func.id);
-	console.log(" + Callback function: ", func);
-	console.log("Number of active timeouts: ", timeoutCounter);
 	if (timeoutCounter == 0) {
-		console.log("No more active timeouts. Total number of Timeouts: ",
-				totalNumOfTimeouts);
 		// The execution of all registered Timeouts is finished. Notify the
 		// responsible unit.
 	}
@@ -199,14 +184,7 @@ logger.logXHROpen = function(xhr, method, url, async) {
 
 	if (!recordStarted)
 		return;
-	console.log("------------------------------------");
-	console.log("XMLHTTPREQUEST: OPEN");
 	var date = Date.now();
-
-	console.log(" + XHR ID: ", xhr.id);
-	console.log(" + Method: ", method);
-	console.log(" + URL: ", url);
-	console.log(" + Async: ", async);
 
     send(JSON.stringify({messageType: "XHR_OPEN", timeStamp: date, id: xhr.id, methodType: method, url: url, async: async, counter: traceCounter++}));
 
@@ -223,11 +201,8 @@ logger.logXHRSend = function(xhr, str) {
 
 	if (!recordStarted)
 		return;
-	console.log("------------------------------------");
-	console.log("XMLHTTPREQUEST: SEND");
-	console.log(" + XHR ID: ", xhr.id);
-	console.log(" + Message (POST):", str);
-	var date = Date.now();
+	
+    var date = Date.now();
 
     //alert("xhr send");
     send(JSON.stringify({messageType: "XHR_SEND", timeStamp: date, id: xhr.id, message: str, counter: traceCounter++}));
@@ -245,16 +220,8 @@ logger.logXHRResponse = function(xhr) {
 
 	if (!recordStarted)
 		return;
-	console.log("------------------------------------");
-	console.log("XMLHTTPREQUEST: RESPONSE");
 
 	var date = Date.now();
-
-	console.log(" + XHR ID: ", xhr.id);
-
-	console.log(" + XHR callback function: ", xhr.onreadystatechange);
-	console.log(" + XHR response headers: ", xhr.getAllResponseHeaders());
-	console.log(" + XHR response: ", xhr.response);
 
 	if (xhrCounter == 0) {
 		var date = Date.now();
@@ -279,6 +246,7 @@ logger.logXHRResponse = function(xhr) {
  * Prints the information related to a DOM event on the console
  */
 logger.logDOMEvent = function(type, targetEl, callback) {
+
 	if (!recordingInProgress) {
 		return;
 	}
@@ -290,6 +258,10 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 		return;
 
     jml = JsonML.fromHTML(arguments[1]);
+window.console.log('DOM callback');
+window.console.log(type);
+window.console.log(callback);
+
 	if (jml) {
 		jml = JSON.stringify(jml);
     	send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: arguments[0], eventHandler: callback.name, targetElement: jml,counter: traceCounter++}));
@@ -402,7 +374,6 @@ logger.logDOMMutation = function() {
  * ** *** ** TIMEOUTS *** ** ***
  ******************************************************************************/
 
-window.console.log('instrumenting timeout');
 // Keep the current setTimeout function
 window.oldSetTimeout = window.setTimeout;
 
@@ -435,10 +406,8 @@ window.setTimeout = function(func, delay, params) {
 			if (Object.prototype.toString.apply(func) === '[object Function]') {
 				func.apply(null);
 			} else if (Object.prototype.toString.apply(func) === '[object String]') {
-				window.console.log('Shouldn\'t be here, String should have been replaced as Object. ');
 				// eval(func);
 			} else if (Object.prototype.toString.apply(func) === '[object Object]' && func._original) {
-				window.console.log('Executing wrapped string callback');
 				eval(func._original);
 			} else {
 				window.console.log('Invalid timeout callback, must be Function or String.');
