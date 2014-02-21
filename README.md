@@ -1,7 +1,7 @@
 Clematis
 =====
 
-Clematis allows developers to easily understand the complex dynamic event-driven behaviour of their web application. It automatically captures traces of JavaScript code execution and  generates an interactive  visualization at three different  levels of granularity.
+Clematis allows developers to easily understand the complex dynamic event-driven behaviour of their web application. It automatically captures traces of JavaScript code execution and  generates an interactive  visualization at three different  levels of granularity, representing episodes of triggered causal and temporal events, related JavaScript code executions, and their impact on the DOM.
 
 For more technical documentation see the [wiki](https://github.com/saltlab/clematis/wiki).
 
