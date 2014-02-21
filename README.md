@@ -20,9 +20,13 @@ In terms of installation, setting up the project is easier than ever. Simply che
 
 ### Configuration
 
-Upon checkout, Clematis contains a simple application for testing the tracing process ([src/main/webapp/example\_webapplication](https://github.com/saltlab/clematis/tree/master/src/main/webapp/example_webapplication)). This example application contains some basic synchronous and asynchronous JavaScript events. In order to test your own web-application using Clematis, place the appropriate application files in the [webapp](https://github.com/saltlab/clematis/tree/master/src/main/webapp/) folder in accordance with the [Jetty guidelines](http://wiki.eclipse.org/Jetty/Howto/Deploy_Web_Applications).
+Clematis has been tested with the photo gallery application [Phormer](http://p.horm.org/er/). This example application contains some basic synchronous and asynchronous JavaScript events. To use Clematis with the Phormer gallery application, download Phormer and deploy it locally using a personal webserver such as [MAMP](http://www.mamp.info/en/index.html). The URL to Phormer will then need to be passed into Clematis as an argument:
 
-In addition to adding your application to the webapp/ folder, you will also need to set your web-application as the target for Clematis. This is done from the [SimpleExample](https://github.com/saltlab/clematis/blob/master/src/main/java/com/clematis/core/SimpleExample.java) class (line 26). 
+```
+--url http://localhost:8888/phormer331/index.php
+```
+
+In order to test your own web-application using Clematis, deploy the application and provide its URL to Clematis as shown above.
 
 ### Running the Tool 
 
@@ -32,7 +36,13 @@ The Jetty server must be started before running Clematis. First, navigate to the
 mvn jetty:run
 ```
 
-If successful, a notification should appear confirming that the server is up-and-running (``[INFO] Started Jetty Server``). Next, run the Clematis project as a Java application from Eclipse by setting [com.clematis.core.SimpleExample](https://github.com/saltlab/clematis/blob/master/src/main/java/com/clematis/core/SimpleExample.java) as the Main class. Once a new browser session is started by Clematis, feel free to use your application as you normally would. Quitting Firefox (Cmd+Q) notifies Clematis that your user session is over and the generated trace files can be found in the 'clematis-output' directory at the root of clematis.
+If successful, a notification should appear confirming that the server is up-and-running (``[INFO] Started Jetty Server``). Next, run the Clematis project as a Java application from Eclipse by setting [com.clematis.core.SimpleExample](https://github.com/saltlab/clematis/blob/master/src/main/java/com/clematis/core/SimpleExample.java) as the Main class and providing a URL argument. Once a new browser session is started by Clematis, feel free to use your application as you normally would. The injected toolbar can be used to start and stop the recording of an application's behaviour (events and JavaScript execution). Any generated trace files can be found in the 'clematis-output' directory at the root of clematis.
+
+Lastly, the outputted visualization can be viewed at the following address while the Jetty server is running:
+
+```
+http://localhost:8080/fish-eye-zoom/view.html
+```
 
 More documentation (and fewer bugs) coming soon.
 
