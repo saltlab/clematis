@@ -131,7 +131,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 *            Name of the current scope (filename mostly)
 	 * @return The modified JavaScript
 	 */
-	private synchronized String modifyJS(String input, String scopename) {
+	public synchronized String modifyJS(String input, String scopename) {
 
 		System.out.println("<<<<");
 		System.out.println("Scope: " + scopename);

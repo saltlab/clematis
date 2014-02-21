@@ -8,6 +8,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.remote.ErrorHandler.UnknownServerException;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.owasp.webscarab.model.Preferences;
@@ -22,15 +23,14 @@ import com.crawljax.util.Helper;
 
 public class SimpleExample {
 
-	// private static final String URL = "http://localhost:8080/same-game/same-game.html";
-	// private static final String URL = "http://localhost:8080/example_webapplication/index.html";
+	public static final String SERVER_PREFIX2 = "--url";
+	public static final String SERVER_PREFIX1 = "--u";
 
-	private static final String URL = "http://localhost:8888/phormer331/index.php";
-//	private static final String URL = "http://www.themaninblue.com/experiment/BunnyHunt/";
+	private static boolean urlProvided = false;
+	private static String URL = "";
 
-	// private static final String URL =
-	// "http://10.162.207.43:8000/sap/bi/launchpad/explorer?itemId=nhl-data%3ACOMPLETE_NHL_PLAYER_STATS&type=DATASET";
-	// private static final String URL = "http://localhost:8080/study_application/index.html";
+	// "http://localhost:8888/phormer331/index.php";
+	// "http://www.themaninblue.com/experiment/BunnyHunt/";
 
 	private static String outputFolder = "";
 	private static WebDriver driver;
@@ -38,15 +38,32 @@ public class SimpleExample {
 	public static void main(String[] args) {
 		try {
 
+			// Iterate through arguments
+			for (String arg : args) {
+				// If previous argument was url flag, this argument should be the application url
+				if (urlProvided == true) {
+					URL = arg;
+					break;
+				}
+				parse(arg);
+			}
+
+			if (urlProvided == false) {
+				System.err.println("Invalid arguments. Please provide URL for target application as argument (E.g. --url http://localhost:8888/phormer331/index.php)");
+				throw new IllegalArgumentException();
+			}
+
 			outputFolder = Helper.addFolderSlashIfNeeded("clematis-output");
 
 			JSExecutionTracer tracer = new JSExecutionTracer("function.trace");
 			tracer.setOutputFolder(outputFolder + "ftrace");
+
 			// config.addPlugin(tracer);
 			tracer.preCrawling();
 
 			// Create a new instance of the firefox driver
 			FirefoxProfile profile = new FirefoxProfile();
+
 			// Instantiate proxy components
 			ProxyConfiguration prox = new ProxyConfiguration();
 
@@ -54,16 +71,8 @@ public class SimpleExample {
 			FunctionTrace s = new FunctionTrace();
 
 			// Add necessary files from resources
-
 			s.setFileNameToAttach("/esprima.js");
 			s.setFileNameToAttach("/esmorph.js");
-			// s.setFileNameToAttach("/toolbar.html");
-
-			// s.setFileNameToAttach("/jquery-1.9.1.js");
-			// s.setFileNameToAttach("/jquery-ui-1.10.2.custom.js");
-			// s.setFileNameToAttach("/jquery.tipsy.js");
-			// s.setFileNameToAttach("/trial_toolbar.js");
-			// s.setFileNameToAttach("/toolbar2.js");
 			s.setFileNameToAttach("/jsonml-dom.js");
 			s.setFileNameToAttach("/addvariable.js");
 			s.setFileNameToAttach("/asyncLogger.js");
@@ -100,26 +109,19 @@ public class SimpleExample {
 				profile.setPreference("network.proxy.no_proxies_on", "");
 			}
 
-			/*
-			 * For enabling Firebug with Clematis Replace '...' with the appropriate path to your
-			 * Firebug installation
-			 */
-			// File file = new
-			// File("/Users/.../Library/Application Support/Firefox/Profiles/zga73n4v.default/extensions/firebug@software.joehewitt.com.xpi");
-			/*
-			 * File file = new File(
-			 * "/Users/Saba/Library/Application Support/Firefox/Profiles/b0dzzwrl.default/extensions/firebug@software.joehewitt.com.xpi"
-			 * ); profile.addExtension(file);
-			 * profile.setPreference("extensions.firebug.currentVersion", "1.8.1"); // Avoid startup
-			 */// screen
-
 			driver = new FirefoxDriver(profile);
 			WebDriverWait wait = new WebDriverWait(driver, 10);
 			boolean sessionOver = false;
 
-			// Use WebDriver to visit specified URL
-			driver.get(URL);
-
+			try {
+				// Use WebDriver to visit specified URL
+				driver.get(URL);
+			} catch (WebDriverException e) {
+				System.err.println("Error reaching application, please ensure URL is valid.");
+				e.printStackTrace();
+				System.exit(1);
+			}
+			
 			while (!sessionOver) {
 				// Wait until the user/tester has closed the browser
 
@@ -174,4 +176,15 @@ public class SimpleExample {
 	public static String getOutputFolder() {
 		return Helper.addFolderSlashIfNeeded(outputFolder);
 	}
+
+	private static void parse(String arg) throws IllegalArgumentException {
+		if (arg.equals(SERVER_PREFIX1) || arg.equals(SERVER_PREFIX2)) {
+			urlProvided = true;
+		}
+	}
+
+	private boolean checkOptions() {
+		return urlProvided;
+	}
+
 }
