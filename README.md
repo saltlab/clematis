@@ -37,7 +37,7 @@ The Jetty server must be started before running Clematis. First, navigate to the
 mvn jetty:run
 ```
 
-If successful, a notification should appear confirming that the server is up-and-running
+If successful, a notification should appear confirming that the server is up-and-running  
 (``[INFO] Started Jetty Server``). Next, run the Clematis project as a Java application from Eclipse by setting [com.clematis.core.SimpleExample](https://github.com/saltlab/clematis/blob/master/src/main/java/com/clematis/core/SimpleExample.java) as the Main class and providing a URL argument. Once a new browser session is started by Clematis, feel free to use your application as you normally would. The injected toolbar can be used to start and stop the recording of an application's behaviour (events and JavaScript execution). Any generated trace files can be found in the 'clematis-output' directory at the root of clematis.
 
 Lastly, the outputted visualization can be viewed at the following address while the Jetty server is running:
