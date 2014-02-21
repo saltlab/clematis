@@ -66,7 +66,7 @@ public class episodeResource {
 	}
 
 	public String intialize(String fileName) {
-
+	    
 		configureObjectMapper();
 		try {
 			this.s1 = mapper.readValue(new File("captured_stories/" + fileName + ".json"),
@@ -104,11 +104,8 @@ public class episodeResource {
 		for (int i = 0; i < listOfFiles.length; i++)
 		{
 
-			if (listOfFiles[i].isFile())
-			{
+			if (listOfFiles[i].isFile()) {
 				results.add(listOfFiles[i].getName());
-				// results.add(files.split("captured_stories")[1]);
-				// System.out.println(files);
 			}
 		}
 		return results;
@@ -126,6 +123,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Episode> getEpisodes(@PathParam("fileName") String fileName) {
+	    	    
 		intialize(fileName);
 		return this.s1.getEpisodes();
 
@@ -506,13 +504,9 @@ public class episodeResource {
 				// Iterate through each TraceObject in the Episode
 				if (to.getClass().toString().contains("TimeoutCallback")
 						|| to.getClass().toString().contains("XMLHttpRequestResponse")) {
-					System.out.println(to.getClass().toString().contains("TimeoutCallback"));
-					System.out.println(to.getClass().toString().contains("XMLHttpRequestResponse"));
-					System.out.println(to.getCounter());
 					
 					// Need to look for origin of Timeout or XMLHttpRequest in other Episodes
 					for (int j = 0; j < i; j++) {
-						System.out.println("Checking source in episode " + j);
 
 						Episode otherEpisode = this.s1.getEpisodes().get(j);
 
@@ -530,8 +524,6 @@ public class episodeResource {
 									&& to.getClass().toString().contains("TimeoutCallback")
 									&& ((TimeoutCallback)to).getTimeoutId() == ((TimeoutSet)to2).getTimeoutId()){
 								// Found source of TimingEvent
-								System.out.println("found front end/source!");
-								System.out.println("in episode number " + j);
 								causalLinkss.add(new causalLinks(i, j));
 								foundFlag = true;
 								break;
@@ -548,16 +540,6 @@ public class episodeResource {
 			}
 		}
 		
-		System.out.println("============================");
-		System.out.println("[causalLinks]:");
-		System.out.println(causalLinkss.size());
-		
-		for (int j = 0; j < causalLinkss.size(); j++) {
-			System.out.println(causalLinkss.get(j).getSource() + " to " + causalLinkss.get(j).getTarget());
-		}
-		System.out.println("============================");
-
-		
 		return causalLinkss;
 	}
 
@@ -569,7 +551,6 @@ public class episodeResource {
 		String output = null;
 		String temp = fileName.replace("story", "allEpisodes");
 		String temp2 = temp.concat(".js");
-		System.out.println(temp2);
 		try {
 			output =
 					new Scanner(new File(
@@ -579,7 +560,6 @@ public class episodeResource {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("" + output);
 		return output;
 	}
 
