@@ -20,13 +20,14 @@ In terms of installation, setting up the project is easier than ever. Simply che
 
 ### Configuration
 
-Clematis has been tested with the photo gallery application [Phormer](http://p.horm.org/er/). This example application contains some basic synchronous and asynchronous JavaScript events. To use Clematis with the Phormer gallery application, download Phormer and deploy it locally using a personal webserver such as [MAMP](http://www.mamp.info/en/index.html). The URL to Phormer will then need to be passed into Clematis as an argument:
+Clematis has been tested with the photo gallery application [Phormer](http://p.horm.org/er/). This example application contains some basic synchronous and asynchronous JavaScript events. To use Clematis with the Phormer gallery application, download Phormer and deploy it locally using a personal webserver such as [MAMP](http://www.mamp.info/en/index.html). The URL to Phormer will then need to be passed into Clematis as an argument, for example:
 
 ```
 --url http://localhost:8888/phormer331/index.php
 ```
+To better utilize Clematis with Phormer, please add a few photos to the application before running our tool. 
 
-In order to test your own web-application using Clematis, deploy the application and provide its URL to Clematis as shown above.
+In order to test your own web-application using Clematis, deploy the application and provide its URL to Clematis in a similar fashion as shown above.
 
 ### Running the Tool 
 
