@@ -46,8 +46,6 @@ Lastly, the outputted visualization can be viewed at the following address while
 http://localhost:8080/fish-eye-zoom/view.html
 ```
 
-More documentation (and fewer bugs) coming soon.
-
 ## Contributing
 
 Your feedback is valued! Please use the [Issue tracker](https://github.com/saltlab/clematis/issues) for reporting bugs or feature requests.
