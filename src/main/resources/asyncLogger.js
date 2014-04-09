@@ -247,9 +247,9 @@ logger.logXHRResponse = function(xhr) {
  */
 logger.logDOMEvent = function(type, targetEl, callback) {
 
-	if (!recordingInProgress) {
+	if (!recordingInProgress || type.contains("mouse") || (targetEl.id && targetEl.id.contains('Button'))) {
 		return;
-	}
+  }
 
 	var jml;
 	var date = Date.now();

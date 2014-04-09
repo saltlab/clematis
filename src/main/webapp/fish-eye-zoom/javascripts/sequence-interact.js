@@ -6,9 +6,9 @@ function traceDivClickHandler(e) {
     var relativeMouseX = e.pageX - this.parentNode.getBoundingClientRect().left;
     var relativeMouseY = e.pageY - this.getBoundingClientRect().top;
 
-    var scroll = $(this).scrollLeft();
+/*    var scroll = $(this).scrollLeft();
     relativeMouseX = relativeMouseX + scroll;
-
+*/
     var clickedOnLifelines = false;
     var min = 0;
     var max;

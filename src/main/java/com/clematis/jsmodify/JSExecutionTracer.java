@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -30,6 +31,7 @@ import org.json.JSONObject;
 import com.clematis.core.episode.Episode;
 import com.clematis.core.episode.Story;
 import com.clematis.core.trace.DOMEventTrace;
+import com.clematis.core.trace.TimingTrace;
 import com.clematis.core.trace.TraceObject;
 import com.clematis.visual.EpisodeGraph;
 import com.clematis.visual.JSUml2Story;
@@ -220,7 +222,7 @@ public class JSExecutionTracer {
     /**
      * This method parses the JSON file containing the trace objects and extracts the objects
      */
-    private static void extraxtTraceObjects() {
+    public static void extraxtTraceObjects() {
         try {
             ObjectMapper mapper = new ObjectMapper();
             // Register the module that serializes the Guava Multimap
@@ -239,8 +241,40 @@ public class JSExecutionTracer {
             Collection<TraceObject> functionTraces = traceMap
                     .get("FunctionTrace");
 
+
+            Iterator<TraceObject> it3 = domEventTraces.iterator();
+            TraceObject next2;
+            ArrayList<TraceObject> removeus = new ArrayList<TraceObject>();
+        /**    while (it3.hasNext()) {
+                next2 = it3.next();
+
+                if (next2 instanceof DOMEventTrace
+                        && (((DOMEventTrace) next2).getEventType().equals("mouseover") 
+                                || (((DOMEventTrace) next2).getEventType().equals("mousemove"))
+                                || (((DOMEventTrace) next2).getEventType().equals("mouseout"))
+                                || (((DOMEventTrace) next2).getEventType().equals("mousedown"))
+                                || (((DOMEventTrace) next2).getEventType().equals("mouseup")))) {
+                    removeus.add(next2);
+
+                }
+            }*/
+            domEventTraces.removeAll(removeus);
+
             story = new Story(domEventTraces, functionTraces, timingTraces, XHRTraces);
             story.setOrderedTraceList(sortTraceObjects());
+
+
+            System.out.println(timingTraces.size());
+            Iterator<TraceObject> it = timingTraces.iterator();
+            TraceObject next;
+
+            while (it.hasNext()) {
+                next = it.next();
+                System.out.println("=======");
+                System.out.println( next.getCounter());
+            }
+
+
 
             /*
              * ArrayList<TraceObject> bookmarkTraceObjects = new ArrayList<TraceObject>(); for
@@ -251,6 +285,17 @@ public class JSExecutionTracer {
              */
 
             story.setEpisodes(buildEpisodes());
+
+            ArrayList<Episode> ss = story.getEpisodes();
+            Iterator<Episode> it2 = ss.iterator();
+            System.out.println("hhhmmm");
+
+            while (it2.hasNext()) {
+                System.out.println("--------");
+                System.out.println(it2.next().getSource().getClass());
+            }
+
+
 
             System.out.println("# of trace objects: " + story.getOrderedTraceList().size());
             System.out.println("# of episodes: " + story.getEpisodes().size());
@@ -292,6 +337,15 @@ public class JSExecutionTracer {
              */// TODO TODO TODO project specific for photo gallery. eliminate unwanted episodes
             story.removeUselessEpisodes();
 
+            ss = story.getEpisodes();
+            it2 = ss.iterator();
+            System.out.println("hhhmmm2");
+
+            while (it2.hasNext()) {
+                System.out.println("--------");
+                System.out.println(it2.next().getSource().getClass());
+            }
+
             ArrayList<Episode> bookmarkEpisodes = new ArrayList<Episode>();
 
             for (int i = 0; i < story.getEpisodes().size(); i++) {
@@ -313,7 +367,7 @@ public class JSExecutionTracer {
 
             story.removeUselessEpisodes(bookmarkEpisodes);
 
-            story.removeToolbarEpisodes();
+            //    story.removeToolbarEpisodes();
 
             System.out.println("# of episodes after trimming: " + story.getEpisodes().size());
 
@@ -380,14 +434,21 @@ public class JSExecutionTracer {
         ArrayList<Collection<TraceObject>> allCollections =
                 new ArrayList<Collection<TraceObject>>();
 
-        if (story.getDomEventTraces().size() > 0)
+        if (story.getDomEventTraces().size() > 0) {
             allCollections.add(story.getDomEventTraces());
-        if (story.getFunctionTraces().size() > 0)
+        }
+
+        if (story.getFunctionTraces().size() > 0) {
             allCollections.add(story.getFunctionTraces());
-        if (story.getTimingTraces().size() > 0)
+        }
+
+        if (story.getTimingTraces().size() > 0) {
             allCollections.add(story.getTimingTraces());
-        if (story.getXhrTraces().size() > 0)
+        }
+
+        if (story.getXhrTraces().size() > 0) {
             allCollections.add(story.getXhrTraces());
+        }
 
         if (allCollections.size() == 0) {
             System.out.println("No log");
@@ -454,7 +515,8 @@ public class JSExecutionTracer {
 
                     TraceObject currentTraceObj = story.getOrderedTraceList().get(j);
 
-                    if (Math.abs(currentTraceObj.getTimeStamp() - sourceTraceObj.getTimeStamp()) < 80) {
+                    if (Math.abs(currentTraceObj.getTimeStamp() - sourceTraceObj.getTimeStamp()) < 120
+                            || Math.abs(story.getOrderedTraceList().get(j-1).getTimeStamp() - currentTraceObj.getTimeStamp()) < 5) {
                         // If the succeeding TraceObject is not the beginning of
                         // another episode, add it to the current episode
                         episode.addToTrace(currentTraceObj);

@@ -954,8 +954,9 @@ function redrawLinks(data) {
 
 //create the scrollable effect for a series of episodes
 $("#makeMeScrollable").smoothDivScroll({
+  //hotSpotScrolling: false
     mousewheelScrolling: "allDirections",
-    //manualContinuousScrolling: true,
+   // manualContinuousScrolling: true,
     autoScrollingMode: "onStart"
 });
 
