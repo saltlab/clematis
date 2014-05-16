@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.codehaus.jettison.json.JSONException;
+import org.json.JSONObject;
 import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Parser;
@@ -40,432 +42,457 @@ import com.yahoo.platform.yui.compressor.*;
  */
 public class JSModifyProxyPlugin extends ProxyPlugin {
 
-	private List<String> excludeFilenamePatterns;
+    private List<String> excludeFilenamePatterns;
 
-	public static List<String> visitedBaseUrls; // /// todo todo todo todo **********
-	public static String scopeNameForExternalUse; // //// todo ********** change this later
+    public static List<String> visitedBaseUrls; // /// todo todo todo todo **********
+    public static String scopeNameForExternalUse; // //// todo ********** change this later
 
-	private final JSASTModifier modifier;
-	
-	private boolean areWeRecording = false;
+    private final JSASTModifier modifier;
 
-	private static String outputFolder = "";
-	private static String jsFilename = "";
+    private boolean areWeRecording = false;
 
-	/**
-	 * Construct without patterns.
-	 * 
-	 * @param modify
-	 *            The JSASTModifier to run over all JavaScript.
-	 */
-	public JSModifyProxyPlugin(JSASTModifier modify) {
-		excludeFilenamePatterns = new ArrayList<String>();
-		visitedBaseUrls = new ArrayList<String>();
+    private static String outputFolder = "";
+    private static String jsFilename = "";
 
-		modifier = modify;
+    private static JSONObject toolbarPosition = null;
 
-		outputFolder = Helper.addFolderSlashIfNeeded("clematis-output") + "js_snapshot";
-	}
+    /**
+     * Construct without patterns.
+     * 
+     * @param modify
+     *            The JSASTModifier to run over all JavaScript.
+     */
+    public JSModifyProxyPlugin(JSASTModifier modify) {
+        excludeFilenamePatterns = new ArrayList<String>();
+        visitedBaseUrls = new ArrayList<String>();
 
-	/**
-	 * Constructor with patterns.
-	 * 
-	 * @param modify
-	 *            The JSASTModifier to run over all JavaScript.
-	 * @param excludes
-	 *            List with variable patterns to exclude.
-	 */
-	public JSModifyProxyPlugin(JSASTModifier modify, List<String> excludes) {
-		excludeFilenamePatterns = excludes;
-		modifier = modify;
-	}
+        modifier = modify;
 
-	public void excludeDefaults() {
-		excludeFilenamePatterns.add(".*jquery[-0-9.]*.js?.*");
-		excludeFilenamePatterns.add(".*jquery.*.js?.*");
-		excludeFilenamePatterns.add(".*prototype.*js?.*");
-		excludeFilenamePatterns.add(".*scriptaculous.*.js?.*");
-		excludeFilenamePatterns.add(".*mootools.js?.*");
-		excludeFilenamePatterns.add(".*dojo.xd.js?.*");
-		excludeFilenamePatterns.add(".*trial_toolbar.js?.*");
+        outputFolder = Helper.addFolderSlashIfNeeded("clematis-output") + "js_snapshot";
+    }
 
-		// Example application specific
-		excludeFilenamePatterns.add(".*tabcontent.js?.*");
+    /**
+     * Constructor with patterns.
+     * 
+     * @param modify
+     *            The JSASTModifier to run over all JavaScript.
+     * @param excludes
+     *            List with variable patterns to exclude.
+     */
+    public JSModifyProxyPlugin(JSASTModifier modify, List<String> excludes) {
+        excludeFilenamePatterns = excludes;
+        modifier = modify;
+    }
 
-		excludeFilenamePatterns.add(".*toolbar.js?.*");
-		excludeFilenamePatterns.add(".*jquery*.js?.*");
+    public void excludeDefaults() {
+        excludeFilenamePatterns.add(".*jquery[-0-9.]*.js?.*");
+        excludeFilenamePatterns.add(".*jquery.*.js?.*");
+        excludeFilenamePatterns.add(".*prototype.*js?.*");
+        excludeFilenamePatterns.add(".*scriptaculous.*.js?.*");
+        excludeFilenamePatterns.add(".*mootools.js?.*");
+        excludeFilenamePatterns.add(".*dojo.xd.js?.*");
+        excludeFilenamePatterns.add(".*trial_toolbar.js?.*");
 
-		// excludeFilenamePatterns.add(".*http://localhost:8888/phormer331/index.phpscript1?.*"); //
-		// todo ???????
+        // Example application specific
+        excludeFilenamePatterns.add(".*tabcontent.js?.*");
 
-	}
+        excludeFilenamePatterns.add(".*toolbar.js?.*");
+        excludeFilenamePatterns.add(".*jquery*.js?.*");
 
-	@Override
-	public String getPluginName() {
-		return "JSInstrumentPlugin";
-	}
+        // excludeFilenamePatterns.add(".*http://localhost:8888/phormer331/index.phpscript1?.*"); //
+        // todo ???????
 
-	@Override
-	public HTTPClient getProxyPlugin(HTTPClient in) {
-		return new Plugin(in);
-	}
+    }
 
-	private boolean shouldModify(String name) {
-		/* try all patterns and if 1 matches, return false */
-		for (String pattern : excludeFilenamePatterns) {
-			if (name.matches(pattern)) {
-				return false;
-			}
-		}
-		return true;
-	}
+    @Override
+    public String getPluginName() {
+        return "JSInstrumentPlugin";
+    }
 
-	/**
-	 * This method tries to add instrumentation code to the input it receives. The original input is
-	 * returned if we can't parse the input correctly (which might have to do with the fact that the
-	 * input is no JavaScript because the server uses a wrong Content-Type header for JSON data)
-	 * 
-	 * @param input
-	 *            The JavaScript to be modified
-	 * @param scopename
-	 *            Name of the current scope (filename mostly)
-	 * @return The modified JavaScript
-	 */
-	public synchronized String modifyJS(String input, String scopename) {
+    @Override
+    public HTTPClient getProxyPlugin(HTTPClient in) {
+        return new Plugin(in);
+    }
 
-		System.out.println("<<<<");
-		System.out.println("Scope: " + scopename);
+    private boolean shouldModify(String name) {
+        /* try all patterns and if 1 matches, return false */
+        for (String pattern : excludeFilenamePatterns) {
+            if (name.matches(pattern)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-		/***************/
-		scopeNameForExternalUse = scopename; // todo todo todo todo
-		/***************/
+    /**
+     * This method tries to add instrumentation code to the input it receives. The original input is
+     * returned if we can't parse the input correctly (which might have to do with the fact that the
+     * input is no JavaScript because the server uses a wrong Content-Type header for JSON data)
+     * 
+     * @param input
+     *            The JavaScript to be modified
+     * @param scopename
+     *            Name of the current scope (filename mostly)
+     * @return The modified JavaScript
+     */
+    public synchronized String modifyJS(String input, String scopename) {
 
-		if (!shouldModify(scopename)) {
-			System.out.println("^ should not modify");
-			System.out.println(">>>>");
-			return input;
-		}
-		try {
+        System.out.println("<<<<");
+        System.out.println("Scope: " + scopename);
 
-			// Save original JavaScript files/nodes
-			Helper.directoryCheck(getOutputFolder());
-			setFileName(scopename);
-			PrintStream oldOut = System.out;
-			PrintStream outputVisual =
-					new PrintStream("src/main/webapp/fish-eye-zoom/" + getFilename());
-			System.setOut(outputVisual);
-			System.out.println(input);
-			System.setOut(oldOut);
+        /***************/
+        scopeNameForExternalUse = scopename; // todo todo todo todo
+        /***************/
 
-			AstRoot ast = null;
+        if (!shouldModify(scopename)) {
+            System.out.println("^ should not modify");
+            System.out.println(">>>>");
+            return input;
+        }
+        try {
 
-			/* initialize JavaScript context */
-			Context cx = Context.enter();
+            // Save original JavaScript files/nodes
+            Helper.directoryCheck(getOutputFolder());
+            setFileName(scopename);
+            PrintStream oldOut = System.out;
+            PrintStream outputVisual =
+                    new PrintStream("src/main/webapp/fish-eye-zoom/" + getFilename());
+            System.setOut(outputVisual);
+            System.out.println(input);
+            System.setOut(oldOut);
 
-			/* create a new parser */
-			Parser rhinoParser = new Parser(new CompilerEnvirons(), cx.getErrorReporter());
+            AstRoot ast = null;
 
-			/* parse some script and save it in AST */
-			ast = rhinoParser.parse(new String(input), scopename, 0);
+            /* initialize JavaScript context */
+            Context cx = Context.enter();
 
-			// modifier.setScopeName(scopename);
-			modifier.setScopeName(getFilename());
+            /* create a new parser */
+            Parser rhinoParser = new Parser(new CompilerEnvirons(), cx.getErrorReporter());
 
-			modifier.start(new String(input));
+            /* parse some script and save it in AST */
+            ast = rhinoParser.parse(new String(input), scopename, 0);
 
-			/* recurse through AST */
-			ast.visit(modifier);
+            // modifier.setScopeName(scopename);
+            modifier.setScopeName(getFilename());
 
-			ast = modifier.finish(ast);
+            modifier.start(new String(input));
 
-			// todo todo todo do not instrument again if visited before
-			StringTokenizer tokenizer = new StringTokenizer(scopename, "?");
-			String newBaseUrl = "";
-			if (tokenizer.hasMoreTokens()) {
-				newBaseUrl = tokenizer.nextToken();
-			}
-			PrintStream output2;
-			try {
-				output2 = new PrintStream("tempUrls.txt");
-				PrintStream oldOut2 = System.out;
-				System.setOut(output2);
-				System.out.println("new newBaseUrl: " + newBaseUrl + "\n ---");
-				boolean baseUrlExists = false;
-				for (String str : visitedBaseUrls) {
-					System.out.print(str);
-					if (/* str.startsWith(newBaseUrl) || */str.equals(newBaseUrl)) {
-						System.out.println(" -> exists");
-						// System.setOut(oldOut2);
-						baseUrlExists = true;
-						// return input;
-					}
-					else {
-						System.out.println();
-					}
-				}
-				if (!baseUrlExists)
-					visitedBaseUrls.add(newBaseUrl); //
-				System.setOut(oldOut2);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+            /* recurse through AST */
+            ast.visit(modifier);
 
-			/* clean up */
-			Context.exit();
+            ast = modifier.finish(ast);
 
-			return ast.toSource();
-		} catch (RhinoException re) {
-			System.err.println(re.getMessage()
-					+ "Unable to instrument. This might be a JSON response sent"
-					+ " with the wrong Content-Type or a syntax error.");
+            // todo todo todo do not instrument again if visited before
+            StringTokenizer tokenizer = new StringTokenizer(scopename, "?");
+            String newBaseUrl = "";
+            if (tokenizer.hasMoreTokens()) {
+                newBaseUrl = tokenizer.nextToken();
+            }
+            PrintStream output2;
+            try {
+                output2 = new PrintStream("tempUrls.txt");
+                PrintStream oldOut2 = System.out;
+                System.setOut(output2);
+                System.out.println("new newBaseUrl: " + newBaseUrl + "\n ---");
+                boolean baseUrlExists = false;
+                for (String str : visitedBaseUrls) {
+                    System.out.print(str);
+                    if (/* str.startsWith(newBaseUrl) || */str.equals(newBaseUrl)) {
+                        System.out.println(" -> exists");
+                        // System.setOut(oldOut2);
+                        baseUrlExists = true;
+                        // return input;
+                    }
+                    else {
+                        System.out.println();
+                    }
+                }
+                if (!baseUrlExists)
+                    visitedBaseUrls.add(newBaseUrl); //
+                System.setOut(oldOut2);
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
-			System.err.println("details: " + re.details());
-			System.err.println("getLocalizedMessage: " + re.getLocalizedMessage());
-			System.err.println("getScriptStackTrace: " + re.getScriptStackTrace());
-			System.err.println("lineNumber: " + re.lineNumber());
-			System.err.println("lineSource: " + re.lineSource());
-			System.err.println("getCause: " + re.getCause());
-			re.printStackTrace();
+            /* clean up */
+            Context.exit();
 
-		} catch (IllegalArgumentException iae) {
-			System.err.println("Invalid operator exception catched. Not instrumenting code.");
+            return ast.toSource();
+        } catch (RhinoException re) {
+            System.err.println(re.getMessage()
+                    + "Unable to instrument. This might be a JSON response sent"
+                    + " with the wrong Content-Type or a syntax error.");
 
-			System.err.println("getCause: " + iae.getCause());
-			System.err.println("getLocalizedMessage: " + iae.getLocalizedMessage());
-			System.err.println("getMessage: " + iae.getMessage());
-			iae.printStackTrace();
-		} catch (IOException ioe) {
-			System.err.println("Error saving original javascript files.");
-			System.err.println("getMessage: " + ioe.getMessage());
-			ioe.printStackTrace();
-		}
-		System.err.println("Here is the corresponding buffer: \n" + input + "\n");
+            System.err.println("details: " + re.details());
+            System.err.println("getLocalizedMessage: " + re.getLocalizedMessage());
+            System.err.println("getScriptStackTrace: " + re.getScriptStackTrace());
+            System.err.println("lineNumber: " + re.lineNumber());
+            System.err.println("lineSource: " + re.lineSource());
+            System.err.println("getCause: " + re.getCause());
+            re.printStackTrace();
 
-		return input;
-	}
+        } catch (IllegalArgumentException iae) {
+            System.err.println("Invalid operator exception catched. Not instrumenting code.");
 
-	private void setFileName(String scopename) {
-		int index = scopename.lastIndexOf("/");
-		jsFilename = scopename.substring(index + 1);
-	}
+            System.err.println("getCause: " + iae.getCause());
+            System.err.println("getLocalizedMessage: " + iae.getLocalizedMessage());
+            System.err.println("getMessage: " + iae.getMessage());
+            iae.printStackTrace();
+        } catch (IOException ioe) {
+            System.err.println("Error saving original javascript files.");
+            System.err.println("getMessage: " + ioe.getMessage());
+            ioe.printStackTrace();
+        }
+        System.err.println("Here is the corresponding buffer: \n" + input + "\n");
 
-	private static String getOutputFolder() {
-		return Helper.addFolderSlashIfNeeded(outputFolder);
-	}
+        return input;
+    }
 
-	private static String getFilename() {
-		return jsFilename;
-	}
+    private void setFileName(String scopename) {
+        int index = scopename.lastIndexOf("/");
+        jsFilename = scopename.substring(index + 1);
+    }
 
-	/**
-	 * This method modifies the response to a request.
-	 * 
-	 * @param response
-	 *            The response.
-	 * @param request
-	 *            The request.
-	 * @return The modified response.
-	 */
-	private Response createResponse(Response response, Request request) {
-		ArrayList<String> scriptNodesToCreate;
-		Element newNodeToAdd;
+    private static String getOutputFolder() {
+        return Helper.addFolderSlashIfNeeded(outputFolder);
+    }
 
-		if (request == null) {
-			System.err.println("JSModifyProxyPlugin::createResponse: request is null");
-			return response;
-		}
-		
-		if (request != null && request.getURL() != null) {
-			System.out.println("Request URL:");
-			System.out.println(request.getURL().toString());
-		}
+    private static String getFilename() {
+        return jsFilename;
+    }
 
-		if (request.getURL() == null) {
-			System.err.println("JSModifyProxyPlugin::createResponse: request url is null");
-			return response;
-		} else if (request.getURL().toString().isEmpty()) {
-			System.err.println("JSModifyProxyPlugin::createResponse: request url is empty");
-			return response;
-		} else if (response == null) {
-			System.err.println("JSModifyProxyPlugin::createResponse: response is null");
-			return response;
-		// Proxy can provide Clematis files to prepend to application (specified in SimpleExample.java)
-		} else if (!request.getURL().toString().contains("-clematis")
-				&& Integer.parseInt(response.getStatus()) == 404
-				&& modifier.getFilesToPrepend().contains(request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/")))) {		
-			return packageMessage(request, request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/")));	
-		// Proxy can provide JavaScript and CSS specific to toolbar
-		} else if (request.getURL().toString().contains("toolbar-clematis") && Integer.parseInt(response.getStatus()) == 404) {		
-			return packageMessage(request,request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/toolbar-clematis/")));
-		// Proxy can provide images for toolbar rendering
-		} else if (request.getURL().toString().contains("/images-clematis/") && Integer.parseInt(response.getStatus()) == 404) {
-			return packageMessage(request, request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/images-clematis/")));
-		}
+    /**
+     * This method modifies the response to a request.
+     * 
+     * @param response
+     *            The response.
+     * @param request
+     *            The request.
+     * @return The modified response.
+     */
+    private Response createResponse(Response response, Request request) {
+        ArrayList<String> scriptNodesToCreate;
+        Element newNodeToAdd;
 
-		String type = response.getHeader("Content-Type");
+        if (request == null) {
+            System.err.println("JSModifyProxyPlugin::createResponse: request is null");
+            return response;
+        }
 
-		// Communication with client in regards to recording
-		if (request.getURL().toString().contains("?beginrecord")) {
-			areWeRecording = true;
-			JSExecutionTracer.preCrawling();
-			return response;
-		}
-		if (request.getURL().toString().contains("?stoprecord")) {
-			areWeRecording = false;
-			JSExecutionTracer.postCrawling();
-			return response;
-		}
-		if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
-			String rawResponse = new String(request.getContent());
-			JSExecutionTracer.addPoint(rawResponse);
-			return response;
-		}
+        if (request != null && request.getURL() != null) {
+            System.out.println("Request URL:");
+            System.out.println(request.getURL().toString());
+        }
 
-		// Intercept and instrument relevant files (JavaScript and HTML)
-		if (type != null && type.contains("javascript")) {
-			/* instrument the code if possible */
-			response.setContent(modifyJS(new String(response.getContent()),
-					request.getURL().toString()).getBytes());
-		} else if (type != null && type.contains("html")) {
-			
-			try {
-				Document dom = Helper.getDocument(new String(response.getContent()));
-				/* find script nodes in the html */
-				NodeList nodes = dom.getElementsByTagName("script");
+        if (request.getURL() == null) {
+            System.err.println("JSModifyProxyPlugin::createResponse: request url is null");
+            return response;
+        } else if (request.getURL().toString().isEmpty()) {
+            System.err.println("JSModifyProxyPlugin::createResponse: request url is empty");
+            return response;
+        } else if (response == null) {
+            System.err.println("JSModifyProxyPlugin::createResponse: response is null");
+            return response;
+            // Proxy can provide Clematis files to prepend to application (specified in SimpleExample.java)
+        } else if (!request.getURL().toString().contains("-clematis")
+                && Integer.parseInt(response.getStatus()) == 404
+                && modifier.getFilesToPrepend().contains(request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/")))) {		
+            return packageMessage(request, request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/")));	
+            // Proxy can provide JavaScript and CSS specific to toolbar
+        } else if (request.getURL().toString().contains("toolbar-clematis") && Integer.parseInt(response.getStatus()) == 404) {		
+            return packageMessage(request,request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/toolbar-clematis/")));
+            // Proxy can provide images for toolbar rendering
+        } else if (request.getURL().toString().contains("/images-clematis/") && Integer.parseInt(response.getStatus()) == 404) {
+            return packageMessage(request, request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/images-clematis/")));
+        }
 
-				for (int i = 0; i < nodes.getLength(); i++) {
-					Node nType = nodes.item(i).getAttributes().getNamedItem("type");
-					/* instrument if this is a JavaScript node */
-					if ((nType != null && nType.getTextContent() != null && nType
-							.getTextContent().toLowerCase().contains("javascript"))) {
-						String content = nodes.item(i).getTextContent();
+        String type = response.getHeader("Content-Type");
 
-						if (content.length() > 0) {
-							String js = modifyJS(content, request.getURL() + "script" + i);
-							nodes.item(i).setTextContent(js);
-							continue;
-						}
-					}
-					/* also check for the less used language="javascript" type tag */
-					nType = nodes.item(i).getAttributes().getNamedItem("language");
-					if ((nType != null && nType.getTextContent() != null && nType
-							.getTextContent().toLowerCase().contains("javascript"))) {
-						String content = nodes.item(i).getTextContent();
-						if (content.length() > 0) {
-							String js = modifyJS(content, request.getURL() + "script" + i);
-							nodes.item(i).setTextContent(js);
-						}
-					}
-				}
+        // Communication with client in regards to recording
+        if (request.getURL().toString().contains("?beginrecord")) {
+            areWeRecording = true;
+            JSExecutionTracer.preCrawling();
+            return response;
+        }
+        if (request.getURL().toString().contains("?stoprecord")) {
+            areWeRecording = false;
+            JSExecutionTracer.postCrawling();
+            return response;
+        }
+        if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
+            String rawResponse = new String(request.getContent());
+            JSExecutionTracer.addPoint(rawResponse);
+            return response;
+        }
+        if (request.getURL().toString().contains("?toolbarstate")) {
+            try {
+                toolbarPosition = new JSONObject(new String(request.getContent()));
+                System.out.println("Receving new toolbar position!!!!1");
+                System.out.println(new String(request.getContent()));
+            } catch (org.json.JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return response;
+        }
 
-				// Add our JavaScript as script nodes instead of appending the file contents to existing JavaScript
-				scriptNodesToCreate = modifier.getFilesToPrepend();
-				for (int p = 0; p < scriptNodesToCreate.size(); p++) {
-					newNodeToAdd = dom.createElement("script");					
-					newNodeToAdd.setAttribute("src", scriptNodesToCreate.get(p));
-					newNodeToAdd.setAttribute("language", "javascript");
-					newNodeToAdd.setAttribute("type", "text/javascript");					
-					if (dom.getElementsByTagName("meta").getLength() != 0 
-							&& dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
-						dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
-					}
-				}
-				
-				// Inject toolbar and its dependencies
-				scriptNodesToCreate = modifier.getToolbarFiles();
-				for (int t = 0; t < scriptNodesToCreate.size(); t++) {
+        // Intercept and instrument relevant files (JavaScript and HTML)
+        if (type != null && type.contains("javascript")) {
+            /* instrument the code if possible */
+            response.setContent(modifyJS(new String(response.getContent()),
+                    request.getURL().toString()).getBytes());
+        } else if (type != null && type.contains("html")) {
 
-					if (scriptNodesToCreate.get(t).contains(".js")) {
-						// JavaScript
-						newNodeToAdd = dom.createElement("script");	
-						newNodeToAdd.setAttribute("language", "javascript");
-						newNodeToAdd.setAttribute("type", "text/javascript");	
-						newNodeToAdd.setAttribute("src", scriptNodesToCreate.get(t));
-					} else if (scriptNodesToCreate.get(t).contains(".css")) {
-						// CSS
-						newNodeToAdd = dom.createElement("link");			
-						newNodeToAdd.setAttribute("rel", "stylesheet");
-						newNodeToAdd.setAttribute("type", "text/css");
-						newNodeToAdd.setAttribute("href", scriptNodesToCreate.get(t));
-					} else {
-						// File type not supported
-						continue;
-					}
-					// Insert our scripts in the <head> right after the <meta> tags (before all applications scripts)
-					if (dom.getElementsByTagName("meta").getLength() != 0 && dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
-						dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
-					}
-				}
-				// Inter-page recording (add extra JavaScript to enable recording right away)
-				if (areWeRecording) {
-					// Page probably changed and we were recording on previous page...so start recording immediately
-					newNodeToAdd = dom.createElement("script");					
-					newNodeToAdd.setAttribute("language", "javascript");
-					newNodeToAdd.setAttribute("type", "text/javascript");
-					newNodeToAdd.setTextContent("resumeRecording("+JSExecutionTracer.getCounter()+");");
-					if (dom.getElementsByTagName("meta").getLength() != 0 
-							&& dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
-						dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
-					}
-				}
+            try {
+                Document dom = Helper.getDocument(new String(response.getContent()));
+                /* find script nodes in the html */
+                NodeList nodes = dom.getElementsByTagName("script");
 
-				/* only modify content when we did modify anything */
-				if (nodes.getLength() > 0) {
-					/* set the new content */
-					response.setContent(Helper.getDocumentToByteArray(dom));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		/* return the response to the webbrowser */
-		return response;
-	}
-	
-	private Response packageMessage(Request request, String file) {
-		Response intrResponse = new Response();
-		intrResponse.setStatus("200");
-		intrResponse.setVersion("HTTP/1.1");
-		intrResponse.setRequest(request);
-		intrResponse.setMessage("OK");
-		intrResponse.setHeader("Connection", "close");
+                for (int i = 0; i < nodes.getLength(); i++) {
+                    Node nType = nodes.item(i).getAttributes().getNamedItem("type");
+                    /* instrument if this is a JavaScript node */
+                    if ((nType != null && nType.getTextContent() != null && nType
+                            .getTextContent().toLowerCase().contains("javascript"))) {
+                        String content = nodes.item(i).getTextContent();
 
-		try {
-			intrResponse.setContent(Resources.toByteArray(AstInstrumenter.class.getResource(file)));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println(file);
-			e.printStackTrace();
-		} catch (NullPointerException npe) {
-			System.out.println(file);
-			npe.printStackTrace();
-		}
-		return intrResponse;
-	}
+                        if (content.length() > 0) {
+                            String js = modifyJS(content, request.getURL() + "script" + i);
+                            nodes.item(i).setTextContent(js);
+                            continue;
+                        }
+                    }
+                    /* also check for the less used language="javascript" type tag */
+                    nType = nodes.item(i).getAttributes().getNamedItem("language");
+                    if ((nType != null && nType.getTextContent() != null && nType
+                            .getTextContent().toLowerCase().contains("javascript"))) {
+                        String content = nodes.item(i).getTextContent();
+                        if (content.length() > 0) {
+                            String js = modifyJS(content, request.getURL() + "script" + i);
+                            nodes.item(i).setTextContent(js);
+                        }
+                    }
+                }
 
-	/**
-	 * WebScarab plugin that adds instrumentation code.
-	 */
-	private class Plugin implements HTTPClient {
+                // Add our JavaScript as script nodes instead of appending the file contents to existing JavaScript
+                scriptNodesToCreate = modifier.getFilesToPrepend();
+                for (int p = 0; p < scriptNodesToCreate.size(); p++) {
+                    newNodeToAdd = dom.createElement("script");					
+                    newNodeToAdd.setAttribute("src", scriptNodesToCreate.get(p));
+                    newNodeToAdd.setAttribute("language", "javascript");
+                    newNodeToAdd.setAttribute("type", "text/javascript");					
+                    if (dom.getElementsByTagName("meta").getLength() != 0 
+                            && dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
+                        dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
+                    }
+                }
 
-		private HTTPClient client = null;
+                // Inject toolbar and its dependencies
+                scriptNodesToCreate = modifier.getToolbarFiles();
+                for (int t = 0; t < scriptNodesToCreate.size(); t++) {
 
-		/**
-		 * Constructor for this plugin.
-		 * 
-		 * @param in
-		 *            The HTTPClient connection.
-		 */
-		public Plugin(HTTPClient in) {
-			client = in;
-		}
+                    if (scriptNodesToCreate.get(t).contains(".js")) {
+                        // JavaScript
+                        newNodeToAdd = dom.createElement("script");	
+                        newNodeToAdd.setAttribute("language", "javascript");
+                        newNodeToAdd.setAttribute("type", "text/javascript");	
+                        newNodeToAdd.setAttribute("src", scriptNodesToCreate.get(t));
+                    } else if (scriptNodesToCreate.get(t).contains(".css")) {
+                        // CSS
+                        newNodeToAdd = dom.createElement("link");			
+                        newNodeToAdd.setAttribute("rel", "stylesheet");
+                        newNodeToAdd.setAttribute("type", "text/css");
+                        newNodeToAdd.setAttribute("href", scriptNodesToCreate.get(t));
+                    } else {
+                        // File type not supported
+                        continue;
+                    }
+                    // Insert our scripts in the <head> right after the <meta> tags (before all applications scripts)
+                    if (dom.getElementsByTagName("meta").getLength() != 0 && dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
+                        dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
+                    }
+                }
+                // Inter-page recording (add extra JavaScript to enable recording right away)
+                if (areWeRecording) {
+                    // Page probably changed and we were recording on previous page...so start recording immediately
+                    newNodeToAdd = dom.createElement("script");					
+                    newNodeToAdd.setAttribute("language", "javascript");
+                    newNodeToAdd.setAttribute("type", "text/javascript");
+                    newNodeToAdd.setTextContent("resumeRecording("+JSExecutionTracer.getCounter()+");");
+                    if (dom.getElementsByTagName("meta").getLength() != 0 
+                            && dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
+                        dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
+                    }
+                }
 
-		public Response fetchResponse(Request request) throws IOException {
+                if (toolbarPosition != null) {
+                    // Page probably changed and we were recording on previous page...so start recording immediately
+                    newNodeToAdd = dom.createElement("script");                 
+                    newNodeToAdd.setAttribute("language", "javascript");
+                    newNodeToAdd.setAttribute("type", "text/javascript");
+                    newNodeToAdd.setTextContent("setToolbarPosition("+toolbarPosition.toString()+");");
+                    if (dom.getElementsByTagName("meta").getLength() != 0 
+                            && dom.getElementsByTagName("meta").item(0).getParentNode() == dom.getElementsByTagName("head").item(0)) {
+                        dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
+                    }
+                }
 
-			Response response = client.fetchResponse(request);
-			return createResponse(response, request);
-		}
-	}
+                /* only modify content when we did modify anything */
+                if (nodes.getLength() > 0) {
+                    /* set the new content */
+                    response.setContent(Helper.getDocumentToByteArray(dom));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        /* return the response to the webbrowser */
+        return response;
+    }
+
+    private Response packageMessage(Request request, String file) {
+        Response intrResponse = new Response();
+        intrResponse.setStatus("200");
+        intrResponse.setVersion("HTTP/1.1");
+        intrResponse.setRequest(request);
+        intrResponse.setMessage("OK");
+        intrResponse.setHeader("Connection", "close");
+
+        try {
+            intrResponse.setContent(Resources.toByteArray(AstInstrumenter.class.getResource(file)));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            System.out.println(file);
+            e.printStackTrace();
+        } catch (NullPointerException npe) {
+            System.out.println(file);
+            npe.printStackTrace();
+        }
+        return intrResponse;
+    }
+
+    /**
+     * WebScarab plugin that adds instrumentation code.
+     */
+    private class Plugin implements HTTPClient {
+
+        private HTTPClient client = null;
+
+        /**
+         * Constructor for this plugin.
+         * 
+         * @param in
+         *            The HTTPClient connection.
+         */
+        public Plugin(HTTPClient in) {
+            client = in;
+        }
+
+        public Response fetchResponse(Request request) throws IOException {
+
+            Response response = client.fetchResponse(request);
+            return createResponse(response, request);
+        }
+    }
 
 }

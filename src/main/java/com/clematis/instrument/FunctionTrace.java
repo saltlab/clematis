@@ -117,7 +117,7 @@ public class FunctionTrace extends AstInstrumenter {
 				&& node.toSource().indexOf("FUNCTION_") == -1 
 				&& node.toSource().indexOf("RSW(") == -1 
 				&& node.toSource().indexOf("FCW(") == -1) {
-			handleFunctionCall((FunctionCall) node);
+		//	handleFunctionCall((FunctionCall) node);
 		} else if (tt == org.mozilla.javascript.Token.RETURN) {
 			handleReturn((ReturnStatement) node);
 		}

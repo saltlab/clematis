@@ -111,7 +111,7 @@
   third_column.style.width = window.innerWidth/3;
   code.style.width = window.innerWidth/3;
   div.style.width = window.innerWidth/3;
-  second_column.style.width = window.innerWidth/3;
+  second_column.style.width = window.innerWidth;
 
   $("#first_column").prepend("DOM/Timing/XHR Event Info.");
   $("#second_column").prepend("JavaScript Source Code");
@@ -265,9 +265,9 @@ function viewDetailedCode(lifeline) {
             $(lineOfInterest[indexOfReal]).effect("highlight", {}, 8000);
 
             document.getElementById('filename_div').innerHTML = '<strong>' + lifeline.getFileName() + '</strong>';
-            document.getElementById('second_column').width = 200;
-            document.getElementById('code_code').width = 200;
-            document.getElementById('code_pre').width = window.innerWidth / 11;
+            document.getElementById('second_column').width = window.innerWidth;
+            document.getElementById('code_code').width = window.innerWidth;
+            document.getElementById('code_pre').width = window.innerWidth;
 
         }
     }

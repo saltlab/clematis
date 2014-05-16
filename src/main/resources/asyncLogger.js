@@ -254,13 +254,16 @@ logger.logDOMEvent = function(type, targetEl, callback) {
 	var jml;
 	var date = Date.now();
 
+  if (arguments[1].className
+      && arguments[1].className === 'ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable') {
+      window.console.log('toolbar event......ignoring');
+      return;
+  }
+
 	if (!recordStarted)
 		return;
 
     jml = JsonML.fromHTML(arguments[1]);
-window.console.log('DOM callback');
-window.console.log(type);
-window.console.log(callback);
 
 	if (jml) {
 		jml = JSON.stringify(jml);

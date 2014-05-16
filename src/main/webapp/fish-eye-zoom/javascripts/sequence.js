@@ -167,21 +167,34 @@ for (var i = 0; i < episodeCounter; i++) {
 
             if (newMessage._points[0]._x == undefined &&
                 newMessage._points[1]._x == undefined) {
+              window.console.log('Recursive call to Actor');
                 // Recursive call to Actor
-                var dottedLine = new UMLLifeline({
-                    x: newMessage._elemA._x + 25,
-                    y: newMessage._elemA._y + 35
+                var dottedLine1 = new UMLLifeline({
+                    x: newMessage._elemA._x,
+                    y: newMessage._elemA._y
+                });
+                var dottedLine2 = new UMLLifeline({
+                    x: newMessage._elemB._x,
+                    y: newMessage._elemB._y
                 });
                 dottedLine.setName("");
                 dottedLine._heightSmallRectangle = -1;
                 dottedLine._width = 0;
-                newMessage._elemA = dottedLine;
-                newMessage._elemB = dottedLine;
+                newMessage._elemA = dottedLine1;
+                newMessage._elemB = dottedLine2;
             } else if (newMessage._points[0]._x == undefined) {
+              window.console.log("Source of message is an actor (not lifeline) ");
                 // Source of message is an actor (not lifeline)
                 newMessage._points[0].setX(newMessage._elemA._x + 23);
                 newMessage._objA = newMessage._objB;
             } else if (newMessage._points[1]._x == undefined) {
+              window.console.log('Destination of message is an actor (not lifeline)');
+                // Destination of message is an actor (not lifeline)
+                newMessage._points[1].setX(newMessage._elemB._x + 23);
+                newMessage._objB = newMessage._objA;
+            }
+            if (newMessage._points[1]._x == undefined) {
+              window.console.log('Destination of message is an actor (not lifeline)');
                 // Destination of message is an actor (not lifeline)
                 newMessage._points[1].setX(newMessage._elemB._x + 23);
                 newMessage._objB = newMessage._objA;

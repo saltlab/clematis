@@ -85,20 +85,6 @@ public class JSUml2Story {
                         + evto.getValueChangeAsJSON() + ");");
                 System.out.println(getDiagramIdentifier(to) + ".setParentNodeValue('"
                         + evto.getParentNodeValue() + "');");
-                /*
-                 * System.out.println(getDiagramIdentifier(to)+".setElementId('"+evto.getElementId()+
-                 * "');");
-                 * System.out.println(getDiagramIdentifier(to)+".setOldValue('"+evto.getOldValue
-                 * ()+"');");
-                 * System.out.println(getDiagramIdentifier(to)+".setNewValue('"+evto.getNewValue
-                 * ()+"');");
-                 * System.out.println(getDiagramIdentifier(to)+".setNodeName('"+evto.getNodeName
-                 * ()+"');");
-                 * System.out.println(getDiagramIdentifier(to)+".setElementType('"+evto.getElementType
-                 * ()+"');");
-                 * System.out.println(getDiagramIdentifier(to)+".setNodeType('"+evto.getNodeType
-                 * ()+"');");
-                 */
 
                 System.out.println("episode" + episodeSource.getCounter()
                         + ".addElementValueTraces(" + getDiagramIdentifier(to) + ");");
@@ -209,7 +195,9 @@ public class JSUml2Story {
             System.out.println("");
             initialX += 200;
         }
-        push(components.get(0));
+        if (components.size() > 0) {
+            push(components.get(0));
+        }
         System.setOut(oldOut);
     }
 
@@ -277,7 +265,6 @@ public class JSUml2Story {
     }
 
     public void createMessages() {
-        System.setOut(output);
 
         for (int j = 0; j < functionTraceObjects.size(); j++) {
             // Remove DOM mutations as they are not related to messages
@@ -292,6 +279,7 @@ public class JSUml2Story {
 
         int initialY = 100;
 
+        System.setOut(output);
         System.out.println("// Message sequences");
         for (int i = 0; i < functionTraceObjects.size(); i++) {
 
@@ -323,24 +311,25 @@ public class JSUml2Story {
                     functionEnterMessage(eventStack.get(eventStack.size()-1), to, initialY);
 
                 } else {
+                    // Self loop
                     functionEnter(to, initialY);
 
                 }
                 fnStack.add(to);
 
             } else if (to.getClass().toString().contains("FunctionExit")) {
-                fnStack.remove(fnStack.size()-1);
-
                 // Function ends execution, not return statement
+
+                fnStack.remove(fnStack.size()-1);
                 initialY += 30;
                 functionExitMessage(initialY);
-                if (functionTraceObjects.get(i - 1).getClass().toString().contains("TimeoutCallback")) {
+                /*if (functionTraceObjects.get(i - 1).getClass().toString().contains("TimeoutCallback")) {
                     pop();
-                }
+                }*/
             } else if (to.getClass().toString().contains("ReturnStatement")) {
-                fnStack.remove(fnStack.size()-1);
-
                 // Return to previous function
+
+                fnStack.remove(fnStack.size()-1);
                 initialY += 30;
                 functionReturnMessage(initialY);
             } else if (to.getClass().toString().contains("XMLHttpRequestOpen")) {
@@ -390,8 +379,16 @@ public class JSUml2Story {
                         + ".addMessage(message_" + getDiagramIdentifier(to) + "_" + y + ");");
 
             }
+        } else if (eventStack.size() > 0) {
+            // Link timeout to last event, probably "globally visible" JS i.e. no containing function declaration
+            TraceObject lastEvent = eventStack.get(eventStack.size()-1);
+            System.out.println("episode" + episodeSource.getCounter()
+                    + ".addMessage(new callMessage({a : " + getDiagramIdentifier(lastEvent) + ", " +
+                    "b : " + getDiagramIdentifier(to) + ", " +
+                    "y : " + y + "}));");
         } else {
             // Not sure where the timeout was set from...
+            // Loop
             System.out.println("episode" + episodeSource.getCounter()
                     + ".addMessage(new callMessage({a : " + getDiagramIdentifier(to) + ", " +
                     "b : " + getDiagramIdentifier(to) + ", " +
