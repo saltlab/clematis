@@ -11,9 +11,13 @@
  */
 package com.clematis.jsmodify;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -24,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,6 +38,7 @@ import com.clematis.core.episode.Story;
 import com.clematis.core.trace.DOMEventTrace;
 import com.clematis.core.trace.TimingTrace;
 import com.clematis.core.trace.TraceObject;
+import com.clematis.database.MongoInterface;
 import com.clematis.visual.EpisodeGraph;
 import com.clematis.visual.JSUml2Story;
 import com.crawljax.util.Helper;
@@ -48,6 +54,9 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 /**
  * Reads an instrumentation array from the webbrowser and saves the contents in a JSON trace file.
@@ -59,23 +68,25 @@ public class JSExecutionTracer {
 
     private static final int ONE_SEC = 1000;
 
-    private static String outputFolder;
-    private static String traceFilename;
+    private String outputFolder;
+    private String traceFilename;
 
-    private static JSONArray points = new JSONArray();
+    private JSONArray points = new JSONArray();
 
-    private static final Logger LOGGER = Logger
+    private final Logger LOGGER = Logger
             .getLogger(JSExecutionTracer.class.getName());
 
     public static final String FUNCTIONTRACEDIRECTORY = "functiontrace/";
 
-    private static PrintStream output;
+    private PrintStream output;
+    private PrintStream databaseOutput;
+    private ByteArrayOutputStream baos;
 
     // private Trace trace;
-    private static Story story;
-    private static ObjectMapper mapper = new ObjectMapper();
+    private Story story;
+    private ObjectMapper mapper = new ObjectMapper();
     static String theTime;
-    private static int counter = 0;
+    private int counter = 0;
 
     // private ArrayList<TraceObject> sortedTraceList;
     // private ArrayList<Episode> episodeList;
@@ -83,8 +94,8 @@ public class JSExecutionTracer {
     /**
      * @param filename
      */
-    public JSExecutionTracer(String filename) {
-        traceFilename = filename;
+    public JSExecutionTracer(){//String filename) {
+    	//this.traceFilename = filename;
     }
 
     /**
@@ -93,22 +104,25 @@ public class JSExecutionTracer {
      * @param browser
      *            The browser.
      */
-    public static void preCrawling() {
-        try {
+    public void preCrawling() {
+        //try {
             points = new JSONArray();
-
-            Helper.directoryCheck(getOutputFolder());
-            output = new PrintStream(getOutputFolder() + getFilename());
-
+            //Helper.directoryCheck(getOutputFolder());
+            
+            //output = new PrintStream(getOutputFolder() + getFilename());   
+            baos = new ByteArrayOutputStream();
+            databaseOutput = new PrintStream(baos);    
+            
             // Add opening bracket around whole trace
             PrintStream oldOut = System.out;
-            System.setOut(output);
+            //System.setOut(output);
+            System.setOut(databaseOutput);
             System.out.println("{");
             System.setOut(oldOut);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        //} catch (IOException e) {
+        //    e.printStackTrace();
+        //}
     }
 
     /**
@@ -147,9 +161,9 @@ public class JSExecutionTracer {
     }
 
     /**
-     * Wrtie the story object to a JSON file on disk.
+     * Write the story object to a JSON file on disk.
      */
-    public static void writeStoryToDisk() {
+    public void writeStoryToDisk(String userName, Double sessionNum) {
 
         mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(
                 Visibility.ANY));
@@ -160,11 +174,15 @@ public class JSExecutionTracer {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         try {
+            //Helper.directoryCheck(Helper.addFolderSlashIfNeeded("captured_stories"));
+            //outputFolder = Helper.addFolderSlashIfNeeded("clematis-output") + "js_snapshot";
 
-            Helper.directoryCheck(Helper.addFolderSlashIfNeeded("captured_stories"));
-            mapper.writeValue(new File("captured_stories/story"/*," + theTime*/ + ".json"),
-                    story);
-
+            if(!MongoInterface.checkNumDocumentExistsForSession(userName, "story")){
+            	String JSONstring = mapper.writeValueAsString(story); 
+            	BasicDBObject doc = new BasicDBObject("userName", userName).append("sessionNumber", sessionNum).append("story", JSONstring);
+            	MongoInterface.db.getCollection("story").insert(doc);
+            }
+            
         } catch (JsonGenerationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -186,7 +204,7 @@ public class JSExecutionTracer {
     public List<String> allTraceFiles() {
         ArrayList<String> result = new ArrayList<String>();
 
-        /* find all trace files in the trace directory */
+        // find all trace files in the trace directory 
         File dir = new File(getOutputFolder() + FUNCTIONTRACEDIRECTORY);
 
         String[] files = dir.list();
@@ -201,19 +219,21 @@ public class JSExecutionTracer {
         return result;
     }
 
-    public static void postCrawling() {
+    public void postCrawling(String userName, Double sessionNum) {
         try {
             // Add closing bracket
             PrintStream oldOut = System.out;
-            System.setOut(output);
+            
+            //System.setOut(output);
+            System.setOut(databaseOutput);
             System.out.println(" ");
             System.out.println("}");
             System.setOut(oldOut);
 
             /* close the output file */
-            output.close();
-
-            extraxtTraceObjects();
+            //output.close();
+            databaseOutput.close();
+            extraxtTraceObjects(userName, sessionNum);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -222,15 +242,29 @@ public class JSExecutionTracer {
     /**
      * This method parses the JSON file containing the trace objects and extracts the objects
      */
-    public static void extraxtTraceObjects() {
+    public void extraxtTraceObjects(String userName, Double sessionNum) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             // Register the module that serializes the Guava Multimap
             mapper.registerModule(new GuavaModule());
-
-            Multimap<String, TraceObject> traceMap = mapper
+            
+            String str = "";
+            //try {
+            		//str = FileUtils.readFileToString(new File("clematis-output/ftrace/function.trace"));
+            		str = baos.toString();
+            //} catch (IOException e) {
+            // 	    e.printStackTrace();
+            //}
+            
+            /*Multimap<String, TraceObject> traceMap = mapper
                     .<Multimap<String, TraceObject>> readValue(
                             new File("clematis-output/ftrace/function.trace"),
+                            new TypeReference<TreeMultimap<String, TraceObject>>() {
+                            });*/
+            
+            Multimap<String, TraceObject> traceMap = mapper
+                    .<Multimap<String, TraceObject>> readValue(
+                    		 new ByteArrayInputStream(str.getBytes("UTF-8")),
                             new TypeReference<TreeMultimap<String, TraceObject>>() {
                             });
 
@@ -245,24 +279,15 @@ public class JSExecutionTracer {
             Iterator<TraceObject> it3 = domEventTraces.iterator();
             TraceObject next2;
             ArrayList<TraceObject> removeus = new ArrayList<TraceObject>();
-        /**    while (it3.hasNext()) {
-                next2 = it3.next();
-
-                if (next2 instanceof DOMEventTrace
-                        && (((DOMEventTrace) next2).getEventType().equals("mouseover") 
-                                || (((DOMEventTrace) next2).getEventType().equals("mousemove"))
-                                || (((DOMEventTrace) next2).getEventType().equals("mouseout"))
-                                || (((DOMEventTrace) next2).getEventType().equals("mousedown"))
-                                || (((DOMEventTrace) next2).getEventType().equals("mouseup")))) {
-                    removeus.add(next2);
-
-                }
-            }*/
-            domEventTraces.removeAll(removeus);
+ 
+            domEventTraces.removeAll(removeus); //does nothing??
 
             story = new Story(domEventTraces, functionTraces, timingTraces, XHRTraces);
-            story.setOrderedTraceList(sortTraceObjects());
-
+            ArrayList<TraceObject> sortedTraceObjects = sortTraceObjects();
+            
+            if (sortedTraceObjects != null){
+            
+            story.setOrderedTraceList(sortedTraceObjects);
 
             System.out.println(timingTraces.size());
             Iterator<TraceObject> it = timingTraces.iterator();
@@ -270,19 +295,9 @@ public class JSExecutionTracer {
 
             while (it.hasNext()) {
                 next = it.next();
-                System.out.println("=======");
-                System.out.println( next.getCounter());
+                //System.out.println("=======");
+                //System.out.println( next.getCounter());
             }
-
-
-
-            /*
-             * ArrayList<TraceObject> bookmarkTraceObjects = new ArrayList<TraceObject>(); for
-             * (TraceObject to : story.getOrderedTraceList()) { if (to instanceof DOMEventTrace) {
-             * if (((DOMEventTrace)to).getEventType().equals("_BOOKMARK_")) {
-             * bookmarkTraceObjects.add(to);
-             * System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"); } } }
-             */
 
             story.setEpisodes(buildEpisodes());
 
@@ -295,46 +310,9 @@ public class JSExecutionTracer {
                 System.out.println(it2.next().getSource().getClass());
             }
 
-
-
             System.out.println("# of trace objects: " + story.getOrderedTraceList().size());
             System.out.println("# of episodes: " + story.getEpisodes().size());
-            /*
-             * for (int i = 0; i < story.getEpisodes().size(); i ++) { Episode episode =
-             * story.getEpisodes().get(i); if (episode.getSource() instanceof DOMEventTrace) {
-             * DOMEventTrace source = (DOMEventTrace)episode.getSource();
-             * if(source.getTargetElement().contains("bookmarkButton")) {
-             * System.out.println("***********"); if (i + 1 < story.getEpisodes().size()) {
-             * story.getEpisodes().get(i).getSource().setIsBookmarked(true); // move isbookmarked to
-             * episode System.out.println("* " + story.getEpisodes().get(i).getSource().toString());
-             * } } } }
-             */
-            /*
-             * for (int i = 0; i < story.getEpisodes().size(); i ++) { Episode episode =
-             * story.getEpisodes().get(i); ArrayList<TraceObject> bookmarkObjects = new
-             * ArrayList<TraceObject>(); for (int j = 0; j < episode.getTrace().getTrace().size(); j
-             * ++) { if (episode.getTrace().getTrace().get(j) instanceof DOMEventTrace) {
-             * DOMEventTrace domEventTrace = (DOMEventTrace)episode.getTrace().getTrace().get(j); if
-             * (domEventTrace.getEventType().equals("_BOOKMARK_")) {
-             * bookmarkObjects.add(domEventTrace); System.out.println("bookmark"); if (i + 1 <
-             * story.getEpisodes().size()) { story.getEpisodes().get(i +
-             * 1).getSource().setIsBookmarked(true); } } } }
-             * episode.getTrace().getTrace().removeAll(bookmarkObjects); } for (Episode e :
-             * story.getEpisodes()) { boolean bookmarkNextEpisode = false; // if
-             * (e.getSource().getIsBookmarked()) System.out.println("============ " +
-             * e.getSource().getIsBookmarked()); for (TraceObject to : e.getTrace().getTrace()) { if
-             * (to instanceof DOMEventTrace) { if
-             * (((DOMEventTrace)to).getEventType().equals("_BOOKMARK_"))
-             * System.out.println("bookmark"); } } }
-             */
-            /*
-             * for (Episode episode : story.getEpisodes()) { if (episode.getSource() instanceof
-             * DOMEventTrace) { if
-             * (((DOMEventTrace)episode.getSource()).getTargetElement().contains("bookmarkButton"))
-             * { System.out.print("**** " + ((DOMEventTrace)episode.getSource()).getEventType() +
-             * " * "); } System.out.println("---- " +
-             * ((DOMEventTrace)episode.getSource()).getTargetElement()); } }
-             */// TODO TODO TODO project specific for photo gallery. eliminate unwanted episodes
+
             story.removeUselessEpisodes();
 
             ss = story.getEpisodes();
@@ -378,30 +356,44 @@ public class JSExecutionTracer {
             theTime = new String(dateFormat.format(date).toString());
             System.out.println(theTime);
 
-            // JavaScript episodes for JSUML2
-            Helper.directoryCheck(outputFolder + "/sequence_diagrams/");
-            PrintStream JSepisodes =
-                    new PrintStream(outputFolder + "/sequence_diagrams/allEpisodes.js");
-
+            //JavaScript episodes for JSUML2
+            //Helper.directoryCheck(outputFolder + "/sequence_diagrams/");
+            //PrintStream JSepisodes = new PrintStream(outputFolder + "/sequence_diagrams/allEpisodes.js");
+            
+            ByteArrayOutputStream JSEpisodesByteArray = new ByteArrayOutputStream();
+            PrintStream JSEpisodePrintStream = new PrintStream(JSEpisodesByteArray);  
+            
             for (Episode e : story.getEpisodes()) {
                 // Create pic files for each episode's sequence diagram
-                designSequenceDiagram(e, JSepisodes);
+                //designSequenceDiagram(e, JSepisodes);
+            	designSequenceDiagram(e, JSEpisodePrintStream );
             }
 
+          
+            if(!MongoInterface.checkNumDocumentExistsForSession(userName, "allEpisodes")){
+            	String JSEpisodeString = JSEpisodesByteArray.toString(); 
+            	//System.out.println("JSEPISODESTRING " + JSEpisodeString);
+            	BasicDBObject doc = new BasicDBObject("userName", userName).append("sessionNumber", sessionNum).append("allEpisodes", JSEpisodeString);
+            	MongoInterface.db.getCollection("allEpisodes").insert(doc);
+            }
             // Once all episodes have been saved to JS file, close
-            JSepisodes.close();
+            //JSepisodes.close();
+            JSEpisodePrintStream.close();
 
-            // Create graph containing all episodes with embedded sequence diagrams
-            EpisodeGraph eg = new EpisodeGraph(getOutputFolder(), story.getEpisodes());
-            eg.createGraph();
-            writeStoryToDisk();
+            //NEEDED??
+            //Create graph containing all episodes with embedded sequence diagrams
+            //EpisodeGraph eg = new EpisodeGraph(getOutputFolder(), story.getEpisodes());
+            //eg.createGraph();
+            writeStoryToDisk(userName, sessionNum);
+            
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void designSequenceDiagram(Episode e, PrintStream jSepisodes) {
+    public void designSequenceDiagram(Episode e, PrintStream jSepisodes) {
         // Given an episode (source, trace included), a pic file will be created
         // in clematis-output/ftrace/sequence_diagrams
 
@@ -428,7 +420,7 @@ public class JSExecutionTracer {
     /**
      * This method sorts all four groups of trace objects into one ordered list of trace objects
      */
-    private static ArrayList<TraceObject> sortTraceObjects() {
+    private ArrayList<TraceObject> sortTraceObjects() {
         ArrayList<TraceObject> sortedTrace = new ArrayList<TraceObject>();
 
         ArrayList<Collection<TraceObject>> allCollections =
@@ -489,7 +481,7 @@ public class JSExecutionTracer {
         return sortedTrace;
     }
 
-    private static ArrayList<Episode> buildEpisodes() {
+    private ArrayList<Episode> buildEpisodes() {
         ArrayList<Episode> episodes = new ArrayList<Episode>();
         int i, j, previousEpisodeEnd = 0;
 
@@ -563,11 +555,11 @@ public class JSExecutionTracer {
     /**
      * @return Name of the file.
      */
-    public static String getFilename() {
-        return traceFilename;
+    public String getFilename() {
+        return this.traceFilename;
     }
 
-    public static String getOutputFolder() {
+    public String getOutputFolder() {
         return Helper.addFolderSlashIfNeeded(outputFolder);
     }
 
@@ -582,7 +574,7 @@ public class JSExecutionTracer {
      * @param string
      *            The JSON-text to save.
      */
-    public static void addPoint(String string) {
+    public void addPoint(String string) {
         JSONArray buffer = null;
         JSONObject targetAttributes = null;
         JSONObject targetElement = null;
@@ -593,7 +585,8 @@ public class JSExecutionTracer {
             /* save the current System.out for later usage */
             PrintStream oldOut = System.out;
             /* redirect it to the file */
-            System.setOut(output);
+            //System.setOut(output);
+            System.setOut(databaseOutput);
 
             buffer = new JSONArray(string);
             for (i = 0; i < buffer.length(); i++) {
@@ -737,7 +730,7 @@ public class JSExecutionTracer {
 
     }
 
-    public static int getCounter() {
+    public int getCounter() {
         return counter;
     }
 

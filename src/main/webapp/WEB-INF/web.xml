@@ -19,6 +19,11 @@
 		<param-value>true</param-value>
 	</init-param>
 	
+	<init-param>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>com.clematis.core.ClematisApplication</param-value>
+    </init-param>
+	
 	
 	<load-on-startup>1</load-on-startup>
  </servlet>

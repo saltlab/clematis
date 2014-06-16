@@ -13,7 +13,7 @@ public class Episode {
 	private boolean isBookmarked;
 
 	public Episode() {
-
+		
 	}
 
 	/*

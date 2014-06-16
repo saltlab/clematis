@@ -18,7 +18,7 @@ import com.clematis.core.trace.TraceObject;
 
 public class EpisodeGraph {
 
-	ArrayList<Episode> el = new ArrayList<Episode>();
+	private ArrayList<Episode> el = new ArrayList<Episode>();
 	private String outputFolder = "";
 	// New states are assigned IDs based on the number of states/vertices present
 	private DirectedMultigraph<String, RelationshipEdge> dirGraph;

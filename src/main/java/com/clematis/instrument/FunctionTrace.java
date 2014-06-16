@@ -164,14 +164,16 @@ public class FunctionTrace extends AstInstrumenter {
 	}
 
 	@Override
-	public AstRoot finish(AstRoot node) {
+	public AstRoot finish(AstRoot node, String scopeName, List<String> baseURLs) {
 		// Adds necessary instrumentation to the root node src
 		String isc = node.toSource().replaceAll("\\)]\\;+\\n+\\(", ")](").replaceAll("\\)\\;\\n+\\(", ")(");
 		AstRoot iscNode = rhinoCreateNode(isc);
 
 		/*******************/
 		// todo todo todo todo
-		StringTokenizer tokenizer = new StringTokenizer(JSModifyProxyPlugin.scopeNameForExternalUse, "?");
+		//StringTokenizer tokenizer = new StringTokenizer(JSModifyProxyPlugin.scopeNameForExternalUse, "?");
+		StringTokenizer tokenizer = new StringTokenizer(scopeName, "?");
+
 		String baseUrl = "";
 		
 		if (tokenizer.hasMoreElements())
@@ -179,30 +181,36 @@ public class FunctionTrace extends AstInstrumenter {
 		
 		PrintStream output2;
 		try {
-			output2 = new PrintStream("finish_func_trace.txt");
+			//output2 = new PrintStream("finish_func_trace.txt");
 			PrintStream oldOut2 = System.out;
-			System.setOut(output2);
-			System.out.println("new scope: " + JSModifyProxyPlugin.scopeNameForExternalUse + "\n ---");
-			System.out.println("new newBaseUrl: " + baseUrl + "\n ---");
+			//System.setOut(output2);
+			//System.out.println("new scope: " + JSModifyProxyPlugin.scopeNameForExternalUse + "\n ---");
+			//System.out.println("new scope: " + scopeName + "\n ---");
+
+			//System.out.println("new newBaseUrl: " + baseUrl + "\n ---");
 			boolean baseUrlExists = false;
-			for (String str: JSModifyProxyPlugin.visitedBaseUrls) {
-				System.out.print(str);
+			//for (String str: JSModifyProxyPlugin.visitedBaseUrls) {
+			for (String str: baseURLs) {
+
+				//System.out.print(str);
 				if (/*str.startsWith(newBaseUrl) || */str.equals(baseUrl)) {
-					System.out.println(" -> exists");
+					//System.out.println(" -> exists");
 					baseUrlExists = true;
 					//return input;
 				}
 				else {
-					System.out.println();
+					//System.out.println();
 				}
 			}
-			System.setOut(oldOut2);
-		} catch (FileNotFoundException e) {
+			//System.setOut(oldOut2);
+		} catch (Exception e){//FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		for (String str : JSModifyProxyPlugin.visitedBaseUrls) {
+		//for (String str : JSModifyProxyPlugin.visitedBaseUrls) {
+		for (String str : baseURLs) {
+
 			if (str.equals(baseUrl)) {
 				return iscNode;
 			}

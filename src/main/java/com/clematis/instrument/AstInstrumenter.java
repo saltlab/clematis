@@ -160,7 +160,8 @@ public abstract class AstInstrumenter extends JSASTModifier {
 	}
 
 	@Override
-	public AstRoot finish(AstRoot node) {
+	//public AstRoot finish(AstRoot node) {
+	public AstRoot finish(AstRoot node, String param1, List<String> param2){
 		/* add initialization code for the function and logging array */
 		//node.addChildToFront(jsLoggingFunctions());
 		return null;

@@ -3,6 +3,7 @@ function loadToolbar() {
 	var capturing = false;
 	var myVar = 0;
 	var div = document.createElement("div");
+  div.id = 'toolbarBody';
 	var lineBreak = document.createElement('br');
 	var tbl = document.createElement("table");
 	var tblBody = document.createElement("tbody");
@@ -109,17 +110,37 @@ function loadToolbar() {
 		$(captureButton).fadeIn(350).fadeOut(350).fadeIn(350);
 	}
 	
+    window.console.log('init load toolbar');
 	  div.appendChild(tbl);
-      $(div).dialog({ height: 100, width: 163, title:"Clematis", show:"slow", minWidth: 110 , minHeight:0  });
+    $(div).dialog({ height: 100, width: 163, title:"Clematis", show:"slow", minWidth: 110 , minHeight:0, top:0  });
+    $(div).dialog('option', 'position', 'right top');
     //document.body.appendChild(div);
+   
+    if (oldPosition) {
+      setToolbarPosition(oldPosition);
+    }
     
     document.getElementById("recordButton").addEventListener('click', startRecording, false);
-document.getElementById("stopButton").addEventListener('click', stopRecording, false);
+    document.getElementById("stopButton").addEventListener('click', stopRecording, false);
+    // Push toolbar state to proxy so it loads in same position
+    function sendToolbarState(){
+        var toolbarState = {};
+        var o = $(div).offset();
+
+        toolbarState.top = o.top;
+        toolbarState.left = o.left;
+
+        window.xhr.open('POST', document.location.href + '?toolbarstate', false);
+        window.xhr.send(JSON.stringify(toolbarState));
+    }
+    function saveState() {
+        sendToolbarState();
+        sendReally();
+    }
+    $(window).bind('beforeunload', saveState);
 }
 
 $(document).ready(loadToolbar);
-
-$(window).bind('beforeunload', sendReally);
 
 function resumeRecording(previousCounterLeftOff) {
 	traceCounter = previousCounterLeftOff || 0;
@@ -140,4 +161,11 @@ function resumeRecording(previousCounterLeftOff) {
 		jml = JSON.stringify(jml);
         send(JSON.stringify({messageType: "DOM_EVENT", timeStamp: date, eventType: 'pageload', eventHandler: undefined, targetElement: jml,counter: traceCounter++}));
     }
+}
+
+var oldPosition;
+function setToolbarPosition(pos) {
+  oldPosition = pos;
+  window.console.log('setToolbarPosition');
+  $( "#toolbarBody" ).dialog( "option", "position", [pos.left, pos.top-30] );
 }

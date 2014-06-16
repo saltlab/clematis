@@ -1,22 +1,40 @@
 package com.clematis.core.episode;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.io.IOUtils;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
+
+import com.clematis.core.ClematisSession;
+import com.clematis.core.SimpleExample;
 import com.clematis.core.trace.DOMElementValueTrace;
 import com.clematis.core.trace.DOMEventTrace;
 import com.clematis.core.trace.DOMMutationTrace;
@@ -33,6 +51,7 @@ import com.clematis.core.trace.XMLHttpRequestOpen;
 import com.clematis.core.trace.XMLHttpRequestResponse;
 import com.clematis.core.trace.XMLHttpRequestSend;
 import com.clematis.core.trace.XMLHttpRequestTrace;
+import com.clematis.database.MongoInterface;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -42,6 +61,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 @Path("/clematis-api")
 @Produces({ "application/json" })
@@ -50,7 +74,10 @@ public class episodeResource {
 	private Story s1;
 	private ObjectMapper mapper = new ObjectMapper();
 	private Map<String, Episode> episodeMap = new HashMap<String, Episode>(200);
-
+	
+	private File f2 = null;
+	private long lastModified = -1;
+	
 	public void configureObjectMapper() {
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance()
@@ -64,13 +91,34 @@ public class episodeResource {
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
 	}
-
+	//TODO TODO TODO
 	public String intialize(String fileName) {
+		int i;
+		
+		String userName = "firstUser";
+		//get LAST session FOR NOW	
+		Double sessionNum = MongoInterface.getLastSessionNumber(userName);
 	    
 		configureObjectMapper();
 		try {
-			this.s1 = mapper.readValue(new File("captured_stories/" + fileName + ".json"),
-					Story.class);
+			/*
+ +            f2 = new File("captured_stories/" + fileName + ".json");
+ +
+ +            // Used cached/saved story, no need to reinitialize
+ +            if (f2.lastModified() == lastModified) {
+ +                return "successfully intialized story";
+ +            }
+ +
+ +            this.s1 = mapper.readValue(f2,
+ +                    Story.class);
+ +
+ +            /*  this.s2 = mapper.readValue(new File("story2.json"),
+ +	                    Story.class)
+             lastModified = f2.lastModified();
+			 */
+									
+			this.s1 = mapper.readValue( MongoInterface.getStoryAsString(userName, sessionNum), Story.class);
+			//System.out.println("SUCESSFUL STORY RETREIVAL?! "+ MongoInterface.getStoryAsString(userName, sessionNum));
 		} catch (JsonParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -82,14 +130,14 @@ public class episodeResource {
 			e.printStackTrace();
 		}
 
-		for (int i = 0; i < s1.getEpisodes().size(); i++) {
+		for (i = 0; i < s1.getEpisodes().size(); i++) {
 			episodeMap.put(Integer.toString(i), s1.getEpisodes().get(i));
 		}
 
 		return "successfully intialized story";
 
 	}
-
+	
 	@GET
 	@Path("/capturedStories")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -196,6 +244,7 @@ public class episodeResource {
 	public EpisodeTrace getEpisodeTrace(@PathParam("fileName") String fileName,
 			@PathParam("id") String id) {
 		intialize(fileName);
+		
 		return episodeMap.get(id).getTrace();
 	}
 
@@ -551,16 +600,80 @@ public class episodeResource {
 		String output = null;
 		String temp = fileName.replace("story", "allEpisodes");
 		String temp2 = temp.concat(".js");
-		try {
-			output =
-					new Scanner(new File(
-							"clematis-output/ftrace/sequence_diagrams/" + temp2))
-			.useDelimiter("\\Z").next();
-		} catch (FileNotFoundException e) {
+		
+		String userName = "firstUser";
+		
+		//try {
+			//output = new Scanner(new File("clematis-output/ftrace/sequence_diagrams/" + temp2)).useDelimiter("\\Z").next();
+			output = MongoInterface.getAllEpisodesAsString(userName, MongoInterface.getLastSessionNumber(userName));
+		//} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			//e.printStackTrace();
+		//}
 		return output;
+			
+	}
+
+	@POST
+	@Path("/userlogin")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String userLogin(@Context HttpServletRequest request) throws IOException{
+		System.out.println(processInput(request.getInputStream()));
+		return "login";
+	}
+	
+	@POST
+	@Path("/startSessionPOST")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String startNewSessionPOST(@Context HttpServletRequest request) throws IOException{
+		
+		ServletInputStream in = request.getInputStream();
+		String newUrl = splitURL(in);
+		
+		String ip = request.getRemoteAddr();
+		System.out.println("ip:" + ip);
+		
+		//get user info
+		HttpSession userSession = request.getSession();
+		userSession.setAttribute("userName", "firstUser");
+		String userName = (String) userSession.getAttribute("userName");
+		System.out.println("User Name: " + userName );
+		
+		
+		Double sessionNum = MongoInterface.newSessionDocument(userName);
+		
+		SimpleExample session = new SimpleExample(ip, userName, sessionNum);
+		
+		try{
+			session.checkURL(newUrl);
+		} catch (IllegalArgumentException e){
+			return "Invalid URL: Please enter a url that begins with \"www.\" or \"http://\""; 
+		}
+		
+		Thread t = new Thread(new ClematisSession(newUrl, session));
+		t.start();
+
+		return "session started";
+	}
+	
+	public String processInput (ServletInputStream in) throws IOException{
+		StringWriter writer = new StringWriter();
+		IOUtils.copy(in, writer, "UTF-8");
+		String theString = writer.toString();
+		return theString;
+	}
+	
+	public String splitURL(ServletInputStream in) throws IOException{
+		
+		String input = processInput(in);
+		
+		System.out.println("INPUT: " + input );
+		String[] parts = input.split("\":\"");
+		String[] urlsplit = parts[1].split("\"");
+		System.out.println(urlsplit[0]);
+		String newUrl = urlsplit[0];
+		
+		return newUrl;
 	}
 
 }

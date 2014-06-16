@@ -1,6 +1,7 @@
 package com.clematis.jsmodify;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.mozilla.javascript.CompilerEnvirons;
 import org.mozilla.javascript.Parser;
@@ -169,7 +170,8 @@ public abstract class JSASTModifier implements NodeVisitor {
 	 * @param node
 	 *            The AST root node.
 	 */
-	public abstract AstRoot finish(AstRoot node);
+	//public abstract AstRoot finish(AstRoot node);
+	public abstract AstRoot finish(AstRoot node, String param1, List<String> param2);
 
 	/**
 	 * This method is called before the AST is going to be traversed.
