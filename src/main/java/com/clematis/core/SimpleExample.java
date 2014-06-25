@@ -45,12 +45,12 @@ public class SimpleExample {
 	public void begin(String args){
 		try{
 			//FILESYSTEM
-			//outputFolder = Helper.addFolderSlashIfNeeded("clematis-output");
+			outputFolder = Helper.addFolderSlashIfNeeded("clematis-output");
 			//FILESYSTEM
 			//JSExecutionTracer tracer = new JSExecutionTracer("function.trace");
 			JSExecutionTracer tracer = new JSExecutionTracer();
 
-			//tracer.setOutputFolder(outputFolder + "ftrace");
+			tracer.setOutputFolder(outputFolder + "ftrace");
 	
 			//config.addPlugin(tracer);
 			tracer.preCrawling();

@@ -52,8 +52,15 @@ public class MongoInterface{
 		    		   System.out.println(a);
 		       }*/
 		       
+		       Object last;
 		       //last element in array
-		       Object last = numSessions.get(numSessions.size()-1);
+		       if(numSessions.size() < 1){
+		    	   last = 0.0;
+		       }
+		       else {
+		    	   last = numSessions.get(numSessions.size()-1);
+		    	   
+		       }
 		       Double lastElem = (Double) last;
 		       
 		       sessionNumber = lastElem + 1;
@@ -77,10 +84,25 @@ public class MongoInterface{
 		     
 		   }
 		} finally{
-		   cursor.close();
+		   cursor.close(); 
 		   
 		}
 		return sessionNumber;
+		
+	}
+	
+	public static void checkUser(String userName){
+		DBCollection coll = db.getCollection("users");
+		BasicDBObject query = new BasicDBObject("userName", userName);
+		DBCursor cursor = coll.find(query);
+		
+		if (!cursor.hasNext()){
+			System.out.println("new user");
+			//CHANGE HARD CODED PASSWORD - MONGO REALM
+			BasicDBList sessionArray = new BasicDBList(); 
+			BasicDBObject doc = new BasicDBObject("userName", userName).append("password", "password").append("sessionIDs", sessionArray);
+        	MongoInterface.db.getCollection("users").insert(doc);
+		}
 		
 	}
 	
@@ -95,7 +117,7 @@ public class MongoInterface{
 			   if(cursor.hasNext()) {
 				   DBObject storyObject = cursor.next();
 				   String storyString = (String) storyObject.get("story");
-				   //System.out.println("STORY "+ storyObject);
+				   //System.out.println("STORY "+ storyObject); 
 				   return storyString;
 			   }
 			   
@@ -107,6 +129,7 @@ public class MongoInterface{
 	}
 	
 	public static Double getLastSessionNumber(String userName){
+		
 		DBCollection coll = db.getCollection("users");
 		BasicDBObject query = new BasicDBObject("userName", userName);
 		DBCursor cursor = coll.find(query);

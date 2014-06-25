@@ -180,7 +180,7 @@ public class JSExecutionTracer {
             if(!MongoInterface.checkNumDocumentExistsForSession(userName, "story")){
             	String JSONstring = mapper.writeValueAsString(story); 
             	BasicDBObject doc = new BasicDBObject("userName", userName).append("sessionNumber", sessionNum).append("story", JSONstring);
-            	MongoInterface.db.getCollection("story").insert(doc);
+            	MongoInterface.db.getCollection("story").insert(doc); 
             }
             
         } catch (JsonGenerationException e) {

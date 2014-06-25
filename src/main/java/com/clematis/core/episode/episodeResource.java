@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,6 +29,14 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.LockedAccountException;
+import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.Subject;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -61,6 +70,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -95,9 +109,23 @@ public class episodeResource {
 	public String intialize(String fileName) {
 		int i;
 		
-		String userName = "firstUser";
+		Subject currentUser = SecurityUtils.getSubject();
+		String userName = (String) currentUser.getPrincipal();
+		
+		 // let's login the current user so we can check against roles and permissions:
+        if (!currentUser.isAuthenticated()) {
+        	System.out.println("Initialize: user not authenticated");
+        	userName = "firstUser";
+        }
+        else{
+        	System.out.println("Initialize: user authenticated - " + userName);
+        }
+		
+		
+		
 		//get LAST session FOR NOW	
 		Double sessionNum = MongoInterface.getLastSessionNumber(userName);
+		//System.out.println("Session Num Initialize: " + sessionNum);
 	    
 		configureObjectMapper();
 		try {
@@ -601,7 +629,9 @@ public class episodeResource {
 		String temp = fileName.replace("story", "allEpisodes");
 		String temp2 = temp.concat(".js");
 		
-		String userName = "firstUser";
+		//String userName = "firstUser";
+		Subject currentUser = SecurityUtils.getSubject();
+		String userName = (String) currentUser.getPrincipal();
 		
 		//try {
 			//output = new Scanner(new File("clematis-output/ftrace/sequence_diagrams/" + temp2)).useDelimiter("\\Z").next();
@@ -614,18 +644,24 @@ public class episodeResource {
 			
 	}
 
-	@POST
-	@Path("/userlogin")
-	@Produces(MediaType.APPLICATION_JSON)
-	public String userLogin(@Context HttpServletRequest request) throws IOException{
-		System.out.println(processInput(request.getInputStream()));
-		return "login";
-	}
 	
 	@POST
 	@Path("/startSessionPOST")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String startNewSessionPOST(@Context HttpServletRequest request) throws IOException{
+		//USER LOGGED IN? 
+		Subject currentUser = SecurityUtils.getSubject();
+		String user = (String) currentUser.getPrincipal();
+		
+		 // let's login the current user so we can check against roles and permissions:
+        if (!currentUser.isAuthenticated()) {
+           System.out.println( "current user not authenticated - guest user");
+           user = "firstUser";
+        }
+        else{
+        	System.out.println("USER:" + user);
+        	MongoInterface.checkUser(user);
+        }
 		
 		ServletInputStream in = request.getInputStream();
 		String newUrl = splitURL(in);
@@ -634,16 +670,17 @@ public class episodeResource {
 		System.out.println("ip:" + ip);
 		
 		//get user info
-		HttpSession userSession = request.getSession();
-		userSession.setAttribute("userName", "firstUser");
+		/*HttpSession userSession = request.getSession();
+		userSession.setAttribute("userName", user);
 		String userName = (String) userSession.getAttribute("userName");
-		System.out.println("User Name: " + userName );
+		System.out.println("User Name: " + userName );*/
 		
-		
-		Double sessionNum = MongoInterface.newSessionDocument(userName);
-		
-		SimpleExample session = new SimpleExample(ip, userName, sessionNum);
-		
+		//Double sessionNum = MongoInterface.newSessionDocument(userName);
+		Double sessionNum = MongoInterface.newSessionDocument(user);
+
+		//SimpleExample session = new SimpleExample(ip, userName, sessionNum);
+		SimpleExample session = new SimpleExample(ip, user, sessionNum);
+
 		try{
 			session.checkURL(newUrl);
 		} catch (IllegalArgumentException e){
@@ -653,7 +690,7 @@ public class episodeResource {
 		Thread t = new Thread(new ClematisSession(newUrl, session));
 		t.start();
 
-		return "session started";
+		return "session started"; 
 	}
 	
 	public String processInput (ServletInputStream in) throws IOException{

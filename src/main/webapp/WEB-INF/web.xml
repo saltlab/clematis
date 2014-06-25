@@ -4,33 +4,54 @@
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
      version="2.4">
-	<display-name>EmployeeDirectory</display-name>
-<servlet>
-	<servlet-name>jersey-serlvet</servlet-name>
-	<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
 	
-	<init-param>
-		<param-name>com.sun.jersey.config.property.packages</param-name>
-		<param-value>com.clematis.core.episode</param-value>
-	</init-param>
+	<listener>
+        <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
+    </listener>
 
-	<init-param>
-		<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
-		<param-value>true</param-value>
-	</init-param>
+    <filter>
+        <filter-name>ShiroFilter</filter-name>
+        <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
+    </filter>
+    
+
+    <filter-mapping>
+        <filter-name>ShiroFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
 	
-	<init-param>
-            <param-name>javax.ws.rs.Application</param-name>
-            <param-value>com.clematis.core.ClematisApplication</param-value>
-    </init-param>
+	<servlet>
+		<servlet-name>jersey-serlvet</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		
+		<init-param>
+			<param-name>com.sun.jersey.config.property.packages</param-name>
+			<param-value>com.clematis.core.episode</param-value>
+		</init-param>
 	
-	
-	<load-on-startup>1</load-on-startup>
- </servlet>
+		<init-param>
+			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		
+		<init-param>
+	            <param-name>javax.ws.rs.Application</param-name>
+	            <param-value>com.clematis.core.ClematisApplication</param-value>
+	    </init-param>
+		
+		
+		<load-on-startup>1</load-on-startup>
+ 	</servlet>
  
-  <servlet-mapping>
-	<servlet-name>jersey-serlvet</servlet-name>
-	<url-pattern>/rest/*</url-pattern>
-  </servlet-mapping>
+  	<servlet-mapping>
+		<servlet-name>jersey-serlvet</servlet-name>
+		<url-pattern>/rest/*</url-pattern>
+  	</servlet-mapping>
+  
+	
 
 </web-app>
