@@ -3,6 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.clematis</groupId>
 	<artifactId>clematis</artifactId>
+	<packaging>jar</packaging>
 	<version>0.1-SNAPSHOT</version>
 	<name>Clematis</name>
 	<description>Monitoring, logging, and understanding JavaScript events.</description>
@@ -30,6 +31,9 @@
 		<dep.jetty>7.6.2.v20120308</dep.jetty>
 
 		<dep.jackson>2.0.0</dep.jackson>
+		
+		<jdk.version>1.6</jdk.version>
+
 	</properties>
 
 	<developers>
@@ -257,12 +261,19 @@
 		  <version>1.2.3</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>jstl</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+		
 		<!-- Google Gson -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>1.7.1</version>
-		</dependency>				
+		</dependency>	
+			
 
 	</dependencies>
 
@@ -286,6 +297,16 @@
 
 				</plugin>
 				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.3.2</version>
+					<configuration>
+						<source>${jdk.version}</source>
+						<target>${jdk.version}</target>
+					</configuration>
+				  </plugin>
+				 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
@@ -351,9 +372,20 @@
 				    <keyalg>RSA</keyalg>
 				  </configuration>
 				</plugin>
-				
-				
-				
+			
+				<plugin>
+			      <artifactId>maven-assembly-plugin</artifactId>
+			      <configuration>
+			        <archive>
+			          <manifest>
+			            <mainClass>com.clematis.core.ClematisApplication</mainClass>
+			          </manifest>
+			        </archive>
+			        <descriptorRefs>
+			          <descriptorRef>jar-with-dependencies</descriptorRef>
+			        </descriptorRefs>
+			      </configuration>
+			    </plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
@@ -367,5 +399,7 @@
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
 		</repository>
+		
+
 	</repositories>
 </project>

@@ -1,7 +1,7 @@
 <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<jsp:include page="include.jsp"/>
+<jsp:include page="/webservice/include.jsp"/>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -40,17 +40,12 @@
           <ul class="nav navbar-nav">
             <li class="active"><a href="#" class="scroll-link" data-id="newSession">New Session</a></li>
             <li><a href="#" class="scroll-link" data-id="about">About</a></li>
-            <li><a href="#" class="scroll-link" data-id="trace">View Trace</a></li>
+            <shiro:guest><li><a href="http://localhost:8080/fish-eye-zoom/view.html?sessionID=1">View Trace</a></li></shiro:guest>
            <shiro:user> <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Account <b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li><a href="#">Action</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
+                <li><a href="/webservice/account.jsp">View Sessions</a></li>
+                <li><a href="#">Edit Account</a></li>              
               </ul>
             </li>
             </shiro:user>
@@ -94,31 +89,26 @@
           </div>
 
     </div>
-    
-    <shiro:authenticated><p>Visit your <a href="<c:url value="/webservice/account.jsp"/>">account page</a>.</p></shiro:authenticated>
-    
+        
     <shiro:guest>
     <div class = "container">
-    <div class = "main" id = "login">
+    <div class = "main">
       <!-- Main component for a primary marketing message or call to action -->
-        
-       
 
 	     <div class="container">
 			  <div class="row">
 			
 			    <div class="main-login">
 			
-			      <h3>Please Log In, or <a href="#">Sign Up</a></h3>
+			      <h3>Please Log In, or <a href="#" data-toggle="modal" data-target="#signup">Sign Up</a></h3>
 			      
 			      <div class="login-or">
 			        <hr class="hr-or">
 			        <span class="span-or"></span>
 			      </div>
 			
-			     <!--  form name="ajaxform" id="ajaxform" action="http://localhost:8080/rest/clematis-api/userlogin/" method="POST">-->
 			      <form name="loginform" action="" method="POST" accept-charset="UTF-8" role="form">
-			        <div class="form-group">
+			        <div class="form-group" id = "login">
 			          <label for="inputUsernameEmail">Username or email</label>
 			          <!--  input type="text" class="form-control" id="inputUsernameEmail"-->
 			          <input type="text" class="form-control" name="username" value ="">
@@ -130,7 +120,7 @@
 			        </div>
 			        <div class="checkbox pull-right">
 			          <label>
-			             <input name="rememberMe" type="checkbox" value="true"> Remember Me
+			             <input name="rememberMe" type="checkbox" value="true">
 			            Remember me </label>
 			        </div>
 			        <button type="submit" class="btn btn btn-primary">
@@ -138,11 +128,6 @@
 			        </button>
 			      </form>
 			      
-    
-			      <div class = "row">
-            	
-				      <p id="loginsuccess"></p>
-            </div>
 			    
 			    </div>
 			    
@@ -154,6 +139,40 @@
 		  <!-- /div-->
     </div>
     </div> <!-- /container -->
+
+<!-- Modal -->
+<div class="modal fade" id="signup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">Sign Up</h4>
+      </div>
+      <div class="modal-body">
+				<div class="container">
+				    <div class="row">
+				        <div class="col-sm-12">
+				        <div class="signup-form">
+				            <input class="form-control" name="username" placeholder="Username or Email" type="email" />
+				        </div>
+				        <div class="signup-form">
+				            <input class="form-control" name="password" placeholder="New Password" type="email" />
+				        </div>
+				        <div class="signup-form">
+				            <input class="form-control" name="reenterpassword" placeholder="Re-Enter Password" type="password" /> 
+				        </div>  
+				        </div>
+				    </div>
+				</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" type="submit" id="newUser">Sign Up</button>
+      </div>
+  
+    </div>
+  </div>
+</div>
     
    </shiro:guest>
 
@@ -196,6 +215,7 @@
     
     <script>
     document.getElementById("Start").onclick = function(){startClematisSession()};
+    document.getElementById("newUser").onclick = function(){userSignUp()};
     //document.getElementById("LoginButton").onclick = function(){userLogin()};
     
     function startClematisSession(){

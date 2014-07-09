@@ -46,13 +46,25 @@ var seconds = new Array;
 var formattedTime = new Array;
 var url = 'http://localhost:8080/rest/clematis-api/story/episodes/';
 
+
+$.ajax({
+	 type: 'GET',
+	 url: 'http://localhost:8080/rest/clematis-api/test/' + sessionID ,
+	 dataType: "json",
+	 async: false,
+	 success: function hi(data){
+}
+});
+
 $.ajax({
     type: 'GET',
-    url: url,
+    url: url + sessionID + '/test',
     dataType: "json",
     async: false,
     success: renderList
 });
+
+
 
 function renderList(data) {
     number_episodes = data.length;
@@ -98,7 +110,7 @@ for (var i = 0; i < number_episodes; i++) {
 
     $.ajax({
         type: 'GET',
-        url: 'http://localhost:8080/rest/clematis-api/story/episodes/' + i,
+        url: 'http://localhost:8080/rest/clematis-api/story/'+ sessionID +'/episodes/' + i,
         dataType: "json",
         async: false,
         success: function show1(data) {
@@ -110,7 +122,7 @@ for (var i = 0; i < number_episodes; i++) {
 
     $.ajax({
         type: 'GET',
-        url: 'http://localhost:8080/rest/clematis-api/story/episodes/' + i + '/source',
+        url: 'http://localhost:8080/rest/clematis-api/story/'+ sessionID +'/episodes/' + i + '/source',
         dataType: "json",
         async: false,
         success: function show1(data) {
@@ -543,7 +555,7 @@ for (var i = 0, n = cells.length; i < n; i++) {
                 currentEpisode = i;
 
                 //Get the source for  zoom level 1, specifically we want to get the eventType and eventHandler from the the source
-                var url = 'http://localhost:8080/rest/clematis-api/story/episodes/' + i + '/trace';
+                var url = 'http://localhost:8080/rest/clematis-api/story/'+ sessionID +'/episodes/' + i + '/trace';
                 var tempDiv_source = document.createElement("div");
                 var tbl_source = document.createElement("table");
                 var tblBody_source = document.createElement("tbody");
@@ -668,7 +680,7 @@ for (var i = 0, n = cells.length; i < n; i++) {
                 cell3SZ[i].appendChild(tempDiv_mutation);
 
                 //Get the trace for  zoom level 1.
-                var url3 = 'http://localhost:8080/rest/clematis-api/story/episodes/' + i + '/trace';
+                var url3 = 'http://localhost:8080/rest/clematis-api/story/'+ sessionID +'/episodes/' + i + '/trace';
                 var trace = new Array;
                 var tempDiv = document.createElement("div");
                 var myBr = document.createElement('br');
@@ -856,7 +868,7 @@ function nextPreviousEpisode(i) {
 
     anchor4.text = "Episode  " + i;
     anchor3.text = "Trace of Episode " + i;
-    var url = 'http://localhost:8080/rest/clematis-api/story/episodes/' + i + '/source';
+    var url = 'http://localhost:8080/rest/clematis-api/story/'+ sessionID +'/episodes/' + i + '/source';
     var eventType;
 
     $.ajax({
@@ -872,7 +884,7 @@ function nextPreviousEpisode(i) {
     }
     tabs1.appendChild(first_column);
     //get the DOM of a speceifc episode
-    var url2 = 'http://localhost:8080/rest/clematis-api/story/episodes/' + i;
+    var url2 = 'http://localhost:8080/rest/clematis-api/story/'+ sessionID +'/episodes/' + i;
     var dom;
     $.ajax({
         type: 'GET',
@@ -888,7 +900,7 @@ function nextPreviousEpisode(i) {
     tabs2.appendChild(third_column);
 
     //get the trace of a specefic episode
-    var url3 = 'http://localhost:8080/rest/clematis-api/story/episodes/' + i + '/trace';
+    var url3 = 'http://localhost:8080/rest/clematis-api/story/'+ sessionID +'/episodes/' + i + '/trace';
     var trace = new Array;
     var tempDiv = document.createElement("div");
     var myBr = document.createElement('br');
@@ -1039,7 +1051,7 @@ function renderListLinks(data) {
 
 //Draw causal Links, first made a call to the REST api, then used a library called jsPlumb to draw lines between the episodes.
 jsPlumb.bind("ready", function () {
-    var url = 'http://localhost:8080/rest/clematis-api/story/story/causalLinks';
+    var url = 'http://localhost:8080/rest/clematis-api/story/'+ sessionID +'/story/causalLinks';
     var links = new Array;
 
     $.ajax({

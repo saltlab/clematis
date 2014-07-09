@@ -105,11 +105,60 @@ public class episodeResource {
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
 	}
+	
+	public String userLoggedIn(){
+		Subject currentUser = SecurityUtils.getSubject();
+		String userName = (String) currentUser.getPrincipal();
+		
+		 // let's login the current user so we can check against roles and permissions:
+        if (!currentUser.isAuthenticated()) {
+        	//System.out.println("Initialize: user not authenticated");
+        	userName = "guest";
+        }      
+        else{
+        	//System.out.println("Initialize: user authenticated - " + userName);
+        }
+        return userName;
+	}
+	
 	//TODO TODO TODO
-	public String intialize(String fileName) {
+	public String intialize(Double sessionNum) {
 		int i;
 		
-		Subject currentUser = SecurityUtils.getSubject();
+		String userName = userLoggedIn();
+		
+		if(userName =="guest"){
+        	sessionNum = MongoInterface.getLastSessionNumber(userName);
+        }
+		
+		System.out.println("Initialize: session number " + sessionNum);
+  
+		configureObjectMapper();
+		try {					
+			this.s1 = mapper.readValue( MongoInterface.getStoryAsString(userName, sessionNum), Story.class);
+		} catch (JsonParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		for (i = 0; i < s1.getEpisodes().size(); i++) {
+			episodeMap.put(Integer.toString(i), s1.getEpisodes().get(i));
+		}
+
+		return "successfully intialized story";
+
+	}
+	
+	public String unusedIntialize() {
+		int i;
+		
+		/*Subject currentUser = SecurityUtils.getSubject();
 		String userName = (String) currentUser.getPrincipal();
 		
 		 // let's login the current user so we can check against roles and permissions:
@@ -119,9 +168,10 @@ public class episodeResource {
         }
         else{
         	System.out.println("Initialize: user authenticated - " + userName);
-        }
+        }*/
 		
 		
+		String userName = userLoggedIn();
 		
 		//get LAST session FOR NOW	
 		Double sessionNum = MongoInterface.getLastSessionNumber(userName);
@@ -166,6 +216,7 @@ public class episodeResource {
 
 	}
 	
+	//rest/clematis-api/allEpisodes/story/sequenceDiagram2
 	@GET
 	@Path("/capturedStories")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -191,25 +242,33 @@ public class episodeResource {
 	@Path("{fileName}/episodes/howmany")
 	@Produces(MediaType.APPLICATION_JSON)
 	public int NumberOfEpisodes(@PathParam("fileName") String fileName) {
-		intialize(fileName);
+		unusedIntialize();
 		return this.s1.getEpisodes().size();
 	}
 
+	//CHANGED URL --- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	@GET
-	@Path("{fileName}/episodes")
+	@Path("{fileName}/episodes/{sessionID}/test")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Episode> getEpisodes(@PathParam("fileName") String fileName) {
-	    	    
-		intialize(fileName);
+	public List<Episode> getEpisodes(@PathParam("fileName") String fileName, @PathParam("sessionID") Double sessionID) {
+		System.out.println("REST API session ID :" + sessionID);
+		intialize(sessionID);
 		return this.s1.getEpisodes();
-
+	}
+	
+	@GET
+	@Path("/test/{sessionID}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String test(@PathParam("sessionID") String sessionID){
+		System.out.println("TEST session ID : " + sessionID);
+		return "sure";
 	}
 
 	@GET
 	@Path("{fileName}/episodes/bookmarked")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Integer> getBookmarks(@PathParam("fileName") String fileName) {
-		intialize(fileName);
+		unusedIntialize();
 		List<Integer> b1 = new ArrayList<Integer>();
 		for (int i = 0; i < this.s1.getEpisodes().size(); i++) {
 			if (this.s1.getEpisodes().get(i).getIsBookmarked() == true) {
@@ -224,7 +283,7 @@ public class episodeResource {
 	@Path("{fileName}/episodes/pretty")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getEpisodesPretty(@PathParam("fileName") String fileName) {
-		intialize(fileName);
+		unusedIntialize();
 		try {
 			return mapper.writeValueAsString(this.s1.getEpisodes());
 		} catch (JsonProcessingException e) {
@@ -235,19 +294,19 @@ public class episodeResource {
 	}
 
 	@GET
-	@Path("{fileName}/episodes/{id}")
+	@Path("{fileName}/{sessionID}/episodes/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Episode getEpisode(@PathParam("fileName") String fileName, @PathParam("id") String id) {
-		intialize(fileName);
+	public Episode getEpisode(@PathParam("fileName") String fileName, @PathParam("id") String id, @PathParam("sessionID") Double sessionID) {
+		intialize(sessionID);
 		return episodeMap.get(id);
 	}
 
 	@GET
-	@Path("{fileName}/episodes/{id}/DOM")
+	@Path("{fileName}/{sessionID}/episodes/{id}/DOM")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getEpisodeDom(@PathParam("fileName") String fileName, @PathParam("id") String id)
+	public String getEpisodeDom(@PathParam("fileName") String fileName, @PathParam("id") String id, @PathParam("sessionID") Double sessionID)
 	{
-		intialize(fileName);
+		intialize(sessionID);
 
 		if (episodeMap.get(id).getDom() == null) {
 			return "DOM is NULL!";
@@ -258,20 +317,20 @@ public class episodeResource {
 	}
 
 	@GET
-	@Path("{fileName}/episodes/{id}/source")
+	@Path("{fileName}/{sessionID}/episodes/{id}/source")
 	@Produces(MediaType.APPLICATION_JSON)
 	public TraceObject getEpisodeSource(@PathParam("fileName") String fileName,
-			@PathParam("id") String id) {
-		intialize(fileName);
+			@PathParam("id") String id, @PathParam("sessionID") Double sessionID) {
+		intialize(sessionID);
 		return episodeMap.get(id).getSource();
 	}
 
 	@GET
-	@Path("{fileName}/episodes/{id}/trace")
+	@Path("{fileName}/{sessionID}/episodes/{id}/trace")
 	@Produces(MediaType.APPLICATION_JSON)
 	public EpisodeTrace getEpisodeTrace(@PathParam("fileName") String fileName,
-			@PathParam("id") String id) {
-		intialize(fileName);
+			@PathParam("id") String id, @PathParam("sessionID") Double sessionID) {
+		intialize(sessionID);
 		
 		return episodeMap.get(id).getTrace();
 	}
@@ -281,7 +340,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<FunctionTrace> getFunctionTrace(@PathParam("fileName") String fileName,
 			@PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<FunctionTrace> functionTraces = new ArrayList<FunctionTrace>();
 
 		for (TraceObject to : episodeMap.get(id).getTrace().getTrace()) {
@@ -297,7 +356,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<DOMMutationTrace> getDOMMutationTrace(@PathParam("fileName") String fileName,
 			@PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<DOMMutationTrace> DOMMutationTraces = new ArrayList<DOMMutationTrace>();
 
 		for (TraceObject to : episodeMap.get(id).getTrace().getTrace()) {
@@ -313,7 +372,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<DOMElementValueTrace> getDOMElementValueTrace(
 			@PathParam("fileName") String fileName, @PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<DOMElementValueTrace> DOMElementValueTraces = new ArrayList<DOMElementValueTrace>();
 
 		for (TraceObject to : episodeMap.get(id).getTrace().getTrace()) {
@@ -329,7 +388,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<XMLHttpRequestTrace> getXMLHttpRequestTrace(
 			@PathParam("fileName") String fileName, @PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<XMLHttpRequestTrace> XMLHttpRequestTraces = new ArrayList<XMLHttpRequestTrace>();
 
 		for (TraceObject to : episodeMap.get(id).getTrace().getTrace()) {
@@ -345,7 +404,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<TimingTrace> getTimingTrace(@PathParam("fileName") String fileName,
 			@PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<TimingTrace> TimingTraces = new ArrayList<TimingTrace>();
 
 		for (TraceObject to : episodeMap.get(id).getTrace().getTrace()) {
@@ -361,7 +420,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<DOMEventTrace> getDOMEventTrace(@PathParam("fileName") String fileName,
 			@PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<DOMEventTrace> DOMEventTraces = new ArrayList<DOMEventTrace>();
 
 		for (TraceObject to : episodeMap.get(id).getTrace().getTrace()) {
@@ -380,7 +439,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<FunctionCall> getFunctionCall(@PathParam("fileName") String fileName,
 			@PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<FunctionCall> FunctionCalls = new ArrayList<FunctionCall>();
 
 		for (TraceObject to : getFunctionTrace(fileName, id)) {
@@ -396,7 +455,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<FunctionEnter> getFunctionEnter(@PathParam("fileName") String fileName,
 			@PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<FunctionEnter> FunctionEnters = new ArrayList<FunctionEnter>();
 
 		for (TraceObject to : getFunctionTrace(fileName, id)) {
@@ -412,7 +471,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<FunctionExit> getFunctionExit(@PathParam("fileName") String fileName,
 			@PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<FunctionExit> FunctionExits = new ArrayList<FunctionExit>();
 
 		for (TraceObject to : getFunctionTrace(fileName, id)) {
@@ -428,7 +487,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<FunctionReturnStatement> getFunctionReturnStatement(
 			@PathParam("fileName") String fileName, @PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<FunctionReturnStatement> FunctionReturnStatements =
 				new ArrayList<FunctionReturnStatement>();
 
@@ -449,7 +508,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<TimeoutCallback> getTimeoutCallback(@PathParam("fileName") String fileName,
 			@PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<TimeoutCallback> TimeoutCallbacks = new ArrayList<TimeoutCallback>();
 
 		for (TraceObject to : getTimingTrace(fileName, id)) {
@@ -465,7 +524,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<TimeoutSet> getTimeoutSet(@PathParam("fileName") String fileName,
 			@PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<TimeoutSet> TimeoutSets = new ArrayList<TimeoutSet>();
 
 		for (TraceObject to : getTimingTrace(fileName, id)) {
@@ -485,7 +544,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<XMLHttpRequestOpen> getXMLHttpRequestOpen(@PathParam("fileName") String fileName,
 			@PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<XMLHttpRequestOpen> XMLHttpRequestOpens = new ArrayList<XMLHttpRequestOpen>();
 
 		for (TraceObject to : getXMLHttpRequestTrace(fileName, id)) {
@@ -501,7 +560,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<XMLHttpRequestResponse> getXMLHttpRequestResponse(
 			@PathParam("fileName") String fileName, @PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<XMLHttpRequestResponse> XMLHttpRequestResponses =
 				new ArrayList<XMLHttpRequestResponse>();
 
@@ -518,7 +577,7 @@ public class episodeResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<XMLHttpRequestSend> getXMLHttpRequestSend(@PathParam("fileName") String fileName,
 			@PathParam("id") String id) {
-		intialize(fileName);
+		unusedIntialize();
 		List<XMLHttpRequestSend> XMLHttpRequestSends = new ArrayList<XMLHttpRequestSend>();
 
 		for (TraceObject to : getXMLHttpRequestTrace(fileName, id)) {
@@ -535,7 +594,7 @@ public class episodeResource {
 	@Path("{fileName}/story/timingTraces")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<TraceObject> getTimingTraces(@PathParam("fileName") String fileName) {
-		intialize(fileName);
+		unusedIntialize();
 		return this.s1.getTimingTraces();
 	}
 
@@ -543,7 +602,7 @@ public class episodeResource {
 	@Path("{fileName}/story/domEventTraces")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<TraceObject> getDomEventTraces(@PathParam("fileName") String fileName) {
-		intialize(fileName);
+		unusedIntialize();
 		return this.s1.getDomEventTraces();
 	}
 
@@ -551,7 +610,7 @@ public class episodeResource {
 	@Path("{fileName}/story/XHRTraces")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<TraceObject> getXHRTraces(@PathParam("fileName") String fileName) {
-		intialize(fileName);
+		unusedIntialize();
 		return this.s1.getXhrTraces();
 	}
 
@@ -559,17 +618,17 @@ public class episodeResource {
 	@Path("{fileName}/story/functionTraces")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<TraceObject> getFunctionTraces(@PathParam("fileName") String fileName) {
-		intialize(fileName);
+		unusedIntialize();
 		return this.s1.getFunctionTraces();
 	}
 
 	// need to find which episodes have timeouts, then need to find corresponding callbacks
 	@GET
-	@Path("{fileName}/story/causalLinks")
+	@Path("{fileName}/{sessionID}/story/causalLinks")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<causalLinks> episodesContainTimeouts(@PathParam("fileName") String fileName) {
+	public List<causalLinks> episodesContainTimeouts(@PathParam("fileName") String fileName, @PathParam("sessionID") Double sessionID) {
 
-		intialize(fileName);
+		intialize(sessionID);
 		List<causalLinks> causalLinkss = new ArrayList<causalLinks>();
 		boolean foundFlag = false;
 		
@@ -622,20 +681,26 @@ public class episodeResource {
 
 
 	@GET
-	@Path("{fileName}/story/sequenceDiagram2")
+	@Path("{fileName}/{sessionID}/story/sequenceDiagram2/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getsequenceDiagram2(@PathParam("fileName") String fileName) {
+	public String getsequenceDiagram2(@PathParam("fileName") String fileName,@PathParam("sessionID") Double sessionID) {
 		String output = null;
 		String temp = fileName.replace("story", "allEpisodes");
-		String temp2 = temp.concat(".js");
+		String temp2 = temp.concat(".js");	
 		
 		//String userName = "firstUser";
 		Subject currentUser = SecurityUtils.getSubject();
 		String userName = (String) currentUser.getPrincipal();
 		
+		if(userName =="guest"){
+        	sessionID = MongoInterface.getLastSessionNumber(userName);
+        }
+		
+		System.out.println("REST SESSION ID : " + sessionID);
+		
 		//try {
 			//output = new Scanner(new File("clematis-output/ftrace/sequence_diagrams/" + temp2)).useDelimiter("\\Z").next();
-			output = MongoInterface.getAllEpisodesAsString(userName, MongoInterface.getLastSessionNumber(userName));
+			output = MongoInterface.getAllEpisodesAsString(userName, sessionID);
 		//} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
@@ -644,6 +709,29 @@ public class episodeResource {
 			
 	}
 
+	//ACCOUNT PAGE INFORMATION
+	@GET
+	@Path("/sessions")
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<List<String>> getSessions() {
+		System.out.println("Getting session info");
+		String userName = userLoggedIn();
+		List<List<String>> sessionList = new ArrayList<List<String>>();
+		//create a json array of all the sessions, their information, and a preview of the session
+		Double lastSess = MongoInterface.getLastSessionNumber(userName);
+		System.out.println("last session: " + lastSess);
+		
+		for(Double i = 1.0; i <= lastSess; i+=1){
+			//add image preview here
+			
+			sessionList.add(MongoInterface.getSessInfo(userName, i));
+		}
+		
+		return sessionList;
+
+	}
+	
+	
 	
 	@POST
 	@Path("/startSessionPOST")
@@ -652,11 +740,16 @@ public class episodeResource {
 		//USER LOGGED IN? 
 		Subject currentUser = SecurityUtils.getSubject();
 		String user = (String) currentUser.getPrincipal();
+		System.out.println("start session");
 		
 		 // let's login the current user so we can check against roles and permissions:
         if (!currentUser.isAuthenticated()) {
            System.out.println( "current user not authenticated - guest user");
-           user = "firstUser";
+           user = "guest";
+           UsernamePasswordToken token = new UsernamePasswordToken(user, "guest");
+           //this is all you have to do to support 'remember me' (no config - built in!):
+           token.setRememberMe(true);
+           currentUser.login(token);
         }
         else{
         	System.out.println("USER:" + user);
@@ -676,7 +769,7 @@ public class episodeResource {
 		System.out.println("User Name: " + userName );*/
 		
 		//Double sessionNum = MongoInterface.newSessionDocument(userName);
-		Double sessionNum = MongoInterface.newSessionDocument(user);
+		Double sessionNum = MongoInterface.newSessionDocument(user, newUrl);
 
 		//SimpleExample session = new SimpleExample(ip, userName, sessionNum);
 		SimpleExample session = new SimpleExample(ip, user, sessionNum);

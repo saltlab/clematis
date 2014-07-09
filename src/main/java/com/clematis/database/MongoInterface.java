@@ -1,6 +1,11 @@
 package com.clematis.database;
 
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import com.mongodb.BasicDBList;
@@ -31,7 +36,7 @@ public class MongoInterface{
 		}
 	}
 
-	public static Double newSessionDocument(String userName){
+	public static Double newSessionDocument(String userName, String URL){
 		
 		DBCollection coll = db.getCollection("users");
 		BasicDBObject query = new BasicDBObject("userName", userName);
@@ -81,7 +86,17 @@ public class MongoInterface{
 		       BasicDBObject set = new BasicDBObject("$set", carrier);
 		       carrier.put("sessionIDs", numSessions);     
 		       db.getCollection("users").update(query, set);
+		       
+		       //DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		       DateFormat dateFormat = new SimpleDateFormat("EEE, MMM d yyyy HH:mm:ss");
+		       Date date = new Date();
+		       //System.out.println(dateFormat.format(date));
+		       
+		       //create session information document
+		       BasicDBObject sessionInformation = new BasicDBObject("username", userName).append("sessionNumber", sessionNumber)
+		    		   .append("sessionName", "Session " + sessionNumber).append("Date",dateFormat.format(date)).append("URL", URL);
 		     
+		       db.getCollection("sessionInfo").insert(sessionInformation);
 		   }
 		} finally{
 		   cursor.close(); 
@@ -89,6 +104,33 @@ public class MongoInterface{
 		}
 		return sessionNumber;
 		
+	}
+	
+	public static List<String> getSessInfo(String username, Double sessionNumber){
+		DBCollection coll = db.getCollection("sessionInfo");
+		BasicDBObject query = new BasicDBObject("username", username).append("sessionNumber", sessionNumber);
+		DBCursor cursor = coll.find(query);
+				
+		try {
+			while(cursor.hasNext()) {
+			   DBObject sessionInfo = cursor.next();
+			   List<String> infoList = new ArrayList<String>();
+			   
+			   //System.out.println("session name " + sessionInfo.get("sessionName"));
+			   infoList.add((String) sessionInfo.get("sessionName"));
+			   //System.out.println(sessionInfo.get("Date"));
+			   infoList.add((String) sessionInfo.get("Date"));
+			   //System.out.println(sessionInfo.get("URL"));
+			   infoList.add((String) sessionInfo.get("URL"));
+			   
+			   return infoList;
+		   }
+			
+		}finally{
+			cursor.close();
+		}
+		
+		return null;
 	}
 	
 	public static void checkUser(String userName){

@@ -36,6 +36,7 @@
   <link rel="stylesheet" type="text/css" href="flatui/css/bootstrap.css">
   <!-- Flat UI -->
   <link rel="stylesheet" type="text/css" href="flatui/css/flat-ui.css">  
+  <link rel="stylesheet" type="text/css" href="CSS/css/test.css">
   <script type="text/javascript" src="flatui/javascripts/jquery.ui.touch-punch.min.js"></script>    
   <script type="text/javascript" src="flatui/javascripts/jquery.tagsinput.min.js"></script>
   <script type="text/javascript" src="flatui/javascripts/jquery.placeholder.js"></script>
@@ -44,9 +45,40 @@
   <script type="text/javascript" src="flatui/javascripts/bootstrap-select.js"></script>
   <script type="text/javascript" src="flatui/javascripts/bootstrap.min.js"></script>
 </head>
-<body >
+
+<body>
+
 
 <script type="text/javascript">
+	  //var sessionID = <?php echo json_encode($_GET["sessionID"]); ?>;
+	  function getUrlParameter(sParam)
+	  {
+	    var sPageURL = window.location.search.substring(1);
+	    var sURLVariables = sPageURL.split('&');
+	    for (var i = 0; i < sURLVariables.length; i++) 
+	    {
+	        var sParameterName = sURLVariables[i].split('=');
+	        if (sParameterName[0] == sParam) 
+	        {
+	            return sParameterName[1];
+	        }
+	    }
+    }
+    
+	  var sessionID = getUrlParameter('sessionID');
+	  $.ajax({
+	    type: 'GET',
+	    url: 'http://localhost:8080/rest/clematis-api/test/' + sessionID ,
+	    dataType: "text",
+	    async: false,
+	    success: function hi(data){
+	    }
+	  });
+</script>
+
+
+<script type="text/javascript">
+	
   var signalMutation=false;
   var signalMutation2=false;
   var signalActor=false;
@@ -85,7 +117,7 @@
   var result;
   $.ajax({
     type: 'GET',
-    url: 'http://localhost:8080/rest/clematis-api/allEpisodes/story/sequenceDiagram2' ,
+    url: 'http://localhost:8080/rest/clematis-api/allEpisodes/'+sessionID+'/story/sequenceDiagram2/' ,
     dataType: "text",
     async: false,
     success: function sequenceDiagram(data) {
@@ -309,5 +341,6 @@ function viewEventInformation(lifeline) {
 
 </script>
 <script type="text/javascript" src="javascripts/fisheyeZoom.js"></script>
+
 </body>
 </html>
