@@ -731,6 +731,19 @@ public class episodeResource {
 
 	}
 	
+	@POST
+	@Path("/account/create")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String createAccount(@Context HttpServletRequest request) throws IOException {
+		System.out.println("USER SIGN UP");
+		
+		ServletInputStream in = request.getInputStream();
+		List<String> userInfo = getUserInfo(in);
+		
+		MongoInterface.newUser(userInfo.get(0), userInfo.get(1));
+		
+		return "okay";
+	}
 	
 	
 	@POST
@@ -805,5 +818,26 @@ public class episodeResource {
 		
 		return newUrl;
 	}
+	
+	public List<String> getUserInfo(ServletInputStream in) throws IOException{
+		
+		String data = processInput(in);
+		System.out.println(data);
+		
+		String[] parts = data.split("&");
+		String[] user = parts[0].split("=");
+		String username = user[1];
+		String[] pass = parts[1].split("=");
+		String password = pass[1];
+		
+		System.out.println("username: " + username + " password: "  + pass[1]);
+		
+		List<String> userInfo = new ArrayList<String>();
+		userInfo.add(username);
+		userInfo.add(password);
+		
+		return userInfo;
+	}
 
 }
+

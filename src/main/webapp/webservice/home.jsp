@@ -148,28 +148,31 @@
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title" id="myModalLabel">Sign Up</h4>
       </div>
+      <form name="createAccount" id="createAccount" action="" method="POST">
       <div class="modal-body">
-				<div class="container">
-				    <div class="row">
-				        <div class="col-sm-12">
-				        <div class="signup-form">
-				            <input class="form-control" name="username" placeholder="Username or Email" type="email" />
-				        </div>
-				        <div class="signup-form">
-				            <input class="form-control" name="password" placeholder="New Password" type="email" />
-				        </div>
-				        <div class="signup-form">
-				            <input class="form-control" name="reenterpassword" placeholder="Re-Enter Password" type="password" /> 
-				        </div>  
-				        </div>
-				    </div>
-				</div>
+				
+					<div class="container">
+					    <div class="row">
+					        <div class="col-sm-12">
+					        <div class="signup-form">
+					            <input class="form-control" name="username" placeholder="Username or Email" type="email" id="username" />
+					        </div>
+					        <div class="signup-form">
+					            <input class="form-control" name="password" placeholder="New Password" type="password" id="password"/>
+					        </div>
+					        <div class="signup-form">
+					            <input class="form-control" name="reenterpassword" placeholder="Re-Enter Password" type="password" id="reenterpassword"/> 
+					        </div>  
+					        </div>
+					    </div>
+					</div>
+				<p id="signupsuccess"> </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary" type="submit" id="newUser">Sign Up</button>
       </div>
-  
+ 	 </form>
     </div>
   </div>
 </div>
@@ -214,8 +217,8 @@
 		</script>
     
     <script>
-    document.getElementById("Start").onclick = function(){startClematisSession()};
-    document.getElementById("newUser").onclick = function(){userSignUp()};
+    document.getElementById("Start").onclick = function(){startClematisSession();};
+    document.getElementById("newUser").onclick = function(){userSignUp();};
     //document.getElementById("LoginButton").onclick = function(){userLogin()};
     
     function startClematisSession(){
@@ -235,6 +238,30 @@
 		    }
 	    });
  
+    }
+    
+    
+    function userSignUp(){
+    	if (document.getElementById("password").value != document.getElementById("reenterpassword").value){
+    		document.getElementById("signupsuccess").innerHTML = "Passwords do not match!";
+    	}
+    	else{
+    		document.getElementById("signupsuccess").innerHTML = " ";
+	    	var signupData = $('#createAccount').serializeArray();
+	    	//var signupData = "hi";
+	    	$.ajax({
+	    		type: 'POST',
+	    		url: 'http://localhost:8080/rest/clematis-api/account/create/',
+	    		dataType: "text",
+	    		//data: JSON.stringify(signupData),
+	    		data:signupData,
+	    		contentType: "application/json",
+	 		    async: false,
+	 		    success: function successfulUserSignup(data) {
+	 		    	$('#signup').modal('hide');
+	 		    }
+	    	});
+    	}
     }
     
     //callback handler for form submit

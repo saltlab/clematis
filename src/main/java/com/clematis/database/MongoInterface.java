@@ -75,8 +75,8 @@ public class MongoInterface{
 		       
 		       
 		       //create new session document
-		       BasicDBObject sess = new BasicDBObject("userName", userName).append("sessionNumber", sessionNumber);
-		       db.getCollection("user").insert(sess); 
+		       //BasicDBObject sess = new BasicDBObject("userName", userName).append("sessionNumber", sessionNumber);
+		       //db.getCollection("user").insert(sess); 
 		       
 		       
 		       //add to the array in the user's document - user cursor
@@ -105,6 +105,15 @@ public class MongoInterface{
 		}
 		return sessionNumber;
 		
+	}
+	
+	public static void newUser(String userName, String password){
+		
+		DBCollection coll = db.getCollection("users");
+		Double[] array = new Double[0];
+		BasicDBObject user = new BasicDBObject("userName", userName).append("password", password).append("sessionIDs",array);
+	    db.getCollection("users").insert(user); 
+	    
 	}
 	
 	public static List<String> getSessInfo(String username, Double sessionNumber){
