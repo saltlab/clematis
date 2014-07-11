@@ -18,11 +18,13 @@ import org.apache.shiro.util.Factory;
 
 public class ClematisApplication extends Application {
 
-    private Set<Class<?>> classes=new HashSet<Class<?>>();
+   private Set<Class<?>> classes=new HashSet<Class<?>>();
    private Set<Object> singletons = new HashSet<Object>();
  
 	public ClematisApplication() {
-		MongoInterface mongo = new MongoInterface();
+		System.out.println("Clematis Application");
+		
+		//MongoInterface mongo = new MongoInterface();
 		singletons.add(new episodeResource());
 		
 	    Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");

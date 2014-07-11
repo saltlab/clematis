@@ -19,10 +19,11 @@ import com.mongodb.MongoClient;
 public class MongoInterface{
 	public static DB db;
 	public static Set<String> colls;
+	public static MongoClient mongoClient;
 	
 	public MongoInterface(){
 		try{
-			MongoClient mongoClient = new MongoClient( "localhost" , 27017 );
+			mongoClient = new MongoClient( "localhost" , 27017 );
 			db = mongoClient.getDB( "ClematisUsers" );
 			
 			colls = db.getCollectionNames();
