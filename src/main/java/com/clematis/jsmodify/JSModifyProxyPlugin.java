@@ -281,8 +281,10 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
         }
 
         if (request != null && request.getURL() != null) {
+        	/***
             System.out.println("Request URL:");
             System.out.println(request.getURL().toString());
+            ***/
         }
 
         if (request.getURL() == null) {

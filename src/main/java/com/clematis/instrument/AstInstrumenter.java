@@ -85,13 +85,14 @@ public abstract class AstInstrumenter extends JSASTModifier {
 
 	public ArrayList<String> getToolbarFiles() {
 		ArrayList<String> toolbarFiles = new ArrayList<String>();
-		toolbarFiles.add("/toolbar-clematis/jquery-1.9.1.js");
-		toolbarFiles.add("/toolbar-clematis/jquery-ui-1.10.2.custom.js");
-		toolbarFiles.add("/toolbar-clematis/jquery.tipsy.js");
-		toolbarFiles.add("/toolbar-clematis/css/jquery-ui-1.10.2.custom.css");
-		toolbarFiles.add("/toolbar-clematis/css/tipsy.css");
-		toolbarFiles.add("/toolbar-clematis/toolbar.js");
-		
+		/***
+		toolbarFiles.add("http://localhost:8080/toolbar-clematis/jquery-1.9.1.js");
+		toolbarFiles.add("http://localhost:8080/toolbar-clematis/jquery-ui-1.10.2.custom.js");
+		toolbarFiles.add("http://localhost:8080/toolbar-clematis/jquery.tipsy.js");
+		toolbarFiles.add("http://localhost:8080/toolbar-clematis/css/jquery-ui-1.10.2.custom.css");
+		toolbarFiles.add("http://localhost:8080/toolbar-clematis/css/tipsy.css");
+		toolbarFiles.add("http://localhost:8080/toolbar-clematis/toolbar.js");
+		***/
 		return toolbarFiles;
 	}
 

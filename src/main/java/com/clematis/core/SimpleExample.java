@@ -6,6 +6,8 @@ import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -61,8 +63,8 @@ public class SimpleExample {
 			tracer.preCrawling();
 
 			// Create a new instance of the firefox driver
-			FirefoxProfile profile = new FirefoxProfile();
-
+/***			FirefoxProfile profile = new FirefoxProfile();
+***/
 			// Instantiate proxy components
 			ProxyConfiguration prox = new ProxyConfiguration();
 
@@ -70,6 +72,15 @@ public class SimpleExample {
 			FunctionTrace s = new FunctionTrace();
 
 			// Add necessary files from resources
+			
+/*			s.setFileNameToAttach("http://localhost:8080/_temp.js");
+			s.setFileNameToAttach("/_esprima.js");
+			s.setFileNameToAttach("/_estraverse.js");
+			s.setFileNameToAttach("/_escodegen.browser.js");
+			s.setFileNameToAttach("/_mutation-summary.js");
+			s.setFileNameToAttach("/_func-inst.js");
+*/			
+			/*
 			s.setFileNameToAttach("/esprima.js");
 			s.setFileNameToAttach("/esmorph.js");
 			s.setFileNameToAttach("/jsonml-dom.js");
@@ -80,6 +91,7 @@ public class SimpleExample {
 			s.setFileNameToAttach("/domMutations.js");
 			s.setFileNameToAttach("/mutation_summary.js");
 			s.instrumentDOMModifications();
+			*/
 
 			// Interface for Ast traversal
 			JSModifyProxyPlugin p = new JSModifyProxyPlugin(s);
@@ -101,15 +113,36 @@ public class SimpleExample {
 			proxy.run();
 
 			if (prox != null) {
+				/***
 				profile.setPreference("network.proxy.http", prox.getHostname());
 				profile.setPreference("network.proxy.http_port", prox.getPort());
 				profile.setPreference("network.proxy.type", prox.getType().toInt());
-				/* use proxy for everything, including localhost */
+				// use proxy for everything, including localhost 
 				profile.setPreference("network.proxy.no_proxies_on", "");
+				***/
 			}
-
+/***
 			driver = new FirefoxDriver(profile);
 			WebDriverWait wait = new WebDriverWait(driver, 10);
+***/
+			
+			System.setProperty("webdriver.chrome.driver", "lib/chromedriver.exe");
+//			System.setProperty("webdriver.chrome.driver", "C://clematis//lib//chromedriver.exe");
+
+			ChromeOptions optionsChrome = new ChromeOptions();
+			// Add the unpacked extension containing function instrumentation login, etc.
+			optionsChrome.addArguments("--load-extension=" + "C:\\Users\\C5209115\\Desktop\\chrome-extension\\make_page_red");
+//			optionsChrome.addArguments("--load-component-extension");
+//			optionsChrome.addEncodedExtensions("C:\\Users\\C5209115\\Desktop\\chrome-extension\\make_page_red");
+
+			optionsChrome.addArguments("--proxy-server=http://"
+					+ prox.getHostname() + ":"
+					+ prox.getPort());
+
+			driver = new ChromeDriver(optionsChrome);
+
+			WebDriverWait wait = new WebDriverWait(driver, 10);
+			
 			boolean sessionOver = false;
 
 			try {

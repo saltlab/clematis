@@ -109,6 +109,7 @@ public class FunctionTrace extends AstInstrumenter {
 
 	@Override
 	public  boolean visit(AstNode node){
+		/***
 		int tt = node.getType();
 
 		if (tt == org.mozilla.javascript.Token.FUNCTION) {
@@ -130,6 +131,8 @@ public class FunctionTrace extends AstInstrumenter {
 		} else {
 			return true;  // process kids
 		}
+		***/
+		return false; /////// ??????????????????????????????????????????
 	}
 
 	@Override
@@ -140,6 +143,7 @@ public class FunctionTrace extends AstInstrumenter {
 
 	@Override
 	public AstNode createNode(FunctionNode function, String postfix, int lineNo) {
+		/***
 		String name;
 		String code;
 
@@ -148,13 +152,15 @@ public class FunctionTrace extends AstInstrumenter {
 			postfix += lineNo;
 		}
 
-		/* only add instrumentation code if there are variables to log */
+//		 only add instrumentation code if there are variables to log
 
-		/* TODO: this uses JSON.stringify which only works in Firefox? make browser indep. */
-		/* post to the proxy server */
+//		 TODO: this uses JSON.stringify which only works in Firefox? make browser indep.
+//		 post to the proxy server
 		code = "send(new Array('" + getScopeName() + "." + name + "', '" + postfix + "'));";
 
 		return parse(code);
+		***/
+		return null; ///////////// ?????????????????????????????
 	}
 
 	@Override
@@ -170,6 +176,7 @@ public class FunctionTrace extends AstInstrumenter {
 		AstRoot iscNode = rhinoCreateNode(isc);
 
 		/*******************/
+/***
 		// todo todo todo todo
 		StringTokenizer tokenizer = new StringTokenizer(JSModifyProxyPlugin.scopeNameForExternalUse, "?");
 		String baseUrl = "";
@@ -187,7 +194,8 @@ public class FunctionTrace extends AstInstrumenter {
 			boolean baseUrlExists = false;
 			for (String str: JSModifyProxyPlugin.visitedBaseUrls) {
 				System.out.print(str);
-				if (/*str.startsWith(newBaseUrl) || */str.equals(baseUrl)) {
+//				if (str.startsWith(newBaseUrl) || str.equals(baseUrl)) {
+				if (str.startsWith(newBaseUrl) || str.equals(baseUrl)) {
 					System.out.println(" -> exists");
 					baseUrlExists = true;
 					//return input;
@@ -207,7 +215,7 @@ public class FunctionTrace extends AstInstrumenter {
 				return iscNode;
 			}
 		}
-
+***/
 		// Return new instrumented node/code
 		return iscNode;
 	}
@@ -277,7 +285,7 @@ public class FunctionTrace extends AstInstrumenter {
 	}
 
 	private void handleFunction(FunctionNode node) {
-
+		/***
 		// Store information on function declarations
 		AstNode parent = node.getParent();
 		String name = node.getName();
@@ -345,11 +353,11 @@ public class FunctionTrace extends AstInstrumenter {
 		AstNode endingNode = parse(endingPOI.toString());
 		node.getBody().addChildToFront(beginningNode);
 		node.getBody().addChildToBack(endingNode);
-
+		***/
 	}
 
 	private void updateAllLineNo(AstNode body) {
-
+		/***
 		AstNode lastChild = (AstNode) body.getLastChild();
 
 		if (lastChild == null) {
@@ -371,11 +379,11 @@ public class FunctionTrace extends AstInstrumenter {
 			}
 
 		} 
-
+	***/
 	}
 
 	private void handleFunctionCall(FunctionCall node) {
-
+		/***
 		// Store information on function calls
 		AstNode target = node.getTarget();
 		String targetBody = target.toSource();
@@ -436,11 +444,12 @@ public class FunctionTrace extends AstInstrumenter {
 		else {
 			System.out.println("NEW TARGET NULL +++ " + node.getTarget());
 		}
+		***/
 	}
 
 	private void handleReturn(ReturnStatement node) {
 		// return statements
-
+		/***
 		int lineNo = node.getLineno()+1;
 		AstNode newRV;
 
@@ -459,5 +468,6 @@ public class FunctionTrace extends AstInstrumenter {
 
 		updateAllLineNo(newRV);
 		node.setReturnValue(newRV);
+		***/
 	}
 }
