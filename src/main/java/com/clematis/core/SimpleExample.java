@@ -1,7 +1,22 @@
 package com.clematis.core;
 
+import io.netty.handler.codec.DecoderResult;
+import io.netty.handler.codec.http.HttpObject;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+
 import java.io.File;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import io.netty.channel.ChannelHandlerContext;
+
+import org.littleshoot.proxy.HttpFilters;
+import org.littleshoot.proxy.HttpFiltersAdapter;
+import org.littleshoot.proxy.HttpFiltersSourceAdapter;
+import org.littleshoot.proxy.HttpProxyServer;
+import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
@@ -11,6 +26,7 @@ import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.owasp.webscarab.model.Preferences;
+import org.owasp.webscarab.model.Response;
 import org.owasp.webscarab.plugin.Framework;
 import org.owasp.webscarab.plugin.proxy.Proxy;
 
@@ -81,38 +97,40 @@ public class SimpleExample {
 			JSModifyProxyPlugin p = new JSModifyProxyPlugin(s, tracer, this.userName, this.sessionNum);
 			p.excludeDefaults(); 
 	
-			Framework framework = new Framework();
+			//Framework framework = new Framework();
+			
 	
 			/* set listening port before creating the object to avoid warnings */
 			
 			//Preferences.setPreference("Proxy.listeners", "127.0.0.1:" + prox.getPort());
-			Preferences.setPreference("Proxy.listeners", clientIP + ":" + prox.getPort());
+			//Preferences.setPreference("Proxy.listeners", clientIP + ":" + prox.getPort());
 
-			Proxy proxy = new Proxy(framework);
+			//Proxy proxy = new Proxy(framework);
 	
 			/* add the plugins to the proxy */
-			proxy.addPlugin(p);
+			//proxy.addPlugin(p);
 	
-			framework.setSession("FileSystem", new File("convo_model"), "");
+			//framework.setSession("FileSystem", new File("convo_model"), "");
 	
 			/* start the proxy */
-			proxy.run();
+			//proxy.run();
 	
-			if (prox != null) {
+			/*if (prox != null) {
+				System.out.println("hostname: "+ prox.getHostname() + "port: " + prox.getPort());
 				profile.setPreference("network.proxy.http", prox.getHostname());
 				profile.setPreference("network.proxy.http_port", prox.getPort());
 				profile.setPreference("network.proxy.type", prox.getType().toInt());
-				/* use proxy for everything, including localhost */
+				// use proxy for everything, including localhost 
 				profile.setPreference("network.proxy.no_proxies_on", "");
-			}
+			}*/
 	
-			driver = new FirefoxDriver(profile);
-			WebDriverWait wait = new WebDriverWait(driver, 10);
+			//driver = new FirefoxDriver(profile);
+			//WebDriverWait wait = new WebDriverWait(driver, 10);
 			boolean sessionOver = false;
 	
 			try {
 				// Use WebDriver to visit specified URL
-				driver.get(URL);
+				//driver.get(URL);
 			} catch (WebDriverException e) {
 				System.err.println("Error reaching application, please ensure URL is valid.");
 				e.printStackTrace();
@@ -123,10 +141,10 @@ public class SimpleExample {
 				// Wait until the user/tester has closed the browser
 	
 				try {
-					waitForWindowClose(wait);
+					//waitForWindowClose(wait);
 	
 					// At this point the window was closed, no TimeoutException
-					sessionOver = true;
+					//sessionOver = true;
 				} catch (TimeoutException e) {
 					// 10 seconds has elapsed and the window is still open
 					sessionOver = false;
@@ -136,7 +154,7 @@ public class SimpleExample {
 				}
 			}
 			
-			proxy.stop();
+			//proxy.stop();
 			urlProvided = false;
 	
 			tracer.postCrawling(this.userName, this.sessionNum);
@@ -219,6 +237,5 @@ public class SimpleExample {
 	private boolean checkOptions() {
 		return this.urlProvided;
 	}
-
-
+	
 }

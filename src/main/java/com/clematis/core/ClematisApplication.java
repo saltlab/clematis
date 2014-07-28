@@ -24,7 +24,7 @@ public class ClematisApplication extends Application {
 	public ClematisApplication() {
 		System.out.println("Clematis Application");
 		
-		//MongoInterface mongo = new MongoInterface();
+		MongoInterface mongo = new MongoInterface();
 		singletons.add(new episodeResource());
 		
 	    Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");

@@ -1,6 +1,7 @@
 package com.clematis.core.episode;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -9,6 +10,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -17,8 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -82,15 +87,18 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 @Path("/clematis-api")
-@Produces({ "application/json" })
+//@Produces({ "application/json" })
 public class episodeResource {
 
 	private Story s1;
 	private ObjectMapper mapper = new ObjectMapper();
 	private Map<String, Episode> episodeMap = new HashMap<String, Episode>(200);
 	
+	
 	private File f2 = null;
 	private long lastModified = -1;
+	
+	private final String USER_AGENT = "Mozilla/5.0";
 	
 	public void configureObjectMapper() {
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
@@ -745,6 +753,53 @@ public class episodeResource {
 		return "okay";
 	}
 	
+	@GET
+	@Path("/redirect")
+	@Produces("text/plain")
+	public String check(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
+		System.out.println("redirect");
+	
+		/*String[] params = request.getParameterValues("url");
+		for (int i=0; i<params.length ; i++){
+			System.out.println(params[i]);
+		}
+		System.out.println("");*/
+		
+		String queryString = "";
+		String url = "";
+		
+		@SuppressWarnings("unchecked")
+		Enumeration<String> params = request.getParameterNames();
+    	while(params.hasMoreElements()){
+    		String paramName = (String) params.nextElement();
+    		String[] paramVal = request.getParameterValues(paramName);
+    		System.out.println("Param: " + paramName);
+    		for (int i=0; i<paramVal.length; i++){
+    			System.out.println(" "+i+": " + paramVal[i]);
+    		}
+    		System.out.println("");
+    		
+    		if(paramName.equals("url")){
+    			url = paramVal[0];
+    		}else{
+    			queryString = queryString + paramName + "=" + paramVal[0] +"&";
+    		}
+    	}
+    	queryString = queryString + "redir=no";
+		
+    	System.out.println(queryString);
+    	//response.sendRedirect(url + "?" + queryString);
+    	String res = null;
+    	try {
+			res = sendGet(url+"?"+queryString);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+		return res;
+	}
+	
 	
 	@POST
 	@Path("/startSessionPOST")
@@ -838,6 +893,75 @@ public class episodeResource {
 		
 		return userInfo;
 	}
+	
+	// HTTP GET request
+		private String sendGet(String url) throws Exception {
+	 
+			URL obj = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+	 
+			// optional default is GET
+			con.setRequestMethod("GET");
+	 
+			//add request header
+			con.setRequestProperty("User-Agent", USER_AGENT);
+	 
+			int responseCode = con.getResponseCode();
+			System.out.println("\nSending 'GET' request to URL : " + url);
+			System.out.println("Response Code : " + responseCode);
+	 
+			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+	 
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+			String responseString = response.toString();
+			//print result
+			//System.out.println(responseString);
+	 
+			return responseString;
+		}
+	 
+		// HTTP POST request
+		private void sendPost(String url, String urlParameters) throws Exception {
+	 
+			URL obj = new URL(url);
+			HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+	 
+			//add reuqest header
+			con.setRequestMethod("POST");
+			con.setRequestProperty("User-Agent", USER_AGENT);
+			con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+	 	 
+			// Send post request
+			con.setDoOutput(true);
+			DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+			wr.writeBytes(urlParameters);
+			wr.flush();
+			wr.close();
+	 
+			int responseCode = con.getResponseCode();
+			System.out.println("\nSending 'POST' request to URL : " + url);
+			System.out.println("Post parameters : " + urlParameters);
+			System.out.println("Response Code : " + responseCode);
+	 
+			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+	 
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+	 
+			//print result
+			System.out.println(response.toString());
+	 
+		}
+	
 
 }
 

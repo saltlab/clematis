@@ -10,7 +10,59 @@
     version="3.0">
     <display-name>Servlet 3.0 Web Application</display-name> -->
 
+	
+	<servlet>
+		<servlet-name>jersey-serlvet</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
 
+		<init-param>
+			<param-name>com.sun.jersey.config.property.packages</param-name>
+			<param-value>com.clematis.core.episode</param-value>
+		</init-param>
+		<init-param>
+			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		
+		<init-param>
+	            <param-name>javax.ws.rs.Application</param-name>
+	            <param-value>com.clematis.core.ClematisApplication</param-value>
+	    </init-param>
+		
+		
+		<load-on-startup>1</load-on-startup>
+ 	</servlet>
+ 
+  	<servlet-mapping>
+		<servlet-name>jersey-serlvet</servlet-name>
+		<!--  url-pattern>/rest/*</url-pattern>-->
+		<url-pattern>/rest/*</url-pattern>
+  	</servlet-mapping>
+
+	
+	<filter>
+        <filter-name>cross-origin</filter-name>
+        <filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>cross-origin</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+	
+	<filter>
+	    <filter-name>LogFilter</filter-name>
+	    <filter-class>
+	        com.clematis.core.LogFilter
+	    </filter-class>
+	    <init-param>
+	        <param-name>test-param</param-name>
+	        <param-value>This parameter is for testing.</param-value>
+	    </init-param>
+	</filter>
+		<filter-mapping>
+	    <filter-name>LogFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	</filter-mapping>
 
 	<listener>
         <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
@@ -31,33 +83,7 @@
         <dispatcher>ERROR</dispatcher>
     </filter-mapping>
 	
-	<servlet>
-		<servlet-name>jersey-serlvet</servlet-name>
-		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
-		
-		<init-param>
-			<param-name>com.sun.jersey.config.property.packages</param-name>
-			<param-value>com.clematis.core.episode</param-value>
-		</init-param>
-	
-		<init-param>
-			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		
-		<init-param>
-	            <param-name>javax.ws.rs.Application</param-name>
-	            <param-value>com.clematis.core.ClematisApplication</param-value>
-	    </init-param>
-		
-		
-		<load-on-startup>1</load-on-startup>
- 	</servlet>
- 
-  	<servlet-mapping>
-		<servlet-name>jersey-serlvet</servlet-name>
-		<url-pattern>/rest/*</url-pattern>
-  	</servlet-mapping>
+
   
 	
 
