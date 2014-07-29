@@ -46,8 +46,13 @@ public class LogFilter implements Filter {
         }
         else if (!url.toString().contains("localhost")){
         	//System.out.println("not localhost");
-        	
-        	response.sendRedirect("http://localhost:8080/rest/clematis-api/redirect?url="+url+"&"+request.getQueryString());
+        	if(url.toString().contains("png") || url.toString().contains("gif") || url.toString().contains("jpg")){
+        		System.out.println("PNG");
+        		response.sendRedirect("http://localhost:8080/rest/clematis-api/redirectPNG?url="+url+"&"+request.getQueryString());
+        	}
+        	else{
+        		response.sendRedirect("http://localhost:8080/rest/clematis-api/redirect?url="+url+"&"+request.getQueryString());
+        	}
 
         	//chain.doFilter(wrappedRequest, res);
         }

@@ -226,7 +226,7 @@
       var URLstring = document.getElementById("URL").value;
 	    //document.getElementById("demo").innerHTML = URLstring;
 
-	      $.ajax({
+	      /*$.ajax({
 		    type: 'POST',
 		    url: 'http://localhost:8080/rest/clematis-api/startSessionPOST/',
 		    dataType: "text",
@@ -237,7 +237,8 @@
 		      var result=data;
 		      document.getElementById("urlsuccess").innerHTML = data;
 		    }
-	    });
+	    });*/
+	   window.open("http://localhost:8080/webservice/session.jsp?url="+URLstring,"_self");
  
     }
     

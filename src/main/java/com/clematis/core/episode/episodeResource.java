@@ -1,5 +1,6 @@
 package com.clematis.core.episode;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -755,7 +757,7 @@ public class episodeResource {
 	
 	@GET
 	@Path("/redirect")
-	@Produces("text/plain")
+	@Produces({"text/plain","text/css"})
 	public String check(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
 		System.out.println("redirect");
 	
@@ -790,16 +792,60 @@ public class episodeResource {
     	System.out.println(queryString);
     	//response.sendRedirect(url + "?" + queryString);
     	String res = null;
+    	
     	try {
 			res = sendGet(url+"?"+queryString);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			System.out.println("Error fetching request");
 			e.printStackTrace();
 		}
     	
 		return res;
 	}
 	
+	@GET
+	@Path("/redirectPNG")
+	@Produces("image/png")
+	public BufferedImage getImage(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
+		System.out.println("redirect image");
+
+		String queryString = "";
+		String url = "";
+		
+		@SuppressWarnings("unchecked")
+		Enumeration<String> params = request.getParameterNames();
+    	while(params.hasMoreElements()){
+    		String paramName = (String) params.nextElement();
+    		String[] paramVal = request.getParameterValues(paramName);
+    		System.out.println("Param: " + paramName);
+    		for (int i=0; i<paramVal.length; i++){
+    			System.out.println(" "+i+": " + paramVal[i]);
+    		}
+    		System.out.println("");
+    		
+    		if(paramName.equals("url")){
+    			url = paramVal[0];
+    		}else{
+    			queryString = queryString + paramName + "=" + paramVal[0] +"&";
+    		}
+    	}
+    	queryString = queryString + "redir=no";
+		
+    	System.out.println(queryString);
+    	//response.sendRedirect(url + "?" + queryString);
+    	BufferedImage res = null;
+    	
+    	try {
+			res = sendGetImage(url+"?"+queryString);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("Error fetching request");
+			e.printStackTrace();
+		}
+    	
+		return res;
+	}
 	
 	@POST
 	@Path("/startSessionPOST")
@@ -894,12 +940,46 @@ public class episodeResource {
 		return userInfo;
 	}
 	
+	private BufferedImage sendGetImage(String url) throws Exception {
+		
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		
+		
+		// optional default is GET
+		con.setRequestMethod("GET");
+ 
+		//add request header
+		con.setRequestProperty("User-Agent", USER_AGENT);
+ 
+		int responseCode = con.getResponseCode();
+		System.out.println("\nSending 'GET' request to URL : " + url);
+		System.out.println("Response Code : " + responseCode);
+ 
+		BufferedImage image = ImageIO.read(obj);
+		
+		/*BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+ 
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+		String responseString = response.toString();
+		//print result
+		//System.out.println(responseString);
+ 
+		return responseString;*/
+		return image;
+	}
+	
 	// HTTP GET request
 		private String sendGet(String url) throws Exception {
 	 
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-	 
+
 			// optional default is GET
 			con.setRequestMethod("GET");
 	 
