@@ -119,7 +119,7 @@ function myFunction() {
 <div class="container">  
 <div class="view">
 
-	<!--  iframe id="page" src="" width="100%" height="100%" frameborder="0" ></iframe>-->
+	<iframe id="page" src="" width="100%" height="100%" frameborder="0" ></iframe>
 	<div id="testLoad"></div>
 	<button onclick="myFunction()">Try it</button>
 

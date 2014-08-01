@@ -1,11 +1,23 @@
 package com.clematis.core;
 
+import java.io.File;
+
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.owasp.webscarab.model.Preferences;
+import org.owasp.webscarab.plugin.Framework;
+import org.owasp.webscarab.plugin.proxy.Proxy;
+
+import com.clematis.core.configuration.ProxyConfiguration;
+import com.clematis.instrument.FunctionTrace;
 import com.clematis.jsmodify.JSExecutionTracer;
+import com.clematis.jsmodify.JSModifyProxyPlugin;
 import com.clematis.jsmodify.NewProxyPlugin;
 import com.crawljax.util.Helper;
 
@@ -46,13 +58,7 @@ public class SimpleExample {
 			
 			//config.addPlugin(tracer);
 			tracer.preCrawling(userName, sessionNum);
-			
-			//MongoInterface.datastoreTracer.save(tracer);
-			
-			//ds.save(new Employee("Mister", "GOD", null, 0));
-			// get an employee without a manager
-			//Employee boss = ds.find(Employee.class).field("manager").equal(null).get();
-	
+
 			// Create a new instance of the firefox driver
 			//FirefoxProfile profile = new FirefoxProfile();
 	
