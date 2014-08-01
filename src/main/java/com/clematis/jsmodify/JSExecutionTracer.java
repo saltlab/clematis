@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
+import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,29 +65,30 @@ import com.mongodb.DBObject;
  * @author Frank Groeneveld
  * @version $Id: JSExecutionTracer.java 6162 2009-12-16 13:56:21Z frank $
  */
+
 public class JSExecutionTracer {
 
+	
     private static final int ONE_SEC = 1000;
 
-    private String outputFolder;
-    private String traceFilename;
+    //private String outputFolder;
+   // private String traceFilename;
 
-    private JSONArray points = new JSONArray();
+   // private JSONArray points = new JSONArray();
 
-    private final Logger LOGGER = Logger
-            .getLogger(JSExecutionTracer.class.getName());
+   // private final Logger LOGGER = Logger.getLogger(JSExecutionTracer.class.getName());
 
-    public static final String FUNCTIONTRACEDIRECTORY = "functiontrace/";
+   // public static final String FUNCTIONTRACEDIRECTORY = "functiontrace/";
 
-    private PrintStream output;
-    private PrintStream databaseOutput;
-    private ByteArrayOutputStream baos;
+  //  private PrintStream output;
+   // private PrintStream databaseOutput;
+    //private ByteArrayOutputStream baos;    
 
     // private Trace trace;
-    private Story story;
-    private ObjectMapper mapper = new ObjectMapper();
-    static String theTime;
-    private int counter = 0;
+    //private Story story;
+    
+    //static String theTime;
+    //private int counter = 0;
 
     // private ArrayList<TraceObject> sortedTraceList;
     // private ArrayList<Episode> episodeList;
@@ -104,21 +106,29 @@ public class JSExecutionTracer {
      * @param browser
      *            The browser.
      */
-    public void preCrawling() {
+    public void preCrawling(String userName, Double sessionNum) {
         //try {
-            points = new JSONArray();
+            //points = new JSONArray();
             //Helper.directoryCheck(getOutputFolder());
+    		
+    		int counter = 0;
+            String output = "{";
+            
+            MongoInterface.newTracer(userName, sessionNum);
+            MongoInterface.updateTracerOutput(userName, sessionNum, output);
+            MongoInterface.updateTracerCounter(userName, sessionNum, counter);
+            //create counter here
             
             //output = new PrintStream(getOutputFolder() + getFilename());   
-            baos = new ByteArrayOutputStream();
-            databaseOutput = new PrintStream(baos);    
+            //baos = new ByteArrayOutputStream();
+            //databaseOutput = new PrintStream(baos);    
             
             // Add opening bracket around whole trace
-            PrintStream oldOut = System.out;
+           // PrintStream oldOut = System.out;
             //System.setOut(output);
-            System.setOut(databaseOutput);
-            System.out.println("{");
-            System.setOut(oldOut);
+            //System.setOut(databaseOutput);
+            //System.out.println("{");
+            //System.setOut(oldOut);
 
         //} catch (IOException e) {
         //    e.printStackTrace();
@@ -135,7 +145,7 @@ public class JSExecutionTracer {
      *            The candidate clickable elements.
      */
 
-    public void preStateCrawling() {
+   /* public void preStateCrawling() {
 
         String filename = getOutputFolder() + FUNCTIONTRACEDIRECTORY
                 + "jstrace-";
@@ -146,25 +156,26 @@ public class JSExecutionTracer {
 
         try {
 
-            LOGGER.info("Reading execution trace");
+            //LOGGER.info("Reading execution trace");
 
-            LOGGER.info("Parsing JavaScript execution trace");
+            //LOGGER.info("Parsing JavaScript execution trace");
 
             // session.getBrowser().executeJavaScript("sendReally();");
             Thread.sleep(ONE_SEC);
 
-            LOGGER.info("Saved execution trace as " + filename);
+           // LOGGER.info("Saved execution trace as " + filename);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     /**
      * Write the story object to a JSON file on disk.
      */
-    public void writeStoryToDisk(String userName, Double sessionNum) {
+    public void writeStoryToDisk(String userName, Double sessionNum, Story story) {
 
+    	ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(
                 Visibility.ANY));
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
@@ -201,7 +212,7 @@ public class JSExecutionTracer {
      * 
      * @return The list.
      */
-    public List<String> allTraceFiles() {
+   /* public List<String> allTraceFiles() {
         ArrayList<String> result = new ArrayList<String>();
 
         // find all trace files in the trace directory 
@@ -217,12 +228,17 @@ public class JSExecutionTracer {
             }
         }
         return result;
-    }
+    }*/
 
     public void postCrawling(String userName, Double sessionNum) {
         try {
             // Add closing bracket
             PrintStream oldOut = System.out;
+            
+            PrintStream databaseOutput;
+        	ByteArrayOutputStream baos; 
+        	baos = new ByteArrayOutputStream();
+            databaseOutput = new PrintStream(baos);
             
             //System.setOut(output);
             System.setOut(databaseOutput);
@@ -230,6 +246,9 @@ public class JSExecutionTracer {
             System.out.println("}");
             System.setOut(oldOut);
 
+            String output = MongoInterface.getTracerOutput(userName, sessionNum);
+            output = output + baos.toString();
+            MongoInterface.updateTracerOutput(userName, sessionNum, output);
             /* close the output file */
             //output.close();
             databaseOutput.close();
@@ -244,6 +263,7 @@ public class JSExecutionTracer {
      */
     public void extraxtTraceObjects(String userName, Double sessionNum) {
         try {
+        	Story story;
             ObjectMapper mapper = new ObjectMapper();
             // Register the module that serializes the Guava Multimap
             mapper.registerModule(new GuavaModule());
@@ -251,7 +271,8 @@ public class JSExecutionTracer {
             String str = "";
             //try {
             		//str = FileUtils.readFileToString(new File("clematis-output/ftrace/function.trace"));
-            		str = baos.toString();
+            		//str = baos.toString();
+            		str = MongoInterface.getTracerOutput(userName, sessionNum);
             //} catch (IOException e) {
             // 	    e.printStackTrace();
             //}
@@ -283,7 +304,7 @@ public class JSExecutionTracer {
             domEventTraces.removeAll(removeus); //does nothing??
 
             story = new Story(domEventTraces, functionTraces, timingTraces, XHRTraces);
-            ArrayList<TraceObject> sortedTraceObjects = sortTraceObjects();
+            ArrayList<TraceObject> sortedTraceObjects = sortTraceObjects(story);
             
             if (sortedTraceObjects != null){
             
@@ -299,7 +320,7 @@ public class JSExecutionTracer {
                 //System.out.println( next.getCounter());
             }
 
-            story.setEpisodes(buildEpisodes());
+            story.setEpisodes(buildEpisodes(story));
 
             ArrayList<Episode> ss = story.getEpisodes();
             Iterator<Episode> it2 = ss.iterator();
@@ -353,6 +374,7 @@ public class JSExecutionTracer {
             Date date = new Date();
             System.out.println(dateFormat.format(date));
             // dateFormat.format(date).toString()
+            String theTime;
             theTime = new String(dateFormat.format(date).toString());
             System.out.println(theTime);
 
@@ -384,7 +406,7 @@ public class JSExecutionTracer {
             //Create graph containing all episodes with embedded sequence diagrams
             //EpisodeGraph eg = new EpisodeGraph(getOutputFolder(), story.getEpisodes());
             //eg.createGraph();
-            writeStoryToDisk(userName, sessionNum);
+            writeStoryToDisk(userName, sessionNum, story);
             
             }
 
@@ -420,7 +442,7 @@ public class JSExecutionTracer {
     /**
      * This method sorts all four groups of trace objects into one ordered list of trace objects
      */
-    private ArrayList<TraceObject> sortTraceObjects() {
+    private ArrayList<TraceObject> sortTraceObjects(Story story) {
         ArrayList<TraceObject> sortedTrace = new ArrayList<TraceObject>();
 
         ArrayList<Collection<TraceObject>> allCollections =
@@ -481,7 +503,7 @@ public class JSExecutionTracer {
         return sortedTrace;
     }
 
-    private ArrayList<Episode> buildEpisodes() {
+    private ArrayList<Episode> buildEpisodes(Story story) {
         ArrayList<Episode> episodes = new ArrayList<Episode>();
         int i, j, previousEpisodeEnd = 0;
 
@@ -555,17 +577,17 @@ public class JSExecutionTracer {
     /**
      * @return Name of the file.
      */
-    public String getFilename() {
-        return this.traceFilename;
-    }
+   // public String getFilename() {
+     //   return this.traceFilename;
+   // }
 
-    public String getOutputFolder() {
+  /*  public String getOutputFolder() {
         return Helper.addFolderSlashIfNeeded(outputFolder);
     }
 
     public void setOutputFolder(String absolutePath) {
         outputFolder = absolutePath;
-    }
+    }*/
 
     /**
      * Dirty way to save program points from the proxy request threads. TODO: Frank, find cleaner
@@ -573,8 +595,32 @@ public class JSExecutionTracer {
      * 
      * @param string
      *            The JSON-text to save.
+     * @throws JSONException 
      */
-    public void addPoint(String string) {
+    public void addPoint(String string, String userName, Double sessionNum) throws JSONException {
+    	
+    	PrintStream databaseOutput;
+    	ByteArrayOutputStream baos; 
+    	baos = new ByteArrayOutputStream();
+        databaseOutput = new PrintStream(baos);
+    	
+    	
+    	String pointString = MongoInterface.getTracerPoints(userName, sessionNum);
+    	System.out.println("POINTSTRING"+pointString);
+    	
+    	JSONArray points;
+    	
+    	if (pointString.equals("{}")){
+    		points = new JSONArray();
+    	}else{
+    		pointString = pointString.substring(1);
+    		JSONObject jsonObject = new JSONObject(pointString);
+        	
+        	String[] names = JSONObject.getNames(jsonObject);
+        	points = jsonObject.toJSONArray(new JSONArray(names));
+    	}
+    	
+    			
         JSONArray buffer = null;
         JSONObject targetAttributes = null;
         JSONObject targetElement = null;
@@ -719,9 +765,20 @@ public class JSExecutionTracer {
 
             /* Restore the old system.out */
             System.setOut(oldOut);
-
+            String newPoints = points.toString();
+            MongoInterface.updateTracerPoints(userName, sessionNum, newPoints);
+            
+            //save out to string
+            String output = MongoInterface.getTracerOutput(userName, sessionNum);
+            output = output + baos.toString();
+            MongoInterface.updateTracerOutput(userName, sessionNum, output);
+            
+            int counter = getCounter(userName, sessionNum);
             if (i > 0) {
+            	
                 counter = buffer.getJSONObject(buffer.length()-1).getInt("counter")+1;
+                //save to db
+                MongoInterface.updateTracerCounter(userName, sessionNum, counter);
             }
 
         } catch (JSONException e) {
@@ -730,8 +787,9 @@ public class JSExecutionTracer {
 
     }
 
-    public int getCounter() {
-        return counter;
+    public int getCounter(String userName, Double sessionNum) {
+    	//store in db
+    	return MongoInterface.getTracerCounter(userName, sessionNum);
     }
 
 }

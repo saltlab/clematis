@@ -48,23 +48,8 @@
         <filter-name>cross-origin</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-	
-	<filter>
-	    <filter-name>LogFilter</filter-name>
-	    <filter-class>
-	        com.clematis.core.LogFilter
-	    </filter-class>
-	    <init-param>
-	        <param-name>test-param</param-name>
-	        <param-value>This parameter is for testing.</param-value>
-	    </init-param>
-	</filter>
-		<filter-mapping>
-	    <filter-name>LogFilter</filter-name>
-	    <url-pattern>/*</url-pattern>
-	</filter-mapping>
-
-	<listener>
+    
+    <listener>
         <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
     </listener>
 
@@ -83,8 +68,20 @@
         <dispatcher>ERROR</dispatcher>
     </filter-mapping>
 	
+	<filter>
+	    <filter-name>LogFilter</filter-name>
+	    <filter-class>
+	        com.clematis.core.LogFilter
+	    </filter-class>
+	    <init-param>
+	        <param-name>test-param</param-name>
+	        <param-value>This parameter is for testing.</param-value>
+	    </init-param>
+	</filter>
+		<filter-mapping>
+	    <filter-name>LogFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	</filter-mapping>
 
-  
-	
 
 </web-app>

@@ -1,39 +1,12 @@
 package com.clematis.core;
 
-import io.netty.handler.codec.DecoderResult;
-import io.netty.handler.codec.http.HttpObject;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
-
-import java.io.File;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import io.netty.channel.ChannelHandlerContext;
-
-import org.littleshoot.proxy.HttpFilters;
-import org.littleshoot.proxy.HttpFiltersAdapter;
-import org.littleshoot.proxy.HttpFiltersSourceAdapter;
-import org.littleshoot.proxy.HttpProxyServer;
-import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.owasp.webscarab.model.Preferences;
-import org.owasp.webscarab.model.Response;
-import org.owasp.webscarab.plugin.Framework;
-import org.owasp.webscarab.plugin.proxy.Proxy;
-
-import com.clematis.core.configuration.ProxyConfiguration;
-import com.clematis.instrument.FunctionTrace;
 import com.clematis.jsmodify.JSExecutionTracer;
-import com.clematis.jsmodify.JSModifyProxyPlugin;
+import com.clematis.jsmodify.NewProxyPlugin;
 import com.crawljax.util.Helper;
 
 public class SimpleExample {
@@ -60,25 +33,34 @@ public class SimpleExample {
 	
 	public void begin(String args){
 		try{
+			
 			//FILESYSTEM
-			outputFolder = Helper.addFolderSlashIfNeeded("clematis-output");
+			//outputFolder = Helper.addFolderSlashIfNeeded("clematis-output");
 			//FILESYSTEM
 			//JSExecutionTracer tracer = new JSExecutionTracer("function.trace");
+			
+			//NEED USERNAME and SESSION NUMBER
 			JSExecutionTracer tracer = new JSExecutionTracer();
 
-			tracer.setOutputFolder(outputFolder + "ftrace");
-	
+			//tracer.setOutputFolder(outputFolder + "ftrace");
+			
 			//config.addPlugin(tracer);
-			tracer.preCrawling();
+			tracer.preCrawling(userName, sessionNum);
+			
+			//MongoInterface.datastoreTracer.save(tracer);
+			
+			//ds.save(new Employee("Mister", "GOD", null, 0));
+			// get an employee without a manager
+			//Employee boss = ds.find(Employee.class).field("manager").equal(null).get();
 	
 			// Create a new instance of the firefox driver
-			FirefoxProfile profile = new FirefoxProfile();
+			//FirefoxProfile profile = new FirefoxProfile();
 	
 			// Instantiate proxy components
-			ProxyConfiguration prox = new ProxyConfiguration();
+			//ProxyConfiguration prox = new ProxyConfiguration();
 	
 			// Modifier responsible for parsing Ast tree
-			FunctionTrace s = new FunctionTrace();
+			/*FunctionTrace s = new FunctionTrace();
 			
 			//FILESYSTEM
 			// Add necessary files from resources
@@ -91,10 +73,11 @@ public class SimpleExample {
 			s.setFileNameToAttach("/instrumentDOMEvents.js");
 			s.setFileNameToAttach("/domMutations.js");
 			s.setFileNameToAttach("/mutation_summary.js");
-			s.instrumentDOMModifications();
+			s.instrumentDOMModifications();*/
 	
 			// Interface for Ast traversal
-			JSModifyProxyPlugin p = new JSModifyProxyPlugin(s, tracer, this.userName, this.sessionNum);
+			//JSModifyProxyPlugin p = new JSModifyProxyPlugin(s, tracer, this.userName, this.sessionNum);
+			NewProxyPlugin p = new NewProxyPlugin();
 			p.excludeDefaults(); 
 	
 			//Framework framework = new Framework();
@@ -122,15 +105,15 @@ public class SimpleExample {
 				profile.setPreference("network.proxy.type", prox.getType().toInt());
 				// use proxy for everything, including localhost 
 				profile.setPreference("network.proxy.no_proxies_on", "");
-			}*/
+			}
 	
-			//driver = new FirefoxDriver(profile);
-			//WebDriverWait wait = new WebDriverWait(driver, 10);
+			driver = new FirefoxDriver(profile);
+			WebDriverWait wait = new WebDriverWait(driver, 10);
 			boolean sessionOver = false;
 	
 			try {
 				// Use WebDriver to visit specified URL
-				//driver.get(URL);
+				driver.get(URL);
 			} catch (WebDriverException e) {
 				System.err.println("Error reaching application, please ensure URL is valid.");
 				e.printStackTrace();
@@ -141,10 +124,10 @@ public class SimpleExample {
 				// Wait until the user/tester has closed the browser
 	
 				try {
-					//waitForWindowClose(wait);
+					waitForWindowClose(wait);
 	
 					// At this point the window was closed, no TimeoutException
-					//sessionOver = true;
+					sessionOver = true;
 				} catch (TimeoutException e) {
 					// 10 seconds has elapsed and the window is still open
 					sessionOver = false;
@@ -155,9 +138,9 @@ public class SimpleExample {
 			}
 			
 			//proxy.stop();
-			urlProvided = false;
+			urlProvided = false; */
 	
-			tracer.postCrawling(this.userName, this.sessionNum);
+			//tracer.postCrawling(this.userName, this.sessionNum);
 
 		} catch (Exception e) {
 			e.printStackTrace();

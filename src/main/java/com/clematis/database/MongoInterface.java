@@ -8,12 +8,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.json.JSONArray;
+
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 
 public class MongoInterface{
@@ -36,6 +39,7 @@ public class MongoInterface{
 			System.out.println("Could not connect to MongoDB");
 		}
 	}
+	
 
 	public static Double newSessionDocument(String userName, String URL){
 		
@@ -105,6 +109,110 @@ public class MongoInterface{
 		}
 		return sessionNumber;
 		
+	}
+	
+	public static void newTracer(String userName, Double sessionNum){
+		//JSONArray points = new JSONArray();
+		//String p = points.toString();
+		DBCollection coll = db.getCollection("tracers");
+		BasicDBObject tracer = new BasicDBObject("username", userName).append("sessionNumber", sessionNum).append("points", "{}");
+	    coll.insert(tracer);
+	}
+	
+	public static void updateTracerOutput(String userName, Double sessionNum, String output){
+		BasicDBObject query = new BasicDBObject("username", userName).append("sessionNumber", sessionNum);
+		
+		BasicDBObject carrier = new BasicDBObject();
+	    BasicDBObject queryObject = new BasicDBObject();
+	    queryObject.put("YOUR_QUERY_STRING", query);
+
+	    BasicDBObject set = new BasicDBObject("$set", carrier);
+	    carrier.put("outputString", output);     
+	    db.getCollection("tracers").update(query, set);
+	}
+	
+	public static void updateTracerCounter(String userName, Double sessionNum, int counter){
+		BasicDBObject query = new BasicDBObject("username", userName).append("sessionNumber", sessionNum);
+		
+		BasicDBObject carrier = new BasicDBObject();
+	    BasicDBObject queryObject = new BasicDBObject();
+	    queryObject.put("YOUR_QUERY_STRING", query);
+
+	    BasicDBObject set = new BasicDBObject("$set", carrier);
+	    carrier.put("counter", counter);     
+	    db.getCollection("tracers").update(query, set);
+	}
+	
+	public static void updateTracerPoints(String userName, Double sessionNum, String points){
+		BasicDBObject query = new BasicDBObject("username", userName).append("sessionNumber", sessionNum);
+		
+		BasicDBObject carrier = new BasicDBObject();
+	    BasicDBObject queryObject = new BasicDBObject();
+	    queryObject.put("YOUR_QUERY_STRING", query);
+
+	    BasicDBObject set = new BasicDBObject("$set", carrier);
+	    carrier.put("points", points);     
+	    db.getCollection("tracers").update(query, set);
+	}
+	
+	public static int getTracerCounter(String userName, Double sessionNum){
+		DBCollection coll = db.getCollection("tracers");
+		BasicDBObject query = new BasicDBObject("username", userName).append("sessionNumber", sessionNum);
+		DBCursor cursor = coll.find(query);
+				
+		try {
+			while(cursor.hasNext()) {
+			   DBObject counterObject = cursor.next();
+			   Integer counter = (Integer) counterObject.get("counter");
+			   //System.out.println("STORY "+ storyObject); 
+			   int count = (int) counter;
+			   return count;
+		   }
+			
+		}finally{
+			cursor.close();
+		}
+		return 0;
+	}
+	
+	public static String getTracerOutput(String userName, Double sessionNum){
+		DBCollection coll = db.getCollection("tracers");
+		BasicDBObject query = new BasicDBObject("username", userName).append("sessionNumber", sessionNum);
+		DBCursor cursor = coll.find(query);
+				
+		try {
+			while(cursor.hasNext()) {
+			   DBObject outputObject = cursor.next();
+			   String output = (String) outputObject.get("outputString");
+			   //System.out.println("STORY "+ storyObject); 
+			   
+			   return output;
+		   }
+			
+		}finally{
+			cursor.close();
+		}
+		return null;
+	}
+	
+	public static String getTracerPoints(String userName, Double sessionNum){
+		DBCollection coll = db.getCollection("tracers");
+		BasicDBObject query = new BasicDBObject("username", userName).append("sessionNumber", sessionNum);
+		DBCursor cursor = coll.find(query);
+				
+		try {
+			while(cursor.hasNext()) {
+			   DBObject pointsObject = cursor.next();
+			   String points = (String) pointsObject.get("points");
+			   //System.out.println("POINTS "+ points); 
+			   
+			   return points;
+		   }
+			
+		}finally{
+			cursor.close();
+		}
+		return null;
 	}
 	
 	public static void newUser(String userName, String password){

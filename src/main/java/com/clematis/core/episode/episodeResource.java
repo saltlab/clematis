@@ -100,7 +100,7 @@ public class episodeResource {
 	private File f2 = null;
 	private long lastModified = -1;
 	
-	private final String USER_AGENT = "Mozilla/5.0";
+	private static String USER_AGENT = "Mozilla/5.0";
 	
 	public void configureObjectMapper() {
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
@@ -847,7 +847,7 @@ public class episodeResource {
 		return res;
 	}
 	
-	@POST
+	/*@POST
 	@Path("/startSessionPOST")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String startNewSessionPOST(@Context HttpServletRequest request) throws IOException{
@@ -871,7 +871,11 @@ public class episodeResource {
         }
 		
 		ServletInputStream in = request.getInputStream();
+		//System.out.println(processInput(in));
 		String newUrl = splitURL(in);
+		//String newUrl = getUrl(request);
+		
+		System.out.println("QUERY STRING:  "+ request.getQueryString());		
 		
 		String ip = request.getRemoteAddr();
 		System.out.println("ip:" + ip);
@@ -880,7 +884,7 @@ public class episodeResource {
 		/*HttpSession userSession = request.getSession();
 		userSession.setAttribute("userName", user);
 		String userName = (String) userSession.getAttribute("userName");
-		System.out.println("User Name: " + userName );*/
+		System.out.println("User Name: " + userName );
 		
 		//Double sessionNum = MongoInterface.newSessionDocument(userName);
 		Double sessionNum = MongoInterface.newSessionDocument(user, newUrl);
@@ -896,11 +900,89 @@ public class episodeResource {
 		
 		Thread t = new Thread(new ClematisSession(newUrl, session));
 		t.start();
+	
+		return "session started"; 
+	} */
+	
+	//@POST
+	//@Path("/startSessionPOST")
+	//@Produces(MediaType.APPLICATION_JSON)
+	public static String startNewSessionPOST(/*@Context*/ HttpServletRequest request) throws IOException{
+		//USER LOGGED IN? 
+		Subject currentUser = SecurityUtils.getSubject();
+		String user = (String) currentUser.getPrincipal();
+		System.out.println("start session");
+			
+		// let's login the current user so we can check against roles and permissions:
+	    if (!currentUser.isAuthenticated()) {
+	    	System.out.println( "current user not authenticated - guest user");
+	        user = "guest";
+	        UsernamePasswordToken token = new UsernamePasswordToken(user, "guest");
+	        //this is all you have to do to support 'remember me' (no config - built in!):
+	        token.setRememberMe(true);
+	        currentUser.login(token);
+	    }
+	    else{
+	        System.out.println("USER:" + user);
+	        MongoInterface.checkUser(user);
+	    }
+			
+		ServletInputStream in = request.getInputStream();
+		System.out.println(processInput(in));
+		//String newUrl = splitURL(in);
+		String newUrl = getUrl(request);
+			
+		System.out.println("QUERY STRING:  "+ request.getQueryString());		
+			
+		String ip = request.getRemoteAddr();
+		System.out.println("ip:" + ip);
+			
+		//get user info
+		/*HttpSession userSession = request.getSession();
+		userSession.setAttribute("userName", user);
+		String userName = (String) userSession.getAttribute("userName");
+		System.out.println("User Name: " + userName );*/
+			
+		//Double sessionNum = MongoInterface.newSessionDocument(userName);
+		Double sessionNum = MongoInterface.newSessionDocument(user, newUrl);
 
+		//SimpleExample session = new SimpleExample(ip, userName, sessionNum);
+		SimpleExample session = new SimpleExample(ip, user, sessionNum);
+
+		try{
+			session.checkURL(newUrl);
+		} catch (IllegalArgumentException e){
+			return "Invalid URL: Please enter a url that begins with \"www.\" or \"http://\""; 
+		}
+			
+		//Thread t = new Thread(new ClematisSession(newUrl, session));
+		//t.start();
+		session.begin(newUrl);
+		
 		return "session started"; 
 	}
 	
-	public String processInput (ServletInputStream in) throws IOException{
+	public static String getUrl(HttpServletRequest request){
+		String url = null;
+		@SuppressWarnings("unchecked")
+		Enumeration<String> params = request.getParameterNames();
+    	while(params.hasMoreElements()){
+    		String paramName = (String) params.nextElement();
+    		String[] paramVal = request.getParameterValues(paramName);
+    		System.out.println("Param: " + paramName);
+    		for (int i=0; i<paramVal.length; i++){
+    			System.out.println(" "+i+": " + paramVal[i]);
+    		}
+    		System.out.println("");
+    		
+    		if(paramName.equals("url")){
+    			url = paramVal[0];
+    		}
+    	}
+    	return url;
+	}
+	
+	public static String processInput (ServletInputStream in) throws IOException{
 		StringWriter writer = new StringWriter();
 		IOUtils.copy(in, writer, "UTF-8");
 		String theString = writer.toString();
@@ -1006,8 +1088,10 @@ public class episodeResource {
 		}
 	 
 		// HTTP POST request
-		private void sendPost(String url, String urlParameters) throws Exception {
-	 
+		public static void sendPost(String url, String urlParam, String data) throws Exception {
+			
+			String info = "url=" + urlParam + "&data=" + data;
+			
 			URL obj = new URL(url);
 			HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 	 
@@ -1019,13 +1103,13 @@ public class episodeResource {
 			// Send post request
 			con.setDoOutput(true);
 			DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-			wr.writeBytes(urlParameters);
+			wr.writeBytes(info);
 			wr.flush();
 			wr.close();
 	 
 			int responseCode = con.getResponseCode();
 			System.out.println("\nSending 'POST' request to URL : " + url);
-			System.out.println("Post parameters : " + urlParameters);
+			System.out.println("Post parameters : " + info);
 			System.out.println("Response Code : " + responseCode);
 	 
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));

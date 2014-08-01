@@ -5,16 +5,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.codehaus.jettison.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.CompilerEnvirons;
@@ -33,7 +36,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.clematis.core.SimpleExample;
+import com.clematis.core.episode.episodeResource;
+import com.clematis.database.MongoInterface;
 import com.clematis.instrument.AstInstrumenter;
+import com.clematis.instrument.FunctionTrace;
 import com.crawljax.util.Helper;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -43,16 +49,16 @@ import com.yahoo.platform.yui.compressor.*;
 /**
  * The JSInstrument proxy plugin used to add instrumentation code to JavaScript files.
  */
-public class JSModifyProxyPlugin extends ProxyPlugin {
+public class NewProxyPlugin{
 
 	private List<String> excludeFilenamePatterns;
 
 	public List<String> visitedBaseUrls; // /// todo todo todo todo **********
 	public String scopeNameForExternalUse; // //// todo ********** change this later
 
-	private final JSASTModifier modifier;
+	//private JSASTModifier modifier = null;
 	
-	private JSExecutionTracer jstrace;
+	//private JSExecutionTracer jstrace;
 	
 	private boolean areWeRecording = false;
 
@@ -61,8 +67,8 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	
 	private static JSONObject toolbarPosition = null;
 	
-	private String userName;
-	private Double sessionNum;
+	//private String userName;
+	//private Double sessionNum;
 
 	/**
 	 * Construct without patterns.
@@ -70,16 +76,32 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 * @param modify
 	 *            The JSASTModifier to run over all JavaScript.
 	 */
-	public JSModifyProxyPlugin(JSASTModifier modify, JSExecutionTracer t, String userName, Double sessionNum) {
+	public NewProxyPlugin() {
 		excludeFilenamePatterns = new ArrayList<String>();
 		visitedBaseUrls = new ArrayList<String>();
 
-		this.jstrace = t;
+		//this.jstrace = t;
 		//t.userName = userName;
-		this.userName = userName;
-		this.sessionNum = sessionNum;
+		//this.userName = userName;
+		//this.sessionNum = sessionNum;
 		
-		modifier = modify;
+		// Modifier responsible for parsing Ast tree
+		/*FunctionTrace s = new FunctionTrace();
+					
+		//FILESYSTEM
+		// Add necessary files from resources
+		s.setFileNameToAttach("/esprima.js");
+		s.setFileNameToAttach("/esmorph.js");
+		s.setFileNameToAttach("/jsonml-dom.js");
+		s.setFileNameToAttach("/addvariable.js");
+		s.setFileNameToAttach("/asyncLogger.js");
+		s.setFileNameToAttach("/applicationView.js");
+		s.setFileNameToAttach("/instrumentDOMEvents.js");
+		s.setFileNameToAttach("/domMutations.js");
+		s.setFileNameToAttach("/mutation_summary.js");
+		s.instrumentDOMModifications();
+	
+		//modifier = s;*/
 		
 		//outputFolder = Helper.addFolderSlashIfNeeded("clematis-output") + "js_snapshot";
 	}
@@ -92,9 +114,9 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 * @param excludes
 	 *            List with variable patterns to exclude.
 	 */
-	public JSModifyProxyPlugin(JSASTModifier modify, List<String> excludes) {
+	public NewProxyPlugin(JSASTModifier modify, List<String> excludes) {
 		excludeFilenamePatterns = excludes;
-		modifier = modify;
+		//modifier = modify;
 	}
 
 	public void excludeDefaults() {
@@ -117,14 +139,8 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 	}
 
-	@Override
 	public String getPluginName() {
 		return "JSInstrumentPlugin";
-	}
-
-	@Override
-	public HTTPClient getProxyPlugin(HTTPClient in) {
-		return new Plugin(in);
 	}
 
 	private boolean shouldModify(String name) {
@@ -148,7 +164,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 *            Name of the current scope (filename mostly)
 	 * @return The modified JavaScript
 	 */
-	public synchronized String modifyJS(String input, String scopename) {
+	public synchronized String modifyJS(String input, String scopename, JSASTModifier modifier) {
 
 		System.out.println("<<<<");
 		System.out.println("Scope: " + scopename);
@@ -275,6 +291,25 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		System.out.println("JS FILENAME: " + jsFilename);
 		return jsFilename;
 	}
+	
+	public FunctionTrace createModifier(){
+		FunctionTrace s = new FunctionTrace();
+		
+		//FILESYSTEM
+		// Add necessary files from resources
+		s.setFileNameToAttach("/esprima.js");
+		s.setFileNameToAttach("/esmorph.js");
+		s.setFileNameToAttach("/jsonml-dom.js");
+		s.setFileNameToAttach("/addvariable.js");
+		s.setFileNameToAttach("/asyncLogger.js");
+		s.setFileNameToAttach("/applicationView.js");
+		s.setFileNameToAttach("/instrumentDOMEvents.js");
+		s.setFileNameToAttach("/domMutations.js");
+		s.setFileNameToAttach("/mutation_summary.js");
+		s.instrumentDOMModifications();
+	
+		return s;
+	}
 
 	/**
 	 * This method modifies the response to a request.
@@ -284,63 +319,77 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	 * @param request
 	 *            The request.
 	 * @return The modified response.
+	 * @throws IOException 
 	 */
-	private Response createResponse(Response response, Request request) {
+	public HttpServletResponse createResponse(HttpServletResponse response, HttpServletRequest request) throws IOException {
 		ArrayList<String> scriptNodesToCreate;
 		Element newNodeToAdd;
 		
-		String userName = this.userName;
-		System.out.println("USER NAME JSMODIFY: " + userName + " SESSION NUMBER: "+ this.sessionNum);
+		String url = request.getRequestURL() + request.getQueryString();
+		
+		Subject currentUser = SecurityUtils.getSubject();
+		String userName = (String) currentUser.getPrincipal();
+		
+		Double sessionNum = MongoInterface.getLastSessionNumber(userName);
+		
+		ServletInputStream in = request.getInputStream();
+		String input = episodeResource.processInput(in);
+		
+		System.out.println("USER NAME JSMODIFY: " + userName + " SESSION NUMBER: "+ sessionNum);
+		
+		JSASTModifier modifier = createModifier();
+		JSExecutionTracer jstrace = new JSExecutionTracer();
 
 		if (request == null) {
 			System.err.println("JSModifyProxyPlugin::createResponse: request is null");
 			return response;
 		}
 		
-		if (request != null && request.getURL() != null) {
+		if (request != null && url != null) {
 			System.out.println("Request URL:");
-			System.out.println(request.getURL().toString());
+			System.out.println(url);
 		}
 		
 
-		if (request.getURL() == null) {
+		if (url == null) {
 			System.err.println("JSModifyProxyPlugin::createResponse: request url is null");
 			return response;
-		} else if (request.getURL().toString().isEmpty()) {
+		} else if (url.isEmpty()) {
 			System.err.println("JSModifyProxyPlugin::createResponse: request url is empty");
 			return response;
 		} else if (response == null) {
 			System.err.println("JSModifyProxyPlugin::createResponse: response is null");
 			return response;
 			// Proxy can provide Clematis files to prepend to application (specified in SimpleExample.java)
-		} else if (!request.getURL().toString().contains("-clematis")
-				&& Integer.parseInt(response.getStatus()) == 404
-				&& modifier.getFilesToPrepend().contains(request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/")))) {		
-			return packageMessage(request, request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/")));	
+		} else if (!url.contains("-clematis")
+				&& response.getStatus() == 404
+				&& modifier.getFilesToPrepend().contains(url.substring(url.lastIndexOf("/")))) {		
+			return packageMessage(request, response, url.substring(url.lastIndexOf("/")));	
 			// Proxy can provide JavaScript and CSS specific to toolbar
-		} else if (request.getURL().toString().contains("toolbar-clematis") && Integer.parseInt(response.getStatus()) == 404) {		
-			return packageMessage(request,request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/toolbar-clematis/")));
+		} else if (url.contains("toolbar-clematis") && response.getStatus() == 404) {		
+			return packageMessage(request, response, url.toString().substring(url.lastIndexOf("/toolbar-clematis/")));
 			// Proxy can provide images for toolbar rendering
-		} else if (request.getURL().toString().contains("/images-clematis/") && Integer.parseInt(response.getStatus()) == 404) {
-			return packageMessage(request, request.getURL().toString().substring(request.getURL().toString().lastIndexOf("/images-clematis/")));
+		} else if (url.contains("/images-clematis/") && response.getStatus() == 404) {
+			return packageMessage(request, response, url.substring(url.lastIndexOf("/images-clematis/")));
 		}
 
 		String type = response.getHeader("Content-Type");
 
 		
 		// Communication with client in regards to recording
-		if (request.getURL().toString().contains("?beginrecord")) {
+		if (url.contains("?beginrecord")) {
 			areWeRecording = true;
 			jstrace.preCrawling(userName, sessionNum);
 			return response;
 		}
-		if (request.getURL().toString().contains("?stoprecord")) {
+		if (url.contains("?stoprecord")) {
 			areWeRecording = false;
-			jstrace.postCrawling(userName, this.sessionNum);
+			jstrace.postCrawling(userName, sessionNum);
 			return response;
 		}
-		if (request.getURL().toString().contains("?thisisafunctiontracingcall")) {
-			String rawResponse = new String(request.getContent());
+		if (url.contains("?thisisafunctiontracingcall")) {
+			//System.out.println("?THISISAFUNCTIONTRACINGCALL"+input);
+			String rawResponse = input;
 			try {
 				jstrace.addPoint(rawResponse, userName, sessionNum);
 			} catch (org.json.JSONException e) {
@@ -349,11 +398,11 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 			}
 			return response;
 		}
-		if (request.getURL().toString().contains("?toolbarstate")) {
+		if (url.contains("?toolbarstate")) {
 			try {
-				toolbarPosition = new JSONObject(new String(request.getContent()));
+				toolbarPosition = new JSONObject(input);
 			    System.out.println("Receving new toolbar position!!!!1");
-			    System.out.println(new String(request.getContent()));
+			    System.out.println(input);
 			 } catch (org.json.JSONException e) {
 			    // TODO Auto-generated catch block
 			    e.printStackTrace();
@@ -364,12 +413,15 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		// Intercept and instrument relevant files (JavaScript and HTML)
 		   if (type != null && type.contains("javascript")) {
 	            /* instrument the code if possible */
-	            response.setContent(modifyJS(new String(response.getContent()),
-	                    request.getURL().toString()).getBytes());
+			   response.getWriter().write(modifyJS(input,
+	                    url, modifier));
+			   response.getWriter().flush();
+			   response.getWriter().close();
+	           
 	        } else if (type != null && type.contains("html")) {
 
 	            try {
-	                Document dom = Helper.getDocument(new String(response.getContent()));
+	                Document dom = Helper.getDocument(input);
 	                /* find script nodes in the html */
 	                NodeList nodes = dom.getElementsByTagName("script");
 
@@ -381,7 +433,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	                        String content = nodes.item(i).getTextContent();
 
 	                        if (content.length() > 0) {
-	                            String js = modifyJS(content, request.getURL() + "script" + i);
+	                            String js = modifyJS(content, url + "script" + i, modifier);
 	                            nodes.item(i).setTextContent(js);
 	                            continue;
 	                        }
@@ -392,7 +444,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	                            .getTextContent().toLowerCase().contains("javascript"))) {
 	                        String content = nodes.item(i).getTextContent();
 	                        if (content.length() > 0) {
-	                            String js = modifyJS(content, request.getURL() + "script" + i);
+	                            String js = modifyJS(content, url + "script" + i, modifier);
 	                            nodes.item(i).setTextContent(js);
 	                        }
 	                    }
@@ -464,7 +516,10 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	                /* only modify content when we did modify anything */
 	                if (nodes.getLength() > 0) {
 	                    /* set the new content */
-	                    response.setContent(Helper.getDocumentToByteArray(dom));
+	                	response.getWriter().write(Helper.getDocumentToString(dom));
+	    	        	response.getWriter().flush();
+	    	        	response.getWriter().close();
+	                   
 	                }
 	            } catch (Exception e) {
 	                e.printStackTrace();
@@ -474,16 +529,19 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 	        return response;
 	    }
 
-	    private Response packageMessage(Request request, String file) {
-	        Response intrResponse = new Response();
-	        intrResponse.setStatus("200");
-	        intrResponse.setVersion("HTTP/1.1");
-	        intrResponse.setRequest(request);
-	        intrResponse.setMessage("OK");
-	        intrResponse.setHeader("Connection", "close");
-
+	    private HttpServletResponse packageMessage(HttpServletRequest request, HttpServletResponse intrResponse , String file) {
+	    	intrResponse.setStatus(200);
+	        intrResponse.setHeader("HTTP","1.1");
+	        
+	        intrResponse.setStatus(200);
+	        //intrResponse.setHeader("Connection", "close");
+	        
+	        
 	        try {
-	            intrResponse.setContent(Resources.toByteArray(AstInstrumenter.class.getResource(file)));
+	        	intrResponse.getWriter().write(Resources.toString(AstInstrumenter.class.getResource(file), Charsets.UTF_8));
+	        	intrResponse.getWriter().flush();
+	        	intrResponse.getWriter().close();
+	           
 	        } catch (IOException e) {
 	            // TODO Auto-generated catch block
 	            System.out.println(file);
@@ -497,7 +555,7 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 
 	/**
 	 * WebScarab plugin that adds instrumentation code.
-	 */
+	 *
 	private class Plugin implements HTTPClient {
 
 		private HTTPClient client = null;
@@ -507,17 +565,17 @@ public class JSModifyProxyPlugin extends ProxyPlugin {
 		 * 
 		 * @param in
 		 *            The HTTPClient connection.
-		 */
+		 *
 		public Plugin(HTTPClient in) {
 			client = in;
 		}
 
 		public Response fetchResponse(Request request) throws IOException {
-			System.out.println("CREATE RESPONSE");
+			
 			Response response = client.fetchResponse(request);
 			return createResponse(response, request);
 		}
-	}
+	}*/
 
 
 }
