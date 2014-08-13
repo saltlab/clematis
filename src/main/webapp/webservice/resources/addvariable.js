@@ -107,14 +107,15 @@ function send(value) {
 
     // Only record when intended
     if (!recordingInProgress) return; 
-
+    
 	window.buffer.push(value);
 }
 
 function sendRecordStart(){
     recordingInProgress = true;
     window.xhr.open('POST', document.location.href + '?beginrecord', false);
-    //window.xhr.open('POST', "http://localhost:8080/rest/clematis-api/test?beginrecord", false);
+    window.console.log("start");
+    //window.xhr.open('POST', 'http://localhost:8080/rest/clematis-api/test?beginrecord', false);
     window.xhr.send();
 }
 
@@ -122,13 +123,20 @@ function sendRecordStop(){
     sendReally();
     recordingInProgress = false;
     window.xhr.open('POST', document.location.href + '?stoprecord', false);
+    //window.xhr.open('POST', 'http://localhost:8080/rest/clematis-api/test?stoprecord', false);
     window.xhr.send();
 }
 
 function sendReally() {
     if (window.buffer.length > 0) { 
     	window.xhr.open('POST', document.location.href + '?thisisafunctiontracingcall', false);
+    	//window.xhr.open('POST', 'http://localhost:8080/rest/clematis-api/test?thisisafunctiontracingcall', false);
+    	var x = document.getElementById("page");
+    	//var y = x.contentWindow.document;
+    	console.log((window.buffer).toString());
+    	
     	window.xhr.send('['+(window.buffer).toString()+']');
+    	
     	window.buffer = new Array();
     }
 }

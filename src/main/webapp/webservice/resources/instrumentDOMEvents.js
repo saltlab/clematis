@@ -317,6 +317,11 @@ function overrideIndividualDOMLevel1(object) {
  */
 document.addEventListener("DOMContentLoaded", function replaceDOMLevel1ForAll() {
 	var i, allElements = document.querySelectorAll("*");
+	
+	/*[].forEach.call( document.querySelectorAll('iframe'), 
+			function  fn(elem){ 
+				console.log(elem.contentWindow.document.body.innerHTML);
+			});*/
 
 	// Removes this DOM event which was added below once all listeners have been replaced.
 	this.removeEventListener("DOMContentLoaded", replaceDOMLevel1ForAll, false);
@@ -324,9 +329,12 @@ document.addEventListener("DOMContentLoaded", function replaceDOMLevel1ForAll() 
 	// Gather all elements into the array all[]
 	for (i = 0; i < allElements.length; i++) {
 		// Overwrite/replace each element's handlers
+		console.log("HMMM");
+		console.log(allElements[i]);
 		overrideIndividualDOMLevel1(allElements[i]);
 	}
 } , false);
+
 
 //Call the overwrite function on the actual document, before wrapping its elements
 overrideIndividualDOMLevel1(document);

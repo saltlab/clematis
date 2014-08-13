@@ -3,7 +3,7 @@ function loadToolbar() {
 	var capturing = false;
 	var myVar = 0;
 	var div = document.createElement("div");
-  div.id = 'toolbarBody';
+	div.id = 'toolbarBody';
 	var lineBreak = document.createElement('br');
 	var tbl = document.createElement("table");
 	var tblBody = document.createElement("tbody");

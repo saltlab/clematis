@@ -210,11 +210,11 @@
 				mainNav.removeClass("open");
 			}
 		}
-		if (typeof console === "undefined") {
+		/*if (typeof console === "undefined") {
 		    console = {
 		        log: function() { }
 		    };
-		}
+		}*/
 		</script>
     
     <script>
@@ -226,7 +226,7 @@
       var URLstring = document.getElementById("URL").value;
 	    //document.getElementById("demo").innerHTML = URLstring;
 
-	      /*$.ajax({
+	    /*$.ajax({
 		    type: 'POST',
 		    url: 'http://localhost:8080/rest/clematis-api/startSessionPOST/',
 		    dataType: "text",

@@ -757,8 +757,155 @@ public class episodeResource {
 	
 	@GET
 	@Path("/redirect")
-	@Produces({"text/plain","text/css"})
+	@Produces({"text/html","text/plain","text/css"})
 	public String check(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
+		System.out.println("redirect");
+	
+		/*String[] params = request.getParameterValues("url");
+		for (int i=0; i<params.length ; i++){
+			System.out.println(params[i]);
+		}
+		System.out.println("");*/
+		
+		String queryString = "";
+		String url = "";
+		
+		@SuppressWarnings("unchecked")
+		Enumeration<String> params = request.getParameterNames();
+    	while(params.hasMoreElements()){
+    		String paramName = (String) params.nextElement();
+    		String[] paramVal = request.getParameterValues(paramName);
+    		System.out.println("Param: " + paramName);
+    		for (int i=0; i<paramVal.length; i++){
+    			System.out.println(" "+i+": " + paramVal[i]);
+    		}
+    		System.out.println("");
+    		
+    		if(paramName.equals("url")){
+    			url = paramVal[0];
+    		}else{
+    			queryString = queryString + paramName + "=" + paramVal[0] +"&";
+    		}
+    	}
+    	queryString = queryString + "redir=no";
+		
+    	System.out.println(queryString);
+    	//response.sendRedirect(url + "?" + queryString);
+    	String res = null;
+    	
+    	try {
+			res = sendGet(url+"?"+queryString);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("Error fetching request");
+			e.printStackTrace();
+		}
+    	
+		return res;
+	}
+	
+	@GET
+	@Path("/redirectHTML")
+	@Produces({"text/html"})
+	public String getHTML(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
+		System.out.println("redirect");
+	
+		/*String[] params = request.getParameterValues("url");
+		for (int i=0; i<params.length ; i++){
+			System.out.println(params[i]);
+		}
+		System.out.println("");*/
+		
+		String queryString = "";
+		String url = "";
+		
+		@SuppressWarnings("unchecked")
+		Enumeration<String> params = request.getParameterNames();
+    	while(params.hasMoreElements()){
+    		String paramName = (String) params.nextElement();
+    		String[] paramVal = request.getParameterValues(paramName);
+    		System.out.println("Param: " + paramName);
+    		for (int i=0; i<paramVal.length; i++){
+    			System.out.println(" "+i+": " + paramVal[i]);
+    		}
+    		System.out.println("");
+    		
+    		if(paramName.equals("url")){
+    			url = paramVal[0];
+    		}else{
+    			queryString = queryString + paramName + "=" + paramVal[0] +"&";
+    		}
+    	}
+    	queryString = queryString + "redir=no";
+		
+    	System.out.println(queryString);
+    	//response.sendRedirect(url + "?" + queryString);
+    	String res = null;
+    	
+    	try {
+			res = sendGet(url+"?"+queryString);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("Error fetching request");
+			e.printStackTrace();
+		}
+    	
+		return res;
+	}
+	
+	@GET
+	@Path("/redirectJS")
+	@Produces({"text/javascript"})
+	public String getJS(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
+		System.out.println("redirect");
+	
+		/*String[] params = request.getParameterValues("url");
+		for (int i=0; i<params.length ; i++){
+			System.out.println(params[i]);
+		}
+		System.out.println("");*/
+		
+		String queryString = "";
+		String url = "";
+		
+		@SuppressWarnings("unchecked")
+		Enumeration<String> params = request.getParameterNames();
+    	while(params.hasMoreElements()){
+    		String paramName = (String) params.nextElement();
+    		String[] paramVal = request.getParameterValues(paramName);
+    		System.out.println("Param: " + paramName);
+    		for (int i=0; i<paramVal.length; i++){
+    			System.out.println(" "+i+": " + paramVal[i]);
+    		}
+    		System.out.println("");
+    		
+    		if(paramName.equals("url")){
+    			url = paramVal[0];
+    		}else{
+    			queryString = queryString + paramName + "=" + paramVal[0] +"&";
+    		}
+    	}
+    	queryString = queryString + "redir=no";
+		
+    	System.out.println(queryString);
+    	//response.sendRedirect(url + "?" + queryString);
+    	String res = null;
+    	
+    	try {
+			res = sendGet(url+"?"+queryString);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("Error fetching request");
+			e.printStackTrace();
+		}
+    	
+		return res;
+	}
+	
+	@GET
+	@Path("/redirectCSS")
+	@Produces({"text/css"})
+	public String getCSS(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
 		System.out.println("redirect");
 	
 		/*String[] params = request.getParameterValues("url");
@@ -847,6 +994,8 @@ public class episodeResource {
 		return res;
 	}
 	
+	
+	
 	/*@POST
 	@Path("/startSessionPOST")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -931,18 +1080,17 @@ public class episodeResource {
 		System.out.println(processInput(in));
 		//String newUrl = splitURL(in);
 		String newUrl = getUrl(request);
+		
+    	if (newUrl.contains("beginrecord")){
+    		System.out.println("BEGINRECORD REPLACE");
+    		newUrl = newUrl.replace("?beginrecord", "");
+    		System.out.println(newUrl);
+    	}
 			
-		System.out.println("QUERY STRING:  "+ request.getQueryString());		
-			
+
 		String ip = request.getRemoteAddr();
 		System.out.println("ip:" + ip);
-			
-		//get user info
-		/*HttpSession userSession = request.getSession();
-		userSession.setAttribute("userName", user);
-		String userName = (String) userSession.getAttribute("userName");
-		System.out.println("User Name: " + userName );*/
-			
+						
 		//Double sessionNum = MongoInterface.newSessionDocument(userName);
 		Double sessionNum = MongoInterface.newSessionDocument(user, newUrl);
 
@@ -979,6 +1127,7 @@ public class episodeResource {
     			url = paramVal[0];
     		}
     	}
+
     	return url;
 	}
 	

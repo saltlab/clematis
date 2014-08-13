@@ -3,7 +3,9 @@ package com.clematis.jsmodify;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -15,6 +17,15 @@ import java.util.StringTokenizer;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -34,6 +45,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.clematis.core.SimpleExample;
 import com.clematis.core.episode.episodeResource;
@@ -325,8 +337,9 @@ public class NewProxyPlugin{
 		ArrayList<String> scriptNodesToCreate;
 		Element newNodeToAdd;
 		
-		String url = request.getRequestURL() + request.getQueryString();
-		
+		//String url = request.getRequestURL() + request.getQueryString();
+		String url = request.getQueryString();
+
 		Subject currentUser = SecurityUtils.getSubject();
 		String userName = (String) currentUser.getPrincipal();
 		
@@ -413,6 +426,7 @@ public class NewProxyPlugin{
 		// Intercept and instrument relevant files (JavaScript and HTML)
 		   if (type != null && type.contains("javascript")) {
 	            /* instrument the code if possible */
+			   System.out.println("javascript");
 			   response.getWriter().write(modifyJS(input,
 	                    url, modifier));
 			   response.getWriter().flush();
@@ -422,8 +436,13 @@ public class NewProxyPlugin{
 
 	            try {
 	                Document dom = Helper.getDocument(input);
+	                System.out.println("html");
+	                //domToString(dom, (InputStream) in);
+	                
 	                /* find script nodes in the html */
 	                NodeList nodes = dom.getElementsByTagName("script");
+	                
+	                
 
 	                for (int i = 0; i < nodes.getLength(); i++) {
 	                    Node nType = nodes.item(i).getAttributes().getNamedItem("type");
@@ -490,6 +509,7 @@ public class NewProxyPlugin{
 	                }
 	                // Inter-page recording (add extra JavaScript to enable recording right away)
 	                if (areWeRecording) {
+	                	System.out.println("We Are Recording");
 	                    // Page probably changed and we were recording on previous page...so start recording immediately
 	                    newNodeToAdd = dom.createElement("script");					
 	                    newNodeToAdd.setAttribute("language", "javascript");
@@ -529,6 +549,20 @@ public class NewProxyPlugin{
 	        return response;
 	    }
 
+	public void domToString(Document dom, InputStream st) throws ParserConfigurationException, SAXException, IOException, TransformerException{
+		DocumentBuilderFactory domFact = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = domFact.newDocumentBuilder();
+		Document doc = builder.parse(st);
+		DOMSource domSource = new DOMSource(doc);
+		StringWriter writer = new StringWriter();
+		StreamResult result = new StreamResult(writer);
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer transformer = tf.newTransformer();
+		transformer.transform(domSource, result);
+		System.out.println("XML IN String format is: \n" + writer.toString());
+	}
+	
+	
 	    private HttpServletResponse packageMessage(HttpServletRequest request, HttpServletResponse intrResponse , String file) {
 	    	intrResponse.setStatus(200);
 	        intrResponse.setHeader("HTTP","1.1");

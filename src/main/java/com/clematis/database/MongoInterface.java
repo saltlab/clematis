@@ -219,9 +219,42 @@ public class MongoInterface{
 		
 		DBCollection coll = db.getCollection("users");
 		Double[] array = new Double[0];
-		BasicDBObject user = new BasicDBObject("userName", userName).append("password", password).append("sessionIDs",array);
+		BasicDBObject user = new BasicDBObject("userName", userName).append("password", password).append("lastURL", "").append("sessionIDs",array);
 	    db.getCollection("users").insert(user); 
 	    
+	}
+	
+	public static void changelastURL(String userName, String url){
+		
+		BasicDBObject query = new BasicDBObject("userName", userName);
+		
+		BasicDBObject carrier = new BasicDBObject();
+	    BasicDBObject queryObject = new BasicDBObject();
+	    queryObject.put("YOUR_QUERY_STRING", query);
+
+	    BasicDBObject set = new BasicDBObject("$set", carrier);
+	    carrier.put("lastURL", url);     
+	    db.getCollection("users").update(query, set);
+	}
+	
+	public static String getLastURL(String userName){
+		DBCollection coll = db.getCollection("users");
+		BasicDBObject query = new BasicDBObject("userName", userName);
+		DBCursor cursor = coll.find(query);
+				
+		try {
+			while(cursor.hasNext()) {
+			   DBObject urlObject = cursor.next();
+			   String url = (String) urlObject.get("lastURL");
+			   //System.out.println("POINTS "+ points); 
+			   
+			   return url;
+		   }
+			
+		}finally{
+			cursor.close();
+		}
+		return null;
 	}
 	
 	public static List<String> getSessInfo(String username, Double sessionNumber){

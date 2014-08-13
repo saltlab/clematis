@@ -273,6 +273,7 @@ public class JSExecutionTracer {
             		//str = FileUtils.readFileToString(new File("clematis-output/ftrace/function.trace"));
             		//str = baos.toString();
             		str = MongoInterface.getTracerOutput(userName, sessionNum);
+            		System.out.println("STRING: " + str);
             //} catch (IOException e) {
             // 	    e.printStackTrace();
             //}
@@ -282,6 +283,7 @@ public class JSExecutionTracer {
                             new File("clematis-output/ftrace/function.trace"),
                             new TypeReference<TreeMultimap<String, TraceObject>>() {
                             });*/
+ 
             
             Multimap<String, TraceObject> traceMap = mapper
                     .<Multimap<String, TraceObject>> readValue(
@@ -606,7 +608,7 @@ public class JSExecutionTracer {
     	
     	
     	String pointString = MongoInterface.getTracerPoints(userName, sessionNum);
-    	System.out.println("POINTSTRING"+pointString);
+    	//System.out.println("POINTSTRING"+pointString);
     	
     	JSONArray points;
     	
@@ -698,12 +700,17 @@ public class JSExecutionTracer {
                     buffer.getJSONObject(i).remove("targetElement");
                     buffer.getJSONObject(i).put("targetElement", targetElement.toString());
                 }
-
                 // Insert @class key for Jackson mapping
                 if (buffer.getJSONObject(i).has("messageType")) {
                     String mType = buffer.getJSONObject(i).get("messageType")
                             .toString();
-
+                    
+                    String json = buffer.getJSONObject(i).toString();
+                    
+                    System.setOut(oldOut);
+                    //System.out.println("JSON :" + json);
+                    System.setOut(databaseOutput);
+                    
                     // Maybe better to change mType to ENUM and use switch
                     // instead of 'if's
                     if (mType.contains("FUNCTION_CALL")) {

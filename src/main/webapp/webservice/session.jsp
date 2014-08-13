@@ -12,26 +12,12 @@
 
     <title>Clematis</title>
 	<script src="../fish-eye-zoom/javascripts/jquery-1.9.1.js"></script>
+	<script src="resources/jquery.ba-replacetext.js"></script>
     <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script-->
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../fish-eye-zoom/javascripts/jquery.rest.min.js"></script>
-    <script type="text/javascript" src="../fish-eye-zoom/javascripts/jquery-ui-1.10.3.custom.js"></script>
-    <script type="text/javascript" src="resources/esprima.js"></script>
-    <script type="text/javascript" src="resources/esmorph.js"></script>
-    <script type="text/javascript" src="resources/jsonml-dom.js"></script>
-    <script type="text/javascript" src="resources/addvariable.js"></script>
-    <script type="text/javascript" src="resources/asyncLogger.js"></script>
-    <script type="text/javascript" src="resources/applicationView.js"></script>
-    <script type="text/javascript" src="resources/instrumentDOMEvents.js"></script>
-    <script type="text/javascript" src="resources/domMutations.js"></script>
-    <script type="text/javascript" src="resources/mutation_summary.js"></script>
-    <script type="text/javascript" src="resources/toolbar-clematis/jquery-ui-1.10.2.custom.js"></script>
-    <script type="text/javascript" src="resources/toolbar-clematis/jquery.tipsy.js"></script>
-    <link href="resources/toolbar-clematis/css/jquery-ui-1.10.2.custom.css" rel="stylesheet">
-    <link href="resources/toolbar-clematis/css/tipsy.css" rel="stylesheet">
-    <script type="text/javascript" src="resources/toolbar-clematis/toolbar.js"></script>
-    
+
+
     <!-- Bootstrap core CSS -->
     <!--link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"-->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -115,24 +101,31 @@ function myFunction() {
 	  });*/
 	  
 </script>    
-    
+
+<div id="testLoad"></div>
+
 <div class="container">  
 <div class="view">
 
-	<iframe id="page" src="" width="100%" height="100%" frameborder="0" ></iframe>
-	<div id="testLoad"></div>
-	<button onclick="myFunction()">Try it</button>
+	<iframe id="page" src="about:blank" width="100%" height="120%" frameborder="0" ></iframe>
 
-	<p id="demo"></p>
 </div>
 </div>
+
+<div id="INPUT"></div>
+
 
 <script type="text/javascript">
-	var element = document.getElementById("page").setAttribute("src", url);
+	//var element = document.getElementById("page").setAttribute("src", "http://localhost:8080/rest/clematis-api/redirectHTML?url=" + url + "&null");
+	//var a ="<script"+" src"+"=\"../fish-eye-zoom/javascripts/jquery.rest.min.js\">"+"<"+"/"+"script>"; 
 	
-	//$("#testLoad").load("http://www.themaninblue.com/experiment/BunnyHunt/");
-
-	/*var l="<script"+" src"+"=\"resources/toolbar-clematis/toolbar.js\">"+"<"+"/"+"script>"; 
+	var b = "<script"+" src"+"=\"../fish-eye-zoom/javascripts/jquery-ui-1.10.3.custom.js\">"+"<"+"/"+"script>"; 
+	var a="<script"+" src"+"=\"resources/jquery.rest.min.js\">"+"<"+"/"+"script>";
+	var c = "<script"+" src"+"=\"http://code.jquery.com/jquery-1.11.1.js\">" + "<"+"/"+"script>"; 
+ 	var d = "<script"+" src"+"=\"resources/jquery.ba-replacetext.js\">"+"<"+"/"+"script>";
+ 	var e = "<script"+" src"+"=\"../fish-eye-zoom/javascripts/jquery-1.9.1.js\">"+"<"+"/"+"script>"; 
+	
+	var l = "<script"+" src"+"=\"resources/toolbar-clematis/toolbar.js\">"+"<"+"/"+"script>"; 
 	var m = "<script"+" src"+"=\"resources/esprima.js\">"+"<"+"/"+"script>";
 	var n = "<script"+" src"+"=\"resources/esmorph.js\">"+"<"+"/"+"script>";
 	var o = "<script"+" src"+"=\"resources/jsonml-dom.js\">"+"<"+"/"+"script>";
@@ -145,30 +138,28 @@ function myFunction() {
 	var v = "<script"+" src"+"=\"resources/toolbar-clematis/jquery-ui-1.10.2.custom.js\">"+"<"+"/"+"script>";
 	var w = "<script"+" src"+"=\"resources/toolbar-clematis/jquery.tipsy.js\">"+"<"+"/"+"script>";
 	var x = "<script"+" src"+"=\"resources/domMutations.js\">"+"<"+"/"+"script>";
-	var y = "<link"+" href"+"=\"resources/toolbar-clematis/css/jquery-ui-1.10.2.custom.css\">";
-	var z = "<link"+" href"+"=\"resources/toolbar-clematis/css/tipsy.css\">";
+	var y = "<link"+" href"+"=\"resources/toolbar-clematis/css/jquery-ui-1.10.2.custom.css\" rel=\"stylesheet\">";
+	var z = "<link"+" href"+"=\"resources/toolbar-clematis/css/tipsy.css\" rel=\"stylesheet\">";
+	
+	//send request to server for url
+	$.ajax({
+		    type: 'GET',
+		    url: 'http://localhost:8080/rest/clematis-api/redirectHTML?url=' + url + '&null/',
+		    dataType: "text",
+		    contentType: "text/html",
+		    async: false,
+		    success: function successfulSessionStarted(data) {
+		  		var doc = document.getElementById('page').contentWindow.document;
+				doc.open();
 
-	
-	$('#page').contents().find('head').append(l);
-	$('#page').contents().find('head').append(m);
-	$('#page').contents().find('head').append(n);
-	$('#page').contents().find('head').append(o);
-	$('#page').contents().find('head').append(p);
-	$('#page').contents().find('head').append(q);
-	$('#page').contents().find('head').append(r);
-	$('#page').contents().find('head').append(s);
-	$('#page').contents().find('head').append(t);
-	$('#page').contents().find('head').append(u);
-	
-	$('#page').contents().find('head').append(l);
-	
-	$('#page').contents().find('head').append(v);
-	$('#page').contents().find('head').append(w);
-	$('#page').contents().find('head').append(x);
-	$('#page').contents().find('head').append(y);
-	$('#page').contents().find('head').append(z);
-	*/
+				data = e + c + d + y + z + data + b + a + m+n+o+p+q+r+s+t+u+v+w+x+l ;
+				
+				var doc = document.getElementById('page').contentWindow.document;
+				doc.write(data);
+				doc.close();
 
+		    }
+	    });
 	
 </script>
 
