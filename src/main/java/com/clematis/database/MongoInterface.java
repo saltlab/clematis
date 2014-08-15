@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -99,7 +100,8 @@ public class MongoInterface{
 		       
 		       //create session information document
 		       BasicDBObject sessionInformation = new BasicDBObject("username", userName).append("sessionNumber", sessionNumber)
-		    		   .append("sessionName", "Session " + sessionNumber).append("Date",dateFormat.format(date)).append("URL", URL);
+		    		   .append("sessionName", "Session " + sessionNumber).append("Date",dateFormat.format(date))
+		    		   .append("URL", URL);
 		     
 		       db.getCollection("sessionInfo").insert(sessionInformation);
 		   }
@@ -219,7 +221,7 @@ public class MongoInterface{
 		
 		DBCollection coll = db.getCollection("users");
 		Double[] array = new Double[0];
-		BasicDBObject user = new BasicDBObject("userName", userName).append("password", password).append("lastURL", "").append("sessionIDs",array);
+		BasicDBObject user = new BasicDBObject("userName", userName).append("password", password).append("lastURL", "").append("sessionIDs",array).append("toolbarPosition", null);
 	    db.getCollection("users").insert(user); 
 	    
 	}
@@ -249,6 +251,41 @@ public class MongoInterface{
 			   //System.out.println("POINTS "+ points); 
 			   
 			   return url;
+		   }
+			
+		}finally{
+			cursor.close();
+		}
+		return null;
+	}
+	
+	public static void changeToolbarPosition(String userName, JSONObject toolbarPosition){
+		
+		String toolPos = toolbarPosition.toString();
+		
+		BasicDBObject query = new BasicDBObject("userName", userName);
+		
+		BasicDBObject carrier = new BasicDBObject();
+	    BasicDBObject queryObject = new BasicDBObject();
+	    queryObject.put("YOUR_QUERY_STRING", query);
+
+	    BasicDBObject set = new BasicDBObject("$set", carrier);
+	    carrier.put("toolbarPosition", toolPos);     
+	    db.getCollection("users").update(query, set);
+	}
+	
+	public static String getToolbarPosition(String userName){
+		DBCollection coll = db.getCollection("users");
+		BasicDBObject query = new BasicDBObject("userName", userName);
+		DBCursor cursor = coll.find(query);
+				
+		try {
+			while(cursor.hasNext()) {
+			   DBObject toolbarObject = cursor.next();
+			   String toolbarPosition = (String) toolbarObject.get("toolbarPosition");
+			   //System.out.println("POINTS "+ points); 
+			   
+			   return toolbarPosition;
 		   }
 			
 		}finally{

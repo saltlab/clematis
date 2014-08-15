@@ -757,7 +757,7 @@ public class episodeResource {
 	
 	@GET
 	@Path("/redirect")
-	@Produces({"text/html","text/plain","text/css"})
+	@Produces({"text/plain"})
 	public String check(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
 		System.out.println("redirect");
 	
@@ -783,18 +783,29 @@ public class episodeResource {
     		
     		if(paramName.equals("url")){
     			url = paramVal[0];
-    		}else{
+    		}else {
     			queryString = queryString + paramName + "=" + paramVal[0] +"&";
     		}
     	}
-    	queryString = queryString + "redir=no";
+    	//queryString = queryString + "redir=no";
+    	
+    	if (queryString.contains("null=&")){
+    		queryString = queryString.replace("?null=&", "");
+    	}else if (queryString.contains("=&")){
+    		queryString = queryString.replace("=&","");
+    	}
 		
     	System.out.println(queryString);
     	//response.sendRedirect(url + "?" + queryString);
     	String res = null;
     	
     	try {
-			res = sendGet(url+"?"+queryString);
+    		if (queryString != null && !queryString.isEmpty()){
+    			res = sendGet(url+"?"+queryString);
+    		}
+    		else{
+    			res = sendGet(url);
+    		}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println("Error fetching request");
@@ -832,18 +843,28 @@ public class episodeResource {
     		
     		if(paramName.equals("url")){
     			url = paramVal[0];
-    		}else{
+    		}else {
     			queryString = queryString + paramName + "=" + paramVal[0] +"&";
     		}
     	}
-    	queryString = queryString + "redir=no";
-		
+    	//queryString = queryString + "redir=no";
+    	if (queryString.contains("null=&")){
+    		queryString = queryString.replace("?null=&", "");
+    	}else if (queryString.contains("=&")){
+    		queryString = queryString.replace("=&","");
+    	}
+    	
     	System.out.println(queryString);
     	//response.sendRedirect(url + "?" + queryString);
     	String res = null;
     	
     	try {
-			res = sendGet(url+"?"+queryString);
+    		if (queryString != null && !queryString.isEmpty()){
+    			res = sendGet(url+"?"+queryString);
+    		}
+    		else{
+    			res = sendGet(url);
+    		}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println("Error fetching request");
@@ -881,18 +902,30 @@ public class episodeResource {
     		
     		if(paramName.equals("url")){
     			url = paramVal[0];
-    		}else{
+    		}else {
     			queryString = queryString + paramName + "=" + paramVal[0] +"&";
     		}
     	}
-    	queryString = queryString + "redir=no";
+    	//queryString = queryString + "redir=no";
 		
+    	if (queryString.contains("null=&")){
+    		queryString = queryString.replace("?null=&", "");
+    	}else if (queryString.contains("=&")){
+    		queryString = queryString.replace("=&","");
+    	}
+    	
     	System.out.println(queryString);
     	//response.sendRedirect(url + "?" + queryString);
     	String res = null;
     	
     	try {
-			res = sendGet(url+"?"+queryString);
+    		if (queryString != null && !queryString.isEmpty()){
+    			res = sendGet(url+"?"+queryString);
+    		}
+    		else{
+    			res = sendGet(url);
+    		}
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println("Error fetching request");
@@ -930,18 +963,31 @@ public class episodeResource {
     		
     		if(paramName.equals("url")){
     			url = paramVal[0];
-    		}else{
+    		}else {
     			queryString = queryString + paramName + "=" + paramVal[0] +"&";
     		}
     	}
-    	queryString = queryString + "redir=no";
+    	//queryString = queryString + "redir=no";
 		
+    	if (queryString.contains("null=&")){
+    		queryString = queryString.replace("?null=&", "");
+    	}else if (queryString.contains("=&")){
+    		queryString = queryString.replace("=&","");
+    	}
+    	
     	System.out.println(queryString);
     	//response.sendRedirect(url + "?" + queryString);
     	String res = null;
     	
     	try {
-			res = sendGet(url+"?"+queryString);
+    		
+    		if (queryString != null && !queryString.isEmpty()){
+    			res = sendGet(url+"?"+queryString);
+    		}
+    		else{
+    			res = sendGet(url);
+    		}
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println("Error fetching request");
@@ -977,14 +1023,25 @@ public class episodeResource {
     			queryString = queryString + paramName + "=" + paramVal[0] +"&";
     		}
     	}
-    	queryString = queryString + "redir=no";
+    	queryString = queryString.substring(0, queryString.length()-1);
 		
+    	if (queryString.contains("null=&")){
+    		queryString = queryString.replace("null=&", "");
+    	}else if (queryString.contains("=&")){
+    		queryString = queryString.replace("=&","");
+    	}
+    	
     	System.out.println(queryString);
     	//response.sendRedirect(url + "?" + queryString);
     	BufferedImage res = null;
     	
     	try {
-			res = sendGetImage(url+"?"+queryString);
+    		if (queryString != null && !queryString.isEmpty()){
+    			res = sendGetImage(url+"?"+queryString);
+    		}
+    		else{
+    			res = sendGetImage(url);
+    		}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println("Error fetching request");
@@ -1053,10 +1110,8 @@ public class episodeResource {
 		return "session started"; 
 	} */
 	
-	//@POST
-	//@Path("/startSessionPOST")
-	//@Produces(MediaType.APPLICATION_JSON)
-	public static String startNewSessionPOST(/*@Context*/ HttpServletRequest request) throws IOException{
+
+	public static void startNewSessionPOST(HttpServletRequest request) throws IOException{
 		//USER LOGGED IN? 
 		Subject currentUser = SecurityUtils.getSubject();
 		String user = (String) currentUser.getPrincipal();
@@ -1086,28 +1141,26 @@ public class episodeResource {
     		newUrl = newUrl.replace("?beginrecord", "");
     		System.out.println(newUrl);
     	}
-			
 
-		String ip = request.getRemoteAddr();
-		System.out.println("ip:" + ip);
+		//String ip = request.getRemoteAddr();
+		//System.out.println("ip:" + ip);
 						
-		//Double sessionNum = MongoInterface.newSessionDocument(userName);
 		Double sessionNum = MongoInterface.newSessionDocument(user, newUrl);
 
-		//SimpleExample session = new SimpleExample(ip, userName, sessionNum);
-		SimpleExample session = new SimpleExample(ip, user, sessionNum);
+		SimpleExample session = new SimpleExample(user, sessionNum);
+		
 
 		try{
 			session.checkURL(newUrl);
 		} catch (IllegalArgumentException e){
-			return "Invalid URL: Please enter a url that begins with \"www.\" or \"http://\""; 
+			//return "Invalid URL: Please enter a url that begins with \"www.\" or \"http://\""; 
 		}
 			
+		session.begin();
+		
 		//Thread t = new Thread(new ClematisSession(newUrl, session));
 		//t.start();
-		session.begin(newUrl);
-		
-		return "session started"; 
+
 	}
 	
 	public static String getUrl(HttpServletRequest request){
@@ -1161,6 +1214,10 @@ public class episodeResource {
 		String username = user[1];
 		String[] pass = parts[1].split("=");
 		String password = pass[1];
+		
+		if (username.contains("%40")){
+			username = username.replace("%40", "@");
+		}
 		
 		System.out.println("username: " + username + " password: "  + pass[1]);
 		

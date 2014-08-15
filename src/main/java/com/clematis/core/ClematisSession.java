@@ -10,7 +10,7 @@ public class ClematisSession implements Runnable {
 	}
 
 	public void run() {
-		newSession.begin(url);
+		newSession.begin();
 	}
 
 }

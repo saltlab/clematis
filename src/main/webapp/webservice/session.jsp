@@ -107,7 +107,7 @@ function myFunction() {
 <div class="container">  
 <div class="view">
 
-	<iframe id="page" src="about:blank" width="100%" height="120%" frameborder="0" ></iframe>
+	<iframe id="page" src="about:blank" width="100%" height="110%" frameborder="1" ></iframe>
 
 </div>
 </div>
@@ -152,7 +152,7 @@ function myFunction() {
 		  		var doc = document.getElementById('page').contentWindow.document;
 				doc.open();
 
-				data = e + c + d + y + z + data + b + a + m+n+o+p+q+r+s+t+u+v+w+x+l ;
+				data = e + c + d + b + a + y + z   + m+n+o+p+q+r+s+t+u+v+w+x+l  + data;
 				
 				var doc = document.getElementById('page').contentWindow.document;
 				doc.write(data);

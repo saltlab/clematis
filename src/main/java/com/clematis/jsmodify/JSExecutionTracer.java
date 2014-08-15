@@ -273,7 +273,7 @@ public class JSExecutionTracer {
             		//str = FileUtils.readFileToString(new File("clematis-output/ftrace/function.trace"));
             		//str = baos.toString();
             		str = MongoInterface.getTracerOutput(userName, sessionNum);
-            		System.out.println("STRING: " + str);
+            		//System.out.println("STRING: " + str);
             //} catch (IOException e) {
             // 	    e.printStackTrace();
             //}

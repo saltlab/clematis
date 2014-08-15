@@ -72,12 +72,12 @@ public class NewProxyPlugin{
 	
 	//private JSExecutionTracer jstrace;
 	
-	private boolean areWeRecording = false;
+	//private boolean areWeRecording = false;
 
 	private String outputFolder = "";
 	private String jsFilename = "";
 	
-	private static JSONObject toolbarPosition = null;
+	//private static JSONObject toolbarPosition = null;
 	
 	//private String userName;
 	//private Double sessionNum;
@@ -337,6 +337,8 @@ public class NewProxyPlugin{
 		ArrayList<String> scriptNodesToCreate;
 		Element newNodeToAdd;
 		
+		boolean areWeRecording = false;
+			
 		//String url = request.getRequestURL() + request.getQueryString();
 		String url = request.getQueryString();
 
@@ -344,6 +346,20 @@ public class NewProxyPlugin{
 		String userName = (String) currentUser.getPrincipal();
 		
 		Double sessionNum = MongoInterface.getLastSessionNumber(userName);
+		
+		JSONObject toolbarPosition = null;
+		String toolPos = MongoInterface.getToolbarPosition(userName);
+		//get toolbarPosition
+		
+		try {
+			if(toolPos != null && !toolPos.isEmpty()){
+				toolbarPosition = new JSONObject(toolPos);
+			}
+			
+		} catch (org.json.JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		ServletInputStream in = request.getInputStream();
 		String input = episodeResource.processInput(in);
@@ -414,6 +430,9 @@ public class NewProxyPlugin{
 		if (url.contains("?toolbarstate")) {
 			try {
 				toolbarPosition = new JSONObject(input);
+				MongoInterface.changeToolbarPosition(userName, toolbarPosition);
+				
+				//save toolbarPosition to DB
 			    System.out.println("Receving new toolbar position!!!!1");
 			    System.out.println(input);
 			 } catch (org.json.JSONException e) {

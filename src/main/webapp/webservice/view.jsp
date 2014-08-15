@@ -63,9 +63,17 @@
     
 
 	<div class = "backbutton" > 
+	<div class = "row">
+	<div class="col-md-4">
 		<a href="/webservice/account.jsp">
 		  <span class="glyphicon glyphicon-chevron-left"></span>View All Sessions
 		</a>
+	</div>
+	<div class="col-md-4">
+		<h4 id="number" align="center"></h4>
+	</div>
+
+	</div>
 	</div>
 
 
@@ -86,6 +94,8 @@
     }
     
 	  var sessionID = getUrlParameter('sessionID');
+	  document.getElementById("number").innerHTML = "Session " + sessionID;
+	  
 	  $.ajax({
 	    type: 'GET',
 	    url: 'http://localhost:8080/rest/clematis-api/test/' + sessionID ,

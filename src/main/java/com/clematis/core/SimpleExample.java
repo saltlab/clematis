@@ -28,7 +28,6 @@ public class SimpleExample {
 
 	private boolean urlProvided = false;
 	private String URL = "";
-	private String clientIP;
 	
 	private String userName;
 	private Double sessionNum;
@@ -36,14 +35,13 @@ public class SimpleExample {
 	private String outputFolder = "";
 	private WebDriver driver;
 	
-	public SimpleExample (String IP, String userName, Double sessionNum){
-		this.setIP(IP);
+	public SimpleExample (String userName, Double sessionNum){
 		this.userName = userName;
 		this.sessionNum = sessionNum;
 	}
 
 	
-	public void begin(String args){
+	public void begin(){
 		try{
 			
 			//FILESYSTEM
@@ -83,8 +81,8 @@ public class SimpleExample {
 	
 			// Interface for Ast traversal
 			//JSModifyProxyPlugin p = new JSModifyProxyPlugin(s, tracer, this.userName, this.sessionNum);
-			NewProxyPlugin p = new NewProxyPlugin();
-			p.excludeDefaults(); 
+			//NewProxyPlugin p = new NewProxyPlugin();
+			//p.excludeDefaults(); 
 	
 			//Framework framework = new Framework();
 			
@@ -158,10 +156,6 @@ public class SimpleExample {
 		return this.userName;
 	}
 	
-	public String getIP(){
-		return this.clientIP;
-	}
-	
 	public void setURL (boolean provided, String newUrl){
 		this.urlProvided = provided;
 		this.URL = newUrl;
@@ -182,10 +176,7 @@ public class SimpleExample {
 		}
 		setURL(true, correctURL);
 	}
-	
-	public void setIP(String ip){
-		this.clientIP = ip;
-	}
+
 
 	static boolean waitForWindowClose(WebDriverWait w) throws TimeoutException {
 		// Function to check if window has been closed
