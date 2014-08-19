@@ -221,7 +221,15 @@ public class MongoInterface{
 		
 		DBCollection coll = db.getCollection("users");
 		Double[] array = new Double[0];
-		BasicDBObject user = new BasicDBObject("userName", userName).append("password", password).append("lastURL", "").append("sessionIDs",array).append("toolbarPosition", null);
+		BasicDBObject user = new BasicDBObject("userName", userName).append("password", password).append("lastURL", "").append("sessionIDs",array).append("toolbarPosition", null).append("areWeRecording", false);
+	    db.getCollection("users").insert(user); 
+	    
+	}
+	
+	public static void newGuestUser(Double guestNum){
+
+		Double[] array = new Double[0];
+		BasicDBObject user = new BasicDBObject("userName", "guest"+guestNum).append("guestNum", guestNum).append("password", "1234").append("sessionIDs",array).append("toolbarPosition", null).append("areWeRecording", false);
 	    db.getCollection("users").insert(user); 
 	    
 	}
@@ -259,6 +267,34 @@ public class MongoInterface{
 		return null;
 	}
 	
+	public static Double getLastGuestUser(){
+		DBCollection coll = db.getCollection("users");
+		
+		BasicDBObject regexQuery = new BasicDBObject();
+		regexQuery.put("userName", 
+			new BasicDBObject("$regex", "Guest.*")
+			.append("$options", "i"));
+	 
+		System.out.println(regexQuery.toString());
+	 
+		DBCursor cursor = coll.find(regexQuery).sort(new BasicDBObject("guestNum",-1)).limit(1);
+
+		try {
+			while(cursor.hasNext()) {
+			   DBObject guestObject = cursor.next();
+			   String guest = (String) guestObject.get("userName");
+			   Double number = (Double) guestObject.get("guestNum");
+			   System.out.println("GUEST: " + guest + " Number: " + number); 
+			   
+			   return number;
+		   }
+			
+		}finally{
+			cursor.close();
+		}
+		return null;
+	}
+	
 	public static void changeToolbarPosition(String userName, JSONObject toolbarPosition){
 		
 		String toolPos = toolbarPosition.toString();
@@ -286,6 +322,39 @@ public class MongoInterface{
 			   //System.out.println("POINTS "+ points); 
 			   
 			   return toolbarPosition;
+		   }
+			
+		}finally{
+			cursor.close();
+		}
+		return null;
+	}
+	
+	public static void updateRecordingState(String userName, Boolean recordingState){
+		
+		BasicDBObject query = new BasicDBObject("userName", userName);
+		
+		BasicDBObject carrier = new BasicDBObject();
+	    BasicDBObject queryObject = new BasicDBObject();
+	    queryObject.put("YOUR_QUERY_STRING", query);
+	    
+	    BasicDBObject set = new BasicDBObject("$set", carrier);
+	    carrier.put("areWeRecording", recordingState);     
+	    db.getCollection("users").update(query, set);
+	}
+	
+	public static Boolean getRecordingState(String userName){
+		DBCollection coll = db.getCollection("users");
+		BasicDBObject query = new BasicDBObject("userName", userName);
+		DBCursor cursor = coll.find(query);
+				
+		try {
+			while(cursor.hasNext()) {
+			   DBObject recordingObject = cursor.next();
+			   Boolean recordingState = (Boolean) recordingObject.get("areWeRecording");
+			   //System.out.println("POINTS "+ points); 
+			   
+			   return recordingState;
 		   }
 			
 		}finally{
@@ -369,8 +438,13 @@ public class MongoInterface{
 			   while(cursor.hasNext()) {
 				   DBObject user = cursor.next();   
 			       BasicDBList numSessions = (BasicDBList) user.get("sessionIDs");
-
-			       Object last = numSessions.get(numSessions.size()-1);
+			       Object last;
+			       if(numSessions.size() > 0){
+			    	   last = numSessions.get(numSessions.size()-1);
+			       }
+			       else{
+			    	   last = (Double) 0.0;
+			       }
 			       lastElem = (Double) last;
 
 			       //System.out.println("LAST SESSION NUMBER: " + lastElem);

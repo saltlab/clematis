@@ -94,7 +94,11 @@
     }
     
 	  var sessionID = getUrlParameter('sessionID');
+	  if (sessionID == null){
+		  sessionID = 1;
+	  }
 	  document.getElementById("number").innerHTML = "Session " + sessionID;
+	 
 	  
 	  $.ajax({
 	    type: 'GET',
@@ -109,7 +113,7 @@
 </script>    
     
 <div class="container">  
-<div class="view">
+<div class="viewSession">
 	<iframe id="page" src="" width="100%" height="100%" frameborder="0" ></iframe>
 </div>
 </div>

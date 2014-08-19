@@ -25,6 +25,8 @@ import java.net.HttpURLConnection;
 
 
 
+
+
 //import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -37,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 
 import com.clematis.core.episode.episodeResource;
@@ -87,6 +90,29 @@ public class LogFilter implements Filter {
 	        	//ServletInputStream in = request.getInputStream();
 	        	//String data = episodeResource.processInput(in);
 	        	//System.out.println("data: " + data);
+        		Subject currentUser = SecurityUtils.getSubject();
+        		String user = (String) currentUser.getPrincipal();
+        		
+        		/*if (!currentUser.isAuthenticated()) {
+	        		System.out.println( "current user not authenticated - guest user");
+	    	        
+	    	    	//find last guest # 
+	    	    	Double guestNum = MongoInterface.getLastGuestUser() + 1.0;
+	    	    	
+	    	    	//create new account
+	    	    	MongoInterface.newGuestUser(guestNum);
+	    	    	
+	    	    	//login
+	    	    	user = "guest"+guestNum;
+	    	        UsernamePasswordToken token = new UsernamePasswordToken(user, "1234");
+	    	        //this is all you have to do to support 'remember me' (no config - built in!):
+	    	        token.setRememberMe(true);
+	    	        currentUser.login(token);
+        		}*/
+    	        
+        		NewProxyPlugin proxy = new NewProxyPlugin();
+	        	proxy.excludeDefaults();
+	        	proxy.createResponse(response, request);
 	        	      	
 	        	try {      		
 	        		episodeResource.startNewSessionPOST(request);	        		
@@ -97,7 +123,7 @@ public class LogFilter implements Filter {
 	        	      	
 	        }
 	        else if(request.getQueryString() != null && ( request.getQueryString().contains("thisisafunctiontracingcall") || 
-	        		 request.getQueryString().contains("stoprecord"))){
+	        		 request.getQueryString().contains("stoprecord") || request.getQueryString().contains("toolbarstate"))){
 	        	
 	        	NewProxyPlugin proxy = new NewProxyPlugin();
 	        	proxy.excludeDefaults();
@@ -242,6 +268,7 @@ public class LogFilter implements Filter {
     	paths.add("/sessions");
     	paths.add("/account");
     	paths.add("/redirect");
+    	paths.add("/test");
     	
     	for (String s : paths ){
     		if (uri.contains(s)){
@@ -256,11 +283,39 @@ public class LogFilter implements Filter {
     	System.out.println("");
     	System.out.println("UP REQUEST  !!!!!!!!!!!!!!!");
     	
+    	
     	String referrer = request.getHeader("referer");
     	System.out.println("Referrer: " + referrer);
     	
-    	String[] referLocation = referrer.split("\\?url=");
-    	System.out.println("Referrer Location: " + referLocation[1]);
+    	String referLocat, realURL = "";
+    	if (referrer!= null && !referrer.isEmpty()){
+    		if (referrer.contains("url=")){
+        		String[] referLocation = referrer.split("\\?url=");
+        		referLocat = referLocation[1];
+            	System.out.println("Referrer Location: " + referLocat);
+        	}else{
+        		referLocat = referrer;
+        	}
+    		
+    		String[] urlArray = referLocat.split("/");
+        	
+        	
+        	int startingPoint;
+        	if (referLocat.contains("http://")){
+        		startingPoint = 1;
+        		realURL = "http:/";
+        	}
+        	else{
+        		startingPoint = 0;
+        		realURL = "http://";
+        	}
+        	
+        	for( int i = startingPoint; i < urlArray.length - upNum; i++){
+        		realURL = realURL + urlArray[i] + "/";
+        	}
+    	}
+    	
+    	
     	
     	String[] queryArray;
     	String queryString;
@@ -281,12 +336,7 @@ public class LogFilter implements Filter {
 		}
     	
     	//String[] queryArray = url.toString().split("/rest/");
-    	String[] urlArray = referLocation[1].split("/");
-    	String realURL = "http:/";
-    	
-    	for( int i = 1; i < urlArray.length - upNum; i++){
-    		realURL = realURL + urlArray[i] + "/";
-    	}
+    	//if referrer is null, use original query string
     	
     	realURL = realURL + queryString;
     	
@@ -363,8 +413,11 @@ public class LogFilter implements Filter {
     			queryString = queryString + paramName + "=" + paramVal[0] +"&";
     		}
     	}
+    	if (queryString != null && !queryString.isEmpty()){
+    		queryString = queryString.substring(0, queryString.length() - 1);
+    	}
     	
-    	queryString = queryString.substring(0, queryString.length() - 1);
+    	queryString = queryString.replace(" ", "%20");
     	
     	System.out.println("NEW QUERY GOOGLE ANALYTICS:" + queryString);
     	

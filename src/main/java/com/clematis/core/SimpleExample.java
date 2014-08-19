@@ -164,7 +164,7 @@ public class SimpleExample {
 	
 	public void checkURL(String url){
 		String correctURL;
-		if (!(url.contains(".com") || url.contains("www.") || url.contains("http://"))){
+		if (!(url.contains(".com") || url.contains("www.") )){
 			System.err.println("Invalid arguments. Please provide URL for target application as argument (E.g. --url http://localhost:8888/phormer331/index.php)");
 			throw new IllegalArgumentException();
 		}

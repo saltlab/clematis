@@ -250,6 +250,7 @@
     	else{
     		document.getElementById("signupsuccess").innerHTML = " ";
 	    	var signupData = $('#createAccount').serializeArray();
+	    	
 	    	//var signupData = "hi";
 	    	$.ajax({
 	    		type: 'POST',

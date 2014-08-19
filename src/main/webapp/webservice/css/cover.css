@@ -103,8 +103,15 @@ body {
    padding-top: 25%;
 }
 
-.view{
+.viewSession{
 	margin-top: 1%;
+	height: 100%;
+	margin-left: -5%;
+	margin-right: -5%;
+}
+
+.view{
+	margin-top: 50px;
 	height: 100%;
 	margin-left: -5%;
 	margin-right: -5%;
@@ -173,7 +180,5 @@ body {
 	  width: 93%;
 }
 
-.view{
-	margin-top: 50px;
-}
+
 

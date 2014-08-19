@@ -337,15 +337,17 @@ public class NewProxyPlugin{
 		ArrayList<String> scriptNodesToCreate;
 		Element newNodeToAdd;
 		
-		boolean areWeRecording = false;
+		
 			
 		//String url = request.getRequestURL() + request.getQueryString();
 		String url = request.getQueryString();
 
 		Subject currentUser = SecurityUtils.getSubject();
 		String userName = (String) currentUser.getPrincipal();
+		System.out.println("newproxyplugin user: " + userName);
 		
 		Double sessionNum = MongoInterface.getLastSessionNumber(userName);
+		Boolean areWeRecording = MongoInterface.getRecordingState(userName);
 		
 		JSONObject toolbarPosition = null;
 		String toolPos = MongoInterface.getToolbarPosition(userName);
@@ -408,11 +410,13 @@ public class NewProxyPlugin{
 		// Communication with client in regards to recording
 		if (url.contains("?beginrecord")) {
 			areWeRecording = true;
+			MongoInterface.updateRecordingState(userName, areWeRecording);
 			jstrace.preCrawling(userName, sessionNum);
 			return response;
 		}
 		if (url.contains("?stoprecord")) {
 			areWeRecording = false;
+			MongoInterface.updateRecordingState(userName, areWeRecording);
 			jstrace.postCrawling(userName, sessionNum);
 			return response;
 		}
@@ -526,6 +530,7 @@ public class NewProxyPlugin{
 	                        dom.getElementsByTagName("head").item(0).insertBefore(newNodeToAdd, dom.getElementsByTagName("meta").item(dom.getElementsByTagName("meta").getLength()-1));
 	                    }
 	                }
+	                
 	                // Inter-page recording (add extra JavaScript to enable recording right away)
 	                if (areWeRecording) {
 	                	System.out.println("We Are Recording");

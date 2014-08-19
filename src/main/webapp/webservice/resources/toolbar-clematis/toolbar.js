@@ -139,7 +139,7 @@ function loadToolbar() {
     }
     $(window).bind('beforeunload', saveState);
 }
-
+//onload
 $(document).ready(loadToolbar);
 
 function resumeRecording(previousCounterLeftOff) {

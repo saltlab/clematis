@@ -49,6 +49,7 @@
             </li>
             </shiro:user>
             <shiro:guest><li><a href="/webservice/home.jsp#login" class="scroll-link" data-id="login">Login</a></li></shiro:guest>
+            <shiro:guest><li><a href="/webservice/view.jsp">View Trace</a></li></shiro:guest>
             <shiro:user><li><a href="<c:url value="/logout"/>">Log out</a></li></shiro:user>
           </ul>
           
@@ -62,17 +63,6 @@
     </div>
     
     
-
-<script>
-function myFunction() {
-    var person = prompt("Please enter your name", "Harry Potter");
-    
-    if (person != null) {
-        document.getElementById("demo").innerHTML =
-        "Hello " + person + "! How are you today?";
-    }
-}
-</script>
 
 <script type="text/javascript">
 	  //var sessionID = <?php echo json_encode($_GET["sessionID"]); ?>;
@@ -100,14 +90,14 @@ function myFunction() {
 	    }
 	  });*/
 	  
-</script>    
+</script>   
 
 <div id="testLoad"></div>
 
 <div class="container">  
 <div class="view">
 
-	<iframe id="page" src="about:blank" width="100%" height="110%" frameborder="1" ></iframe>
+	<iframe id="page" src="about:blank" width="100%" height="110%" frameborder="1"></iframe>
 
 </div>
 </div>
@@ -152,7 +142,7 @@ function myFunction() {
 		  		var doc = document.getElementById('page').contentWindow.document;
 				doc.open();
 
-				data = e + c + d + b + a + y + z   + m+n+o+p+q+r+s+t+u+v+w+x+l  + data;
+				data = data + e + c + d + b + a + y + z   + m+n+o+p+q+r+s+t+u+v+w+x+l ;
 				
 				var doc = document.getElementById('page').contentWindow.document;
 				doc.write(data);
@@ -160,6 +150,25 @@ function myFunction() {
 
 		    }
 	    });
+	
+	//on iframe load - inject javascript with timestamp		
+	/*$('#page').load(function() {
+		//if areWeRecording is true, then inject timestamp and toolbar again?
+		$.ajax({
+		    type: 'GET',
+		    url: 'http://localhost:8080/rest/clematis-api/areWeRecording',
+		    dataType: "text",
+		    contentType: "text/plain",
+		    async: false,
+		    success: function successfulSessionStarted(data) {
+
+				var doc = document.getElementById('page').contentWindow.document;
+				doc.write(data);
+				doc.close();
+
+		    }
+	    });
+	});*/
 	
 </script>
 

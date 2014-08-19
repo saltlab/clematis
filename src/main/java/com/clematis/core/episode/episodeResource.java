@@ -755,6 +755,8 @@ public class episodeResource {
 		return "okay";
 	}
 	
+
+	
 	@GET
 	@Path("/redirect")
 	@Produces({"text/plain"})
@@ -1023,7 +1025,10 @@ public class episodeResource {
     			queryString = queryString + paramName + "=" + paramVal[0] +"&";
     		}
     	}
-    	queryString = queryString.substring(0, queryString.length()-1);
+    	if (queryString != null && !queryString.isEmpty()){
+    		queryString = queryString.substring(0, queryString.length()-1);
+    	}
+    	queryString = queryString.replace(" ", "%20");
 		
     	if (queryString.contains("null=&")){
     		queryString = queryString.replace("null=&", "");
@@ -1119,12 +1124,21 @@ public class episodeResource {
 			
 		// let's login the current user so we can check against roles and permissions:
 	    if (!currentUser.isAuthenticated()) {
-	    	System.out.println( "current user not authenticated - guest user");
-	        user = "guest";
-	        UsernamePasswordToken token = new UsernamePasswordToken(user, "guest");
+	    	System.out.println( "current user not authenticated - ERROR");
+	    	/*System.out.println( "current user not authenticated - guest user");
+	        
+	    	//find last guest # 
+	    	Double guestNum = MongoInterface.getLastGuestUser() + 1.0;
+	    	
+	    	//create new account
+	    	MongoInterface.newGuestUser(guestNum);
+	    	
+	    	//login
+	    	user = "guest"+guestNum;
+	        UsernamePasswordToken token = new UsernamePasswordToken(user, "1234");
 	        //this is all you have to do to support 'remember me' (no config - built in!):
 	        token.setRememberMe(true);
-	        currentUser.login(token);
+	        currentUser.login(token);*/
 	    }
 	    else{
 	        System.out.println("USER:" + user);
@@ -1265,6 +1279,13 @@ public class episodeResource {
 	// HTTP GET request
 		private String sendGet(String url) throws Exception {
 	 
+			if (!url.contains("http://")){
+				url = "http://" + url;
+			}
+			if (url.substring(url.length()-1).equals("&")){
+				url = url.substring(0, url.length()-1);
+			}
+			
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
