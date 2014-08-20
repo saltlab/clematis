@@ -54,7 +54,7 @@
           </ul>
           
           <ul class="nav navbar-nav navbar-right">
-          	<li><a>Hi <shiro:guest>Guest</shiro:guest><shiro:user><shiro:principal/></shiro:user>!</a>
+          	<li><a id = "usernamechange">Hi <shiro:guest>Guest</shiro:guest><shiro:user><shiro:principal/></shiro:user>!</a>
 		    </li>
 	      </ul>
         </div><!--/.nav-collapse -->
@@ -62,7 +62,18 @@
       </div>
     </div>
     
-    
+<script type="text/javascript">
+
+var name = document.getElementById('usernamechange').innerHTML;
+console.log(name);
+if(name.indexOf("Guest") > -1){
+	if (name.length > 9){
+		console.log(name.substring(0,8)+"!");
+		document.getElementById('usernamechange').innerHTML = name.substring(0,8)+"!";
+	}
+}
+
+</script>
 
 <script type="text/javascript">
 	  //var sessionID = <?php echo json_encode($_GET["sessionID"]); ?>;
@@ -152,7 +163,7 @@
 	    });
 	
 	//on iframe load - inject javascript with timestamp		
-	/*$('#page').load(function() {
+	$('#page').load(function() {
 		//if areWeRecording is true, then inject timestamp and toolbar again?
 		$.ajax({
 		    type: 'GET',
@@ -161,14 +172,34 @@
 		    contentType: "text/plain",
 		    async: false,
 		    success: function successfulSessionStarted(data) {
-
-				var doc = document.getElementById('page').contentWindow.document;
-				doc.write(data);
-				doc.close();
-
+				console.log("Are We Recording? " + data);
+				
+				if (data == "true" ){
+					var counter = 0; 
+					
+					$.ajax({
+					    type: 'GET',
+					    url: 'http://localhost:8080/rest/clematis-api/areWeRecordingCounter',
+					    dataType: "text",
+					    contentType: "text/plain",
+					    async: false,
+					    success: function successfulSessionStarted(data) {
+							console.log("Counter: " + data);
+							counter = data;
+					    }
+				    });
+					
+					var doc = document.getElementById('page').contentWindow.document;
+					var html = doc.body.innerHTML;
+					var resume = "<script>"+ "resumeRecording(" + counter + ");" + "<"+"/"+"script>"; 
+						
+					doc.write(html  +e + c + d + b + a + y + z   + m+n+o+p+q+r+s+t+u+v+w+x+l + resume);
+					doc.close();
+				}
+				
 		    }
 	    });
-	});*/
+	});
 	
 </script>
 

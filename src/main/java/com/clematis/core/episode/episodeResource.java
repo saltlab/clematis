@@ -68,6 +68,7 @@ import com.clematis.core.trace.XMLHttpRequestResponse;
 import com.clematis.core.trace.XMLHttpRequestSend;
 import com.clematis.core.trace.XMLHttpRequestTrace;
 import com.clematis.database.MongoInterface;
+import com.clematis.jsmodify.JSExecutionTracer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -755,7 +756,34 @@ public class episodeResource {
 		return "okay";
 	}
 	
-
+	@GET
+	@Path("/areWeRecording")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Boolean areWeRecording(){
+		
+		Subject currentUser = SecurityUtils.getSubject();
+		String userName = (String) currentUser.getPrincipal();
+		Boolean areWe = MongoInterface.getRecordingState(userName);
+		System.out.println("Are We Recording? " + areWe);
+		
+		return areWe;
+	}
+	
+	@GET
+	@Path("/areWeRecordingCounter")
+	@Produces(MediaType.APPLICATION_JSON)
+	public int getCounter(){
+		
+		Subject currentUser = SecurityUtils.getSubject();
+		String userName = (String) currentUser.getPrincipal();
+		JSExecutionTracer jstrace = new JSExecutionTracer();
+		int count = jstrace.getCounter(userName, MongoInterface.getLastSessionNumber(userName));
+		
+		System.out.println("Are We Recording Counter:  " + count);
+		
+		return count;
+	}
+	
 	
 	@GET
 	@Path("/redirect")

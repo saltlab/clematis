@@ -27,6 +27,7 @@ import java.net.HttpURLConnection;
 
 
 
+
 //import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -57,7 +58,7 @@ public class LogFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
 
         //Get the IP address of client machine.
-        String ipAddress = request.getRemoteAddr();
+        //String ipAddress = request.getRemoteAddr();
         StringBuffer url = request.getRequestURL();
         
         boolean isClemFile = isClematisFile(request.getRequestURI());
@@ -69,16 +70,18 @@ public class LogFilter implements Filter {
         
         System.out.println("Request URL: " + url + "   Request Port: " + request.getServerPort() );     
         System.out.println("QUERY STRING:  "+ request.getQueryString());
-      
-
+        
+        Subject currentUser = SecurityUtils.getSubject();
+		String user = (String) currentUser.getPrincipal();
+		
+        if(user != null && !user.isEmpty()){
+        	NewProxyPlugin proxy = new NewProxyPlugin();
+        	proxy.excludeDefaults();
+        	proxy.createResponse(response, request);
+        }
+    	
 
         if (url.toString().contains("localhost")){
-        	
-        	if(url.toString().contains("http://localhost:8080/webservice/session.jsp") && !request.getQueryString().contains("beginrecord") && 
-        			!request.getQueryString().contains("thisisafunctiontracingcall") && !request.getQueryString().contains("stoprecord") && !request.getQueryString().contains("toolbarstate")){
-        		System.out.println("CHANGE URL");
-        		changeLastURL(request);
-        	}
         	
             if (url.toString().contains("/rest/") && !url.toString().contains("/rest/clematis-api")){
             	String realURL = upRequest(request, url, 2);
@@ -90,10 +93,10 @@ public class LogFilter implements Filter {
 	        	//ServletInputStream in = request.getInputStream();
 	        	//String data = episodeResource.processInput(in);
 	        	//System.out.println("data: " + data);
-        		Subject currentUser = SecurityUtils.getSubject();
-        		String user = (String) currentUser.getPrincipal();
+        		//Subject currentUser = SecurityUtils.getSubject();
+        		//String user = (String) currentUser.getPrincipal();
         		
-        		/*if (!currentUser.isAuthenticated()) {
+        		if (!currentUser.isAuthenticated()) {
 	        		System.out.println( "current user not authenticated - guest user");
 	    	        
 	    	    	//find last guest # 
@@ -103,16 +106,17 @@ public class LogFilter implements Filter {
 	    	    	MongoInterface.newGuestUser(guestNum);
 	    	    	
 	    	    	//login
-	    	    	user = "guest"+guestNum;
-	    	        UsernamePasswordToken token = new UsernamePasswordToken(user, "1234");
+	    	    	//user = "guest"+guestNum;
+	    	    	user = "Guest" + guestNum;
+	    	        UsernamePasswordToken token = new UsernamePasswordToken(user, guestNum.toString());
 	    	        //this is all you have to do to support 'remember me' (no config - built in!):
 	    	        token.setRememberMe(true);
 	    	        currentUser.login(token);
-        		}*/
+        		}
     	        
-        		NewProxyPlugin proxy = new NewProxyPlugin();
+        		/*NewProxyPlugin proxy = new NewProxyPlugin();
 	        	proxy.excludeDefaults();
-	        	proxy.createResponse(response, request);
+	        	proxy.createResponse(response, request);*/
 	        	      	
 	        	try {      		
 	        		episodeResource.startNewSessionPOST(request);	        		
@@ -125,9 +129,9 @@ public class LogFilter implements Filter {
 	        else if(request.getQueryString() != null && ( request.getQueryString().contains("thisisafunctiontracingcall") || 
 	        		 request.getQueryString().contains("stoprecord") || request.getQueryString().contains("toolbarstate"))){
 	        	
-	        	NewProxyPlugin proxy = new NewProxyPlugin();
+	        	/*NewProxyPlugin proxy = new NewProxyPlugin();
 	        	proxy.excludeDefaults();
-	        	proxy.createResponse(response, request);
+	        	proxy.createResponse(response, request);*/
 	        	
 	        }   
 	        else if (request.getQueryString() != null && (request.getQueryString().contains("url") )){
@@ -269,6 +273,7 @@ public class LogFilter implements Filter {
     	paths.add("/account");
     	paths.add("/redirect");
     	paths.add("/test");
+    	paths.add("/areWeRecording");
     	
     	for (String s : paths ){
     		if (uri.contains(s)){

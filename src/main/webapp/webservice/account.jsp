@@ -77,14 +77,26 @@
           </ul>
           
           <ul class="nav navbar-nav navbar-right">
-          	<li><a>Hi <shiro:guest>Guest</shiro:guest><shiro:user><shiro:principal/></shiro:user>!</a>
+          	<li><a id = "usernamechange">Hi <shiro:guest>Guest</shiro:guest><shiro:user><shiro:principal/></shiro:user>!</a>
 		    </li>
 	      </ul>
         </div><!--/.nav-collapse -->
        
       </div>
     </div>
-    
+
+<script type="text/javascript">
+
+var name = document.getElementById('usernamechange').innerHTML;
+console.log(name);
+if(name.indexOf("Guest") > -1){
+	if (name.length > 9){
+		console.log(name.substring(0,8)+"!");
+		document.getElementById('usernamechange').innerHTML = name.substring(0,8)+"!";
+	}
+}
+
+</script> 
     
     <div class="container">
     	<div class="account-title">

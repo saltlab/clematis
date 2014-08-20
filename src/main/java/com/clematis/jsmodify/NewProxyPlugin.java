@@ -336,15 +336,12 @@ public class NewProxyPlugin{
 	public HttpServletResponse createResponse(HttpServletResponse response, HttpServletRequest request) throws IOException {
 		ArrayList<String> scriptNodesToCreate;
 		Element newNodeToAdd;
-		
-		
-			
+	
 		//String url = request.getRequestURL() + request.getQueryString();
 		String url = request.getQueryString();
 
 		Subject currentUser = SecurityUtils.getSubject();
 		String userName = (String) currentUser.getPrincipal();
-		System.out.println("newproxyplugin user: " + userName);
 		
 		Double sessionNum = MongoInterface.getLastSessionNumber(userName);
 		Boolean areWeRecording = MongoInterface.getRecordingState(userName);
@@ -414,7 +411,7 @@ public class NewProxyPlugin{
 			jstrace.preCrawling(userName, sessionNum);
 			return response;
 		}
-		if (url.contains("?stoprecord")) {
+		if (url.contains("stoprecord")) {
 			areWeRecording = false;
 			MongoInterface.updateRecordingState(userName, areWeRecording);
 			jstrace.postCrawling(userName, sessionNum);
@@ -571,6 +568,7 @@ public class NewProxyPlugin{
 	        }
 	        /* return the response to the webbrowser */
 	        return response;
+		
 	    }
 
 	public void domToString(Document dom, InputStream st) throws ParserConfigurationException, SAXException, IOException, TransformerException{

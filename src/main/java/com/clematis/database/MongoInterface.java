@@ -229,7 +229,7 @@ public class MongoInterface{
 	public static void newGuestUser(Double guestNum){
 
 		Double[] array = new Double[0];
-		BasicDBObject user = new BasicDBObject("userName", "guest"+guestNum).append("guestNum", guestNum).append("password", "1234").append("sessionIDs",array).append("toolbarPosition", null).append("areWeRecording", false);
+		BasicDBObject user = new BasicDBObject("userName", "Guest" + guestNum).append("guestNum", guestNum).append("password", guestNum.toString()).append("sessionIDs",array).append("toolbarPosition", null).append("areWeRecording", false);
 	    db.getCollection("users").insert(user); 
 	    
 	}
