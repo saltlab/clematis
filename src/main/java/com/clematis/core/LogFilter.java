@@ -79,16 +79,125 @@ public class LogFilter implements Filter {
         	proxy.excludeDefaults();
         	proxy.createResponse(response, request);
         }
+        
     	
+        //begin recording?
+        if (request.getQueryString() != null && request.getQueryString().contains("beginrecord")){
+    		
+    		if (!currentUser.isAuthenticated()) {
+        		System.out.println( "current user not authenticated - guest user");
+    	        
+    	    	//find last guest # 
+    	    	Double guestNum = MongoInterface.getLastGuestUser() + 1.0;
+    	    	
+    	    	//create new account
+    	    	MongoInterface.newGuestUser(guestNum);
+    	    	
+    	    	//login
+    	    	//user = "guest"+guestNum;
+    	    	user = "Guest" + guestNum;
+    	        UsernamePasswordToken token = new UsernamePasswordToken(user, guestNum.toString());
+    	        //this is all you have to do to support 'remember me' (no config - built in!):
+    	        token.setRememberMe(true);
+    	        currentUser.login(token);
+    		}
 
-        if (url.toString().contains("localhost")){
+        	try {      		
+        		episodeResource.startNewSessionPOST(request);	        		
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	      	
+        }
+
+        //check if it is a clematis file
+  		else if (request.getRequestURI() != null && isClemFile && !matchesRestAPI(request.getRequestURI()) && url.toString().contains("localhost")){
+    		System.out.println("HERE");
+    		String URI = request.getRequestURI();
+    		//if ( URI.contains("/rest/clematis-api/")){
+    		//	URI = URI.replace("/rest/clematis-api/","");
+    		//	response.sendRedirect("http://localhost:8080/webservice/" + URI);
+    		//}
+    		        		
+    		chain.doFilter(req, res);
+    	}
+        //check if is rest api
+        else if (request.getRequestURI() != null && !isClemFile && matchesRestAPI(request.getRequestURI())){
         	
-            if (url.toString().contains("/rest/") && !url.toString().contains("/rest/clematis-api")){
+        	chain.doFilter(req, res);
+        	
+        }
+        // check if not local host
+        else if (!url.toString().contains("localhost")){
+        	System.out.println("not localhost");
+        	
+        	if (url.toString().contains("www.google-analytics.com")){
+        		redirectGA(url.toString(), url, response, request);
+        	}
+        	
+        	else if (request.getQueryString() != null){
+        		redirect(url+"&"+request.getQueryString(), url, response);
+        	}
+        	else{
+        		redirect(url.toString(), url, response);
+        	}
+        	
+        }
+
+        
+        
+        //not clematis file and not a rest api
+        else if (request.getRequestURI() != null && !isClemFile && !matchesRestAPI(request.getRequestURI())){
+
+        	String referrer = request.getHeader("referer");
+        	System.out.println("Referrer: " + referrer);
+        	String relativeURL;
+        	
+            
+        	/*if (url.toString().contains("www.google-analytics.com")){
+        		redirectGA(url.toString(), url, response, request);
+        	}*/
+        	
+        	//else {
+	        	if (!url.toString().contains("/webservice") && url.toString().contains("/rest/clematis-api")){
+	        		relativeURL = upRequest(request, url, 1);
+	        	}
+	        	else if (url.toString().contains("/rest/") && !url.toString().contains("/rest/clematis-api")){
+	             	relativeURL = upRequest(request, url, 2);
+	            }
+	        	else {
+	        		relativeURL = upRequest(request, url, 0);
+	        	}
+	   		
+	    		redirect(relativeURL, url, response);
+        	//}
+    	}
+        //if redirect request
+        else if (request.getQueryString() != null && (request.getQueryString().contains("url") )){
+        	
+        	chain.doFilter(req, res);
+        }
+        else {
+        	chain.doFilter(req, res);
+        }
+
+    	
+    	/*else if (request.getQueryString() != null){
+    		redirect(url+"&"+request.getQueryString(), url, response);
+    	}
+    	else{
+    		redirect(url.toString(), url, response);
+    	}*/
+        
+        //if (url.toString().contains("localhost")){
+        	
+           /* if (url.toString().contains("/rest/") && !url.toString().contains("/rest/clematis-api")){
             	String realURL = upRequest(request, url, 2);
             	redirect(realURL, url, response);
             	
-            }
-        	else if (request.getQueryString() != null && request.getQueryString().contains("beginrecord")){
+            }*/
+        	/*else if (request.getQueryString() != null && request.getQueryString().contains("beginrecord")){
         	
 	        	//ServletInputStream in = request.getInputStream();
 	        	//String data = episodeResource.processInput(in);
@@ -116,7 +225,7 @@ public class LogFilter implements Filter {
     	        
         		/*NewProxyPlugin proxy = new NewProxyPlugin();
 	        	proxy.excludeDefaults();
-	        	proxy.createResponse(response, request);*/
+	        	proxy.createResponse(response, request);*//*
 	        	      	
 	        	try {      		
 	        		episodeResource.startNewSessionPOST(request);	        		
@@ -125,20 +234,13 @@ public class LogFilter implements Filter {
 					e.printStackTrace();
 				}
 	        	      	
-	        }
-	        else if(request.getQueryString() != null && ( request.getQueryString().contains("thisisafunctiontracingcall") || 
-	        		 request.getQueryString().contains("stoprecord") || request.getQueryString().contains("toolbarstate"))){
-	        	
-	        	/*NewProxyPlugin proxy = new NewProxyPlugin();
-	        	proxy.excludeDefaults();
-	        	proxy.createResponse(response, request);*/
-	        	
-	        }   
-	        else if (request.getQueryString() != null && (request.getQueryString().contains("url") )){
+	        }  */
+	        /*else if (request.getQueryString() != null && (request.getQueryString().contains("url") )){
+	        	//a redirect request
 
 		        	chain.doFilter(req, res);
 		        	
-	        }else if (request.getRequestURI() != null && !isClemFile && !matchesRestAPI(request.getRequestURI())){
+	        }*//*else if (request.getRequestURI() != null && !isClemFile && !matchesRestAPI(request.getRequestURI())){
             	//get url from database
         		//String relativeURL = "http://www.themaninblue.com/experiment/BunnyHunt/";
 	        	
@@ -162,7 +264,7 @@ public class LogFilter implements Filter {
         		//String URIString = request.getRequestURI();
         		/*if (URIString.contains("/webservice/")){
         			URIString = URIString.replace("/webservice/","");
-        		}*/
+        		}*//*
         		
         		
         		//System.out.println("NEW QUERY STRING :" + URIString);
@@ -171,7 +273,7 @@ public class LogFilter implements Filter {
        		
         		redirect(relativeURL, url, response);
         		
-        	}else if (request.getRequestURI() != null && isClemFile && !matchesRestAPI(request.getRequestURI())){
+        	}/*else if (request.getRequestURI() != null && isClemFile && !matchesRestAPI(request.getRequestURI())){
         		System.out.println("HERE");
         		String URI = request.getRequestURI();
         		if ( URI.contains("/rest/clematis-api/")){
@@ -180,13 +282,13 @@ public class LogFilter implements Filter {
         		}
         		        		
         		chain.doFilter(req, res);
-        	}
-	        else{
+        	}*/
+	       /* else{
 
 	        	chain.doFilter(req, res);
 	        }
-        }
-        else if (!url.toString().contains("localhost")){
+        }*/
+        /*else if (!url.toString().contains("localhost")){
         	System.out.println("not localhost");
         	
         	if (url.toString().contains("www.google-analytics.com")){
@@ -200,11 +302,11 @@ public class LogFilter implements Filter {
         		redirect(url.toString(), url, response);
         	}
         	
-        }
-        else{
+        }*/
+       /* else{
         	System.out.println(" ");
         	chain.doFilter(req, res);
-        }
+        }*/
     }
     
     
@@ -234,8 +336,14 @@ public class LogFilter implements Filter {
 		if (requestFile.contains("/rest/clematis-api/")){
 			requestFile = requestFile.replace("/rest/clematis-api/","");
 		}
+		if(requestFile.equals("/")){
+			return false;
+		}
+		
     	isFile = getFiles(System.getProperty("user.dir")+"/src/main/webapp", requestFile, isFile);
+    	
     	System.out.println("isFile? " + isFile);
+    	
     	return isFile;
     }
     
@@ -270,7 +378,7 @@ public class LogFilter implements Filter {
     	paths.add("/episodes");
     	paths.add("/story");
     	paths.add("/sessions");
-    	paths.add("/account");
+    	paths.add("/account/create");
     	paths.add("/redirect");
     	paths.add("/test");
     	paths.add("/areWeRecording");

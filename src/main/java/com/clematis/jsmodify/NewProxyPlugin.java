@@ -336,9 +336,14 @@ public class NewProxyPlugin{
 	public HttpServletResponse createResponse(HttpServletResponse response, HttpServletRequest request) throws IOException {
 		ArrayList<String> scriptNodesToCreate;
 		Element newNodeToAdd;
-	
-		//String url = request.getRequestURL() + request.getQueryString();
-		String url = request.getQueryString();
+		String url;
+		
+		if (request.getQueryString() != null ){
+			url = request.getRequestURL() + request.getQueryString();
+		}
+		else{
+			url = request.getRequestURL().toString();
+		}
 
 		Subject currentUser = SecurityUtils.getSubject();
 		String userName = (String) currentUser.getPrincipal();

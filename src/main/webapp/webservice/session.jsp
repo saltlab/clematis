@@ -153,7 +153,7 @@ if(name.indexOf("Guest") > -1){
 		  		var doc = document.getElementById('page').contentWindow.document;
 				doc.open();
 
-				data = data + e + c + d + b + a + y + z   + m+n+o+p+q+r+s+t+u+v+w+x+l ;
+				data =   e + c + d + b + a + y + z   + m+n+o+p+q+r+s+t+u+v+w+x+l + data  ;
 				
 				var doc = document.getElementById('page').contentWindow.document;
 				doc.write(data);
