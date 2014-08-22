@@ -40,13 +40,8 @@
           <ul class="nav navbar-nav">
             <li class="active"><a href="/webservice/home.jsp" class="scroll-link" data-id="newSession">New Session</a></li>
             <li><a href="#" class="scroll-link" data-id="about">About</a></li>
-           <shiro:user> <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Account <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="/webservice/account.jsp">View Sessions</a></li>
-                <li><a href="#">Edit Account</a></li>
-              </ul>
-            </li>
+           	<shiro:user> 
+           	<li><a href="/webservice/account.jsp">View Sessions</a></li>
             </shiro:user>
             <shiro:guest><li><a href="/webservice/home.jsp#login" class="scroll-link" data-id="login">Login</a></li></shiro:guest>
             <shiro:user><li><a href="<c:url value="/logout"/>">Log out</a></li></shiro:user>

@@ -92,6 +92,12 @@ public class LogFilter implements Filter {
     	        token.setRememberMe(true);
     	        currentUser.login(token);
     		}
+    		
+    		if(user != null && !user.isEmpty()){
+            	NewProxyPlugin proxy = new NewProxyPlugin();
+            	proxy.excludeDefaults();
+            	proxy.createResponse(response, request, null);
+            }
 
         	try {      		
         		episodeResource.startNewSessionPOST(request);	        		
@@ -183,38 +189,6 @@ public class LogFilter implements Filter {
         	
         }
 
-        
-        
-        //not clematis file and not a rest api
-        else if (request.getRequestURI() != null && !isClemFile && !matchesRestAPI(request.getRequestURI())){
-
-        	String referrer = request.getHeader("referer"); 
-        	System.out.println("Referrer: " + referrer);
-        	String relativeURL;
-        	
-            
-        	/*if (url.toString().contains("www.google-analytics.com")){
-        		redirectGA(url.toString(), url, response, request);
-        	}*/
-        	
-        	//else {
-	        	if (!url.toString().contains("/webservice") && url.toString().contains("/rest/clematis-api")){
-	        		relativeURL = upRequest(request, url, 1);
-	        	}
-	        	else if (url.toString().contains("/rest/") && !url.toString().contains("/rest/clematis-api")){
-	             	relativeURL = upRequest(request, url, 2);
-	            }
-	        	else if (url.toString().contains("/webservice") && referrer.contains(".html")){
-	        		relativeURL = upRequest(request, url, 1);
-	        	}
-	        	else {
-	        		relativeURL = upRequest(request, url, 0);
-	        	}
-	   		
-	    		//redirect(relativeURL, url, response);
-	    		redirect(relativeURL, url, responseCopier);
-        	//}
-    	}
         //if redirect request
         else if (request.getQueryString() != null && (request.getQueryString().contains("url") )){
         	
@@ -239,6 +213,41 @@ public class LogFilter implements Filter {
             }
    	
         }
+        
+        //not clematis file and not a rest api
+        else if (request.getRequestURI() != null && !isClemFile && !matchesRestAPI(request.getRequestURI())){
+
+        	String referrer = request.getHeader("referer"); 
+        	System.out.println("Referrer: " + referrer);
+        	String relativeURL;
+        	
+            
+        	/*if (url.toString().contains("www.google-analytics.com")){
+        		redirectGA(url.toString(), url, response, request);
+        	}*/
+        	
+        	//else {
+	        	if (!url.toString().contains("/webservice") && url.toString().contains("/rest/clematis-api")){
+	        		relativeURL = upRequest(request, url, 1);
+	        	}
+	        	else if (url.toString().contains("/rest/") && !url.toString().contains("/rest/clematis-api")){
+	             	relativeURL = upRequest(request, url, 2);
+	            }
+	        	else if (url.toString().contains("/webservice") && referrer.contains(".html")){
+	        		relativeURL = upRequest(request, url, 1);
+	        	}
+	        	else if (!url.toString().contains("/webservice") && !url.toString().contains("/rest")){
+	        		relativeURL = upRequest(request, url, 2);
+	        	}
+	        	else {
+	        		relativeURL = upRequest(request, url, 0);
+	        	}
+	   		
+	    		//redirect(relativeURL, url, response);
+	    		redirect(relativeURL, url, responseCopier);
+        	//}
+    	}
+
         else {
         	//chain.doFilter(req, res);
             try {
@@ -466,6 +475,7 @@ public class LogFilter implements Filter {
     	paths.add("/story");
     	paths.add("/sessions");
     	paths.add("/account/create");
+    	paths.add("/account/signInAsGuest");
     	paths.add("/redirect");
     	paths.add("/test");
     	paths.add("/areWeRecording");
@@ -485,7 +495,10 @@ public class LogFilter implements Filter {
     	
     	
     	String referrer = request.getHeader("referer");
+
     	System.out.println("Referrer: " + referrer);
+    	
+    	
     	
     	String referLocat, realURL = "";
     	if (referrer!= null && !referrer.isEmpty()){
@@ -496,6 +509,13 @@ public class LogFilter implements Filter {
         	}else{
         		referLocat = referrer;
         	}
+    		
+        	
+        	if (referLocat.contains("?")){
+        		String[] referWithQuery = referLocat.split("\\?");
+        		referLocat = referWithQuery[0];
+        	}
+        	System.out.println("Refer Location: " + referLocat);
     		
     		String[] urlArray = referLocat.split("/");
         	
@@ -537,6 +557,10 @@ public class LogFilter implements Filter {
     	
     	//String[] queryArray = url.toString().split("/rest/");
     	//if referrer is null, use original query string
+    	System.out.println("queryString: " + queryString);
+    	if (queryString.startsWith("/")){
+    		queryString = queryString.substring(1);
+    	}
     	
     	realURL = realURL + queryString;
     	

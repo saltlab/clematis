@@ -40,16 +40,10 @@
           <ul class="nav navbar-nav">
             <li class="active"><a href="/webservice/home.jsp" class="scroll-link" data-id="newSession">New Session</a></li>
             <li><a href="#" class="scroll-link" data-id="about">About</a></li>
-           <shiro:user> <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Account <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="/webservice/account.jsp">View Sessions</a></li>
-                <li><a href="#">Edit Account</a></li>
-              </ul>
-            </li>
+           <shiro:user> 
+           <li><a href="/webservice/account.jsp">View Sessions</a></li>
             </shiro:user>
             <shiro:guest><li><a href="/webservice/home.jsp#login" class="scroll-link" data-id="login">Login</a></li></shiro:guest>
-            <shiro:guest><li><a href="/webservice/view.jsp">View Trace</a></li></shiro:guest>
             <shiro:user><li><a href="<c:url value="/logout"/>">Log out</a></li></shiro:user>
           </ul>
           
@@ -119,7 +113,15 @@ if(name.indexOf("Guest") > -1){
 <script type="text/javascript">
 	//var element = document.getElementById("page").setAttribute("src", "http://www.inmensia.com/files/minesweeper1.0.html");
 	//var a ="<script"+" src"+"=\"../fish-eye-zoom/javascripts/jquery.rest.min.js\">"+"<"+"/"+"script>"; 
-	
+			//stopRecording(); 
+
+	$(window).unload(function() {
+		$.ajax({
+			 url: document.location.href +"?stoprecord",
+			 async: false
+		});
+	});
+
 	var b = "<script"+" src"+"=\"../fish-eye-zoom/javascripts/jquery-ui-1.10.3.custom.js\">"+"<"+"/"+"script>"; 
 	var a="<script"+" src"+"=\"resources/jquery.rest.min.js\">"+"<"+"/"+"script>";
 	var c = "<script"+" src"+"=\"http://code.jquery.com/jquery-1.11.1.js\">" + "<"+"/"+"script>"; 
@@ -153,7 +155,7 @@ if(name.indexOf("Guest") > -1){
 		  		var doc = document.getElementById('page').contentWindow.document;
 				doc.open();
 				
-				data =   e + c + d + b + a + y + z   + m+n+o+p+q+r+s+t+u+v+w+x+l + data  ;
+				data =  e + c + d + b + a + y + z   + m+n+o+p+q+r+s+t+u+v+w+x+l  + data  ;
 				
 				var doc = document.getElementById('page').contentWindow.document;
 				doc.write(data);
@@ -196,11 +198,16 @@ if(name.indexOf("Guest") > -1){
 						
 					doc.write(html  +e + c + d + b + a + y + z   + m+n+o+p+q+r+s+t+u+v+w+x+l + resume);
 					doc.close();
+					
+
 				}
 				
 		    }
 	    });
 	});
+	
+	
+
 	
 </script>
 

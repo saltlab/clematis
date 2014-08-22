@@ -41,14 +41,10 @@
           <ul class="nav navbar-nav">
             <li class="active"><a href="#" class="scroll-link" data-id="newSession">New Session</a></li>
             <li><a href="#" class="scroll-link" data-id="about">About</a></li>
-            <shiro:guest><li><a href="http://localhost:8080/fish-eye-zoom/view.html?sessionID=1">View Trace</a></li></shiro:guest>
-           <shiro:user> <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Account <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li><a href="/webservice/account.jsp">View Sessions</a></li>
-                <li><a href="#">Edit Account</a></li>              
-              </ul>
-            </li>
+           <shiro:user> 
+           
+            <li><a href="/webservice/account.jsp">View Sessions</a></li>
+            
             </shiro:user>
             <shiro:guest><li><a href="#" class="scroll-link" data-id="login">Login</a></li></shiro:guest>
             <shiro:user><li><a href="<c:url value="/logout"/>">Log out</a></li></shiro:user>
@@ -74,8 +70,21 @@ if(name.indexOf("Guest") > -1){
 	}
 }
 
-</script>
+function guestRefresh(){
+	$.ajax({
+		type: 'GET',
+		url: 'http://localhost:8080/rest/clematis-api/account/signInAsGuest',
+		dataType: "text",
+		contentType: "application/json",
+		async: true,
+		success: function successfulGuestSignIn(data) {
+			location.reload();
+		}
+	});
+};
 
+</script>
+<shiro:user>
     <div class="container">
     
   
@@ -102,7 +111,8 @@ if(name.indexOf("Guest") > -1){
           </div>
 
     </div>
-        
+ </shiro:user>   
+    
     <shiro:guest>
     <div class = "container">
     <div class = "main">
@@ -113,8 +123,8 @@ if(name.indexOf("Guest") > -1){
 			
 			    <div class="main-login">
 			
-			      <h3>Please Log In, or <a href="#" data-toggle="modal" data-target="#signup">Sign Up</a></h3>
-			      
+			      <h3>Please Log In, <a href="#" data-toggle="modal" data-target="#signup">Sign Up</a></h3>
+			      <h4><a href="javascript:guestRefresh();"> or Sign In as Guest </a></h3>
 			      <div class="login-or">
 			        <hr class="hr-or">
 			        <span class="span-or"></span>
@@ -130,11 +140,6 @@ if(name.indexOf("Guest") > -1){
 			          <a class="pull-right" href="#">Forgot password?</a>
 			          <label for="inputPassword">Password</label>
 			          <input type="password" class="form-control" name="password" id="inputPassword">
-			        </div>
-			        <div class="checkbox pull-right">
-			          <label>
-			             <input name="rememberMe" type="checkbox" value="true">
-			            Remember me </label>
 			        </div>
 			        <button type="submit" class="btn btn btn-primary">
 			          Log In

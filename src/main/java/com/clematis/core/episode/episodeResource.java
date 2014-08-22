@@ -765,6 +765,30 @@ public class episodeResource {
 	}
 	
 	@GET
+	@Path("/account/signInAsGuest")
+	@Produces(MediaType.APPLICATION_JSON)
+	public void signInGuest(){
+		
+		Subject currentUser = SecurityUtils.getSubject();
+		String user = (String) currentUser.getPrincipal();
+
+	    //find last guest # 
+	    Double guestNum = MongoInterface.getLastGuestUser() + 1.0;
+	    	
+	    //create new account
+	    MongoInterface.newGuestUser(guestNum);
+	    	
+	    //login
+	    //user = "guest"+guestNum;
+	    user = "Guest" + guestNum;
+	    UsernamePasswordToken token = new UsernamePasswordToken(user, guestNum.toString());
+	        //this is all you have to do to support 'remember me' (no config - built in!):
+	    token.setRememberMe(true);
+	    currentUser.login(token);
+		
+	}
+	
+	@GET
 	@Path("/areWeRecording")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Boolean areWeRecording(){
