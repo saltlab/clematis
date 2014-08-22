@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletInputStream;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
@@ -333,7 +334,7 @@ public class NewProxyPlugin{
 	 * @return The modified response.
 	 * @throws IOException 
 	 */
-	public HttpServletResponse createResponse(HttpServletResponse response, HttpServletRequest request) throws IOException {
+	public synchronized HttpServletResponse createResponse(HttpServletResponse response, HttpServletRequest request, String input) throws IOException {
 		ArrayList<String> scriptNodesToCreate;
 		Element newNodeToAdd;
 		String url;
@@ -365,10 +366,10 @@ public class NewProxyPlugin{
 			e1.printStackTrace();
 		}
 		
-		ServletInputStream in = request.getInputStream();
-		String input = episodeResource.processInput(in);
+		//ServletInputStream in = request.getInputStream();
+		//String input = episodeResource.processInput(in);
 		
-		System.out.println("USER NAME JSMODIFY: " + userName + " SESSION NUMBER: "+ sessionNum);
+		System.out.println("USER NAME JSMODIFY: " + userName + " SESSION NUMBER: "+ sessionNum  );
 		
 		JSASTModifier modifier = createModifier();
 		JSExecutionTracer jstrace = new JSExecutionTracer();
@@ -424,7 +425,9 @@ public class NewProxyPlugin{
 		}
 		if (url.contains("?thisisafunctiontracingcall")) {
 			//System.out.println("?THISISAFUNCTIONTRACINGCALL"+input);
-			String rawResponse = input;
+			ServletInputStream in = request.getInputStream();
+			String rawResponse = episodeResource.processInput(in);
+			//String rawResponse = input;
 			try {
 				jstrace.addPoint(rawResponse, userName, sessionNum);
 			} catch (org.json.JSONException e) {
@@ -435,7 +438,10 @@ public class NewProxyPlugin{
 		}
 		if (url.contains("?toolbarstate")) {
 			try {
-				toolbarPosition = new JSONObject(input);
+				ServletInputStream in = request.getInputStream();
+				String inp = episodeResource.processInput(in);
+				
+				toolbarPosition = new JSONObject(inp);
 				MongoInterface.changeToolbarPosition(userName, toolbarPosition);
 				
 				//save toolbarPosition to DB
@@ -451,11 +457,12 @@ public class NewProxyPlugin{
 		// Intercept and instrument relevant files (JavaScript and HTML)
 		   if (type != null && type.contains("javascript")) {
 	            /* instrument the code if possible */
-			   System.out.println("javascript");
+			   System.out.println("javascript !");
+			   response.getWriter().println("");
 			   response.getWriter().write(modifyJS(input,
 	                    url, modifier));
 			   response.getWriter().flush();
-			   response.getWriter().close();
+			   //response.getWriter().close();
 	           
 	        } else if (type != null && type.contains("html")) {
 
@@ -562,9 +569,10 @@ public class NewProxyPlugin{
 	                /* only modify content when we did modify anything */
 	                if (nodes.getLength() > 0) {
 	                    /* set the new content */
+	                	
 	                	response.getWriter().write(Helper.getDocumentToString(dom));
-	    	        	response.getWriter().flush();
-	    	        	response.getWriter().close();
+	    	        	//response.getWriter().flush();
+	    	        	//response.getWriter().close();
 	                   
 	                }
 	            } catch (Exception e) {
@@ -599,9 +607,11 @@ public class NewProxyPlugin{
 	        
 	        
 	        try {
+	        	
+				   
 	        	intrResponse.getWriter().write(Resources.toString(AstInstrumenter.class.getResource(file), Charsets.UTF_8));
-	        	intrResponse.getWriter().flush();
-	        	intrResponse.getWriter().close();
+	        	//intrResponse.getWriter().flush();
+	        	//intrResponse.getWriter().close();
 	           
 	        } catch (IOException e) {
 	            // TODO Auto-generated catch block

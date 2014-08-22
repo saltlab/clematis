@@ -615,7 +615,9 @@ public class JSExecutionTracer {
     	if (pointString.equals("{}")){
     		points = new JSONArray();
     	}else{
+    		System.out.println("JSONOBJECT 1st char: " + pointString.charAt(0));
     		pointString = pointString.substring(1);
+    		System.out.println("JSONOBJECT 1st char: " + pointString.charAt(0));
     		JSONObject jsonObject = new JSONObject(pointString);
         	
         	String[] names = JSONObject.getNames(jsonObject);
@@ -623,6 +625,11 @@ public class JSExecutionTracer {
     	}
     	
     			
+    	if (string!=null && !string.isEmpty()){
+    		System.out.println("STRING! : " + string.substring(0, 1));
+    	}
+    	
+    	
         JSONArray buffer = null;
         JSONObject targetAttributes = null;
         JSONObject targetElement = null;

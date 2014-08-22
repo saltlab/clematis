@@ -36,6 +36,14 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -788,7 +796,7 @@ public class episodeResource {
 	@GET
 	@Path("/redirect")
 	@Produces({"text/plain"})
-	public String check(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
+	public static String check(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
 		System.out.println("redirect");
 	
 		/*String[] params = request.getParameterValues("url");
@@ -848,7 +856,7 @@ public class episodeResource {
 	@GET
 	@Path("/redirectHTML")
 	@Produces({"text/html"})
-	public String getHTML(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
+	public static String getHTML(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
 		System.out.println("redirect");
 	
 		/*String[] params = request.getParameterValues("url");
@@ -907,7 +915,7 @@ public class episodeResource {
 	@GET
 	@Path("/redirectJS")
 	@Produces({"text/javascript"})
-	public String getJS(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
+	public static String getJS(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
 		System.out.println("redirect");
 	
 		/*String[] params = request.getParameterValues("url");
@@ -968,7 +976,7 @@ public class episodeResource {
 	@GET
 	@Path("/redirectCSS")
 	@Produces({"text/css"})
-	public String getCSS(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
+	public static String getCSS(@Context HttpServletRequest request, @Context HttpServletResponse response) throws IOException{
 		System.out.println("redirect");
 	
 		/*String[] params = request.getParameterValues("url");
@@ -1305,7 +1313,7 @@ public class episodeResource {
 	}
 	
 	// HTTP GET request
-		private String sendGet(String url) throws Exception {
+		/*private static String sendGet(String url) throws Exception {
 	 
 			if (!url.contains("http://")){
 				url = "http://" + url;
@@ -1328,6 +1336,7 @@ public class episodeResource {
 			System.out.println("Response Code : " + responseCode);
 	 
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			
 			String inputLine;
 			StringBuffer response = new StringBuffer();
 	 
@@ -1337,11 +1346,44 @@ public class episodeResource {
 			in.close();
 			String responseString = response.toString();
 			//print result
-			//System.out.println(responseString);
+			System.out.println(responseString);
 	 
 			return responseString;
-		}
+		}*/
 	 
+		 public static String sendGet(String url) throws Exception {
+		        CloseableHttpClient httpclient = HttpClients.createDefault();
+	            String responseBody = "";
+		        try {
+		            HttpGet httpget = new HttpGet(url);
+
+		            System.out.println("Executing request " + httpget.getRequestLine());
+
+		            // Create a custom response handler
+		            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+		                public String handleResponse(
+		                        final HttpResponse response) throws ClientProtocolException, IOException {
+		                    int status = response.getStatusLine().getStatusCode();
+		                    if (status >= 200 && status < 300) {
+		                        HttpEntity entity = response.getEntity();
+		                        return entity != null ? EntityUtils.toString(entity) : null;
+		                    } else {
+		                        throw new ClientProtocolException("Unexpected response status: " + status);
+		                    }
+		                }
+
+		            };
+		            responseBody = httpclient.execute(httpget, responseHandler);
+		            //System.out.println("----------------------------------------");
+		            //System.out.println(responseBody);
+		        } finally {
+		            httpclient.close();
+		        }
+		        return responseBody;
+		 }
+		
+		
 		// HTTP POST request
 		public static void sendPost(String url, String urlParam, String data) throws Exception {
 			

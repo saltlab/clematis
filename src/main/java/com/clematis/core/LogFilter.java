@@ -15,19 +15,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.net.HttpURLConnection;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 //import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -45,6 +32,7 @@ import org.apache.shiro.subject.Subject;
 
 import com.clematis.core.episode.episodeResource;
 import com.clematis.database.MongoInterface;
+import com.clematis.jsmodify.HttpServletResponseCopier;
 import com.clematis.jsmodify.NewProxyPlugin;
  
 public class LogFilter implements Filter {
@@ -56,7 +44,7 @@ public class LogFilter implements Filter {
  
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
-
+        
         //Get the IP address of client machine.
         //String ipAddress = request.getRemoteAddr();
         StringBuffer url = request.getRequestURL();
@@ -74,16 +62,19 @@ public class LogFilter implements Filter {
         Subject currentUser = SecurityUtils.getSubject();
 		String user = (String) currentUser.getPrincipal();
 		
-        if(user != null && !user.isEmpty()){
+       /* if(user != null && !user.isEmpty()){
         	NewProxyPlugin proxy = new NewProxyPlugin();
         	proxy.excludeDefaults();
         	proxy.createResponse(response, request);
-        }
+        }*/
         
+		
+		HttpServletResponseCopier responseCopier = new HttpServletResponseCopier((HttpServletResponse) response);
+
     	
         //begin recording?
         if (request.getQueryString() != null && request.getQueryString().contains("beginrecord")){
-    		
+    		//System.out.println("BEGIN RECORD");
     		if (!currentUser.isAuthenticated()) {
         		System.out.println( "current user not authenticated - guest user");
     	        
@@ -120,27 +111,74 @@ public class LogFilter implements Filter {
     		//	response.sendRedirect("http://localhost:8080/webservice/" + URI);
     		//}
     		        		
-    		chain.doFilter(req, res);
+    		//chain.doFilter(req, res);
+    		
+            try {
+                chain.doFilter(req, responseCopier);
+                //responseCopier.flushBuffer();
+            } finally {
+                byte[] copy = responseCopier.getCopy();
+                String input = new String(copy, response.getCharacterEncoding());
+                //System.out.println(input); // Do your logging job here. This is just a basic example.
+               
+                if(user != null && !user.isEmpty()){
+    	    		NewProxyPlugin proxy = new NewProxyPlugin();
+    	        	proxy.excludeDefaults();
+    	        	//responseCopier.getWriter();
+    	        	//res = proxy.createResponse(response, request, input);
+    	        	res = proxy.createResponse(responseCopier, request, input);
+    	        	responseCopier.flushBuffer();
+
+        		}
+            }
+
+    		
     	}
         //check if is rest api
         else if (request.getRequestURI() != null && !isClemFile && matchesRestAPI(request.getRequestURI())){
         	
-        	chain.doFilter(req, res);
-        	
+        	//chain.doFilter(req, res);
+            try {
+                chain.doFilter(req, responseCopier);
+                //responseCopier.flushBuffer();
+            } finally {
+                byte[] copy = responseCopier.getCopy();
+                String input = new String(copy, response.getCharacterEncoding());
+                //System.out.println(input);
+               
+                if(user != null && !user.isEmpty()){
+    	        	NewProxyPlugin proxy = new NewProxyPlugin();
+    	        	proxy.excludeDefaults();
+    	        	//responseCopier.getWriter();
+    	        	//res = proxy.createResponse(response, request, input);
+    	        	
+    	        	//response = proxy.createResponse(responseCopier, request, input);
+    	        	responseCopier = (HttpServletResponseCopier) proxy.createResponse(responseCopier, request, input);
+    	        	//IF THIS REMOVED, ONLY LOADS ONCE
+    	        	//responseCopier.flushBuffer();
+            	}
+            }
+	
         }
         // check if not local host
         else if (!url.toString().contains("localhost")){
         	System.out.println("not localhost");
         	
         	if (url.toString().contains("www.google-analytics.com")){
-        		redirectGA(url.toString(), url, response, request);
+        		//redirectGA(url.toString(), url, response, request);
+        		redirectGA(url.toString(), url, responseCopier, request);
+
         	}
         	
         	else if (request.getQueryString() != null){
-        		redirect(url+"&"+request.getQueryString(), url, response);
+        		//redirect(url+"&"+request.getQueryString(), url, response);
+        		redirect(url+"&"+request.getQueryString(), url, responseCopier);
+
         	}
         	else{
-        		redirect(url.toString(), url, response);
+        		//redirect(url.toString(), url, response);
+        		redirect(url.toString(), url, responseCopier);
+
         	}
         	
         }
@@ -150,7 +188,7 @@ public class LogFilter implements Filter {
         //not clematis file and not a rest api
         else if (request.getRequestURI() != null && !isClemFile && !matchesRestAPI(request.getRequestURI())){
 
-        	String referrer = request.getHeader("referer");
+        	String referrer = request.getHeader("referer"); 
         	System.out.println("Referrer: " + referrer);
         	String relativeURL;
         	
@@ -166,20 +204,65 @@ public class LogFilter implements Filter {
 	        	else if (url.toString().contains("/rest/") && !url.toString().contains("/rest/clematis-api")){
 	             	relativeURL = upRequest(request, url, 2);
 	            }
+	        	else if (url.toString().contains("/webservice") && referrer.contains(".html")){
+	        		relativeURL = upRequest(request, url, 1);
+	        	}
 	        	else {
 	        		relativeURL = upRequest(request, url, 0);
 	        	}
 	   		
-	    		redirect(relativeURL, url, response);
+	    		//redirect(relativeURL, url, response);
+	    		redirect(relativeURL, url, responseCopier);
         	//}
     	}
         //if redirect request
         else if (request.getQueryString() != null && (request.getQueryString().contains("url") )){
         	
-        	chain.doFilter(req, res);
+        	//chain.doFilter(req, res);
+            try {
+                chain.doFilter(req, responseCopier);
+               // responseCopier.flushBuffer();
+            } finally {
+                byte[] copy = responseCopier.getCopy();
+                String input = new String(copy, response.getCharacterEncoding());
+                //System.out.println(input);
+                
+                if(user != null && !user.isEmpty()){
+            		NewProxyPlugin proxy = new NewProxyPlugin();
+                	proxy.excludeDefaults();
+                	//responseCopier.getWriter();
+                	//res = proxy.createResponse(response, request, input);
+
+    	        	res = proxy.createResponse(responseCopier, request, input);
+    	        	//responseCopier.flushBuffer();
+            	}
+            }
+   	
         }
         else {
-        	chain.doFilter(req, res);
+        	//chain.doFilter(req, res);
+            try {
+                //chain.doFilter(req, responseCopier);
+                //responseCopier.flushBuffer();
+            } finally {
+                byte[] copy = responseCopier.getCopy();
+                String input = new String(copy, response.getCharacterEncoding());
+                //System.out.println(input);
+                
+                if(user != null && !user.isEmpty()){
+            		NewProxyPlugin proxy = new NewProxyPlugin();
+                	proxy.excludeDefaults();
+                	//might need to give createResponse the requestCopier
+                	//responseCopier.getWriter();
+                	//res = proxy.createResponse(response, request, input);
+    	        	//res = proxy.createResponse(responseCopier, request, input);
+    	        	//responseCopier.flushBuffer();
+    	        	
+
+                }
+            }
+        	
+        	
         }
 
     	
@@ -341,6 +424,10 @@ public class LogFilter implements Filter {
 		}
 		
     	isFile = getFiles(System.getProperty("user.dir")+"/src/main/webapp", requestFile, isFile);
+    	/*if (!isFile){
+    		//check in fish-eye-zoom/javascripts
+    		isFile = getFiles(System.getProperty("user.dir")+"/src/main/webapp/fish-eye-zoom/javascripts", requestFile, isFile);
+    	}*/
     	
     	System.out.println("isFile? " + isFile);
     	

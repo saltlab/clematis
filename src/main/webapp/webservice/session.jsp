@@ -117,7 +117,7 @@ if(name.indexOf("Guest") > -1){
 
 
 <script type="text/javascript">
-	//var element = document.getElementById("page").setAttribute("src", "http://localhost:8080/rest/clematis-api/redirectHTML?url=" + url + "&null");
+	//var element = document.getElementById("page").setAttribute("src", "http://www.inmensia.com/files/minesweeper1.0.html");
 	//var a ="<script"+" src"+"=\"../fish-eye-zoom/javascripts/jquery.rest.min.js\">"+"<"+"/"+"script>"; 
 	
 	var b = "<script"+" src"+"=\"../fish-eye-zoom/javascripts/jquery-ui-1.10.3.custom.js\">"+"<"+"/"+"script>"; 
@@ -145,14 +145,14 @@ if(name.indexOf("Guest") > -1){
 	//send request to server for url
 	$.ajax({
 		    type: 'GET',
-		    url: 'http://localhost:8080/rest/clematis-api/redirectHTML?url=' + url + '&null/',
+		    url: 'http://localhost:8080/rest/clematis-api/redirectHTML?url=' + url,
 		    dataType: "text",
 		    contentType: "text/html",
 		    async: false,
 		    success: function successfulSessionStarted(data) {
 		  		var doc = document.getElementById('page').contentWindow.document;
 				doc.open();
-
+				
 				data =   e + c + d + b + a + y + z   + m+n+o+p+q+r+s+t+u+v+w+x+l + data  ;
 				
 				var doc = document.getElementById('page').contentWindow.document;
@@ -175,6 +175,7 @@ if(name.indexOf("Guest") > -1){
 				console.log("Are We Recording? " + data);
 				
 				if (data == "true" ){
+					console.log("resuming recording");
 					var counter = 0; 
 					
 					$.ajax({
