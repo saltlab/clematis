@@ -69,6 +69,7 @@
 	  $.ajax({
 	    type: 'GET',
 	    url: 'http://localhost:8080/rest/clematis-api/test/' + sessionID ,
+	    //url: 'http://ec2-54-84-170-59.compute-1.amazonaws.com:8080/rest/clematis-api/test/' + sessionID ,
 	    dataType: "text",
 	    async: false,
 	    success: function hi(data){
@@ -118,6 +119,8 @@
   $.ajax({
     type: 'GET',
     url: 'http://localhost:8080/rest/clematis-api/allEpisodes/'+sessionID+'/story/sequenceDiagram2/' ,
+   // url: 'http://ec2-54-84-170-59.compute-1.amazonaws.com:8080/rest/clematis-api/allEpisodes/'+sessionID+'/story/sequenceDiagram2/' ,
+    
     dataType: "text",
     async: false,
     success: function sequenceDiagram(data) {

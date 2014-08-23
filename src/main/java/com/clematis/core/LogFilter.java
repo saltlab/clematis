@@ -38,6 +38,7 @@ import com.clematis.jsmodify.NewProxyPlugin;
 public class LogFilter implements Filter {
 	
 	private final String USER_AGENT = "Mozilla/5.0";
+	//ec2-54-84-170-59.compute-1.amazonaws.com
  
     @SuppressWarnings("unchecked")
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
@@ -67,7 +68,7 @@ public class LogFilter implements Filter {
         	proxy.excludeDefaults();
         	proxy.createResponse(response, request);
         }*/
-        
+        //localhost
 		
 		HttpServletResponseCopier responseCopier = new HttpServletResponseCopier((HttpServletResponse) response);
 
@@ -117,15 +118,16 @@ public class LogFilter implements Filter {
     		//	response.sendRedirect("http://localhost:8080/webservice/" + URI);
     		//}
     		        		
-    		//chain.doFilter(req, res);
+    		//chain.doFilter(req, res); 
     		
             try {
-                chain.doFilter(req, responseCopier);
+            	chain.doFilter(req, res);
+                //chain.doFilter(req, responseCopier);
                 //responseCopier.flushBuffer();
             } finally {
                 byte[] copy = responseCopier.getCopy();
                 String input = new String(copy, response.getCharacterEncoding());
-                //System.out.println(input); // Do your logging job here. This is just a basic example.
+                System.out.println(input); // Do your logging job here. This is just a basic example.
                
                 if(user != null && !user.isEmpty()){
     	    		NewProxyPlugin proxy = new NewProxyPlugin();

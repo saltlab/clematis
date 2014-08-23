@@ -84,14 +84,15 @@ function guestRefresh(){
 };
 
 </script>
-<shiro:user>
+
     <div class="container">
     
   
 	    <div class="main" id = "newSession">
             <h1 class="cover-heading">Welcome to Clematis</h1>
-            <p class="lead">Enter a URL to begin:</p>
+            <shiro:user><p class="lead">Enter a URL to begin:</p></shiro:user>
             <shiro:guest>Or <a href="#" class="scroll-link" data-id="login">Login</a> to save your session to your account!</shiro:guest>
+            <shiro:user>
             <div class="row">
 	            <div class="col-sm-12">
 		            
@@ -104,6 +105,7 @@ function guestRefresh(){
 				        
 				      </div>
             </div> 
+            </shiro:user>
             <div class = "row">
             	<!-- p id="demo"--><!-- /p-->
 				      <p id="urlsuccess"> </p>
@@ -111,7 +113,7 @@ function guestRefresh(){
           </div>
 
     </div>
- </shiro:user>   
+   
     
     <shiro:guest>
     <div class = "container">
@@ -235,32 +237,29 @@ function guestRefresh(){
 		</script>
     
     <script>
+    document.getElementById("newUser").onclick = function(){
+    	console.log("newUser"); 
+    	userSignUp();
+    };
+    </script>
+    
+    <script>
     document.getElementById("Start").onclick = function(){startClematisSession();};
-    document.getElementById("newUser").onclick = function(){userSignUp();};
+    </script>
+    
+    <script>
     //document.getElementById("LoginButton").onclick = function(){userLogin()};
     
     function startClematisSession(){
       var URLstring = document.getElementById("URL").value;
-	    //document.getElementById("demo").innerHTML = URLstring;
 
-	    /*$.ajax({
-		    type: 'POST',
-		    url: 'http://localhost:8080/rest/clematis-api/startSessionPOST/',
-		    dataType: "text",
-		    data: JSON.stringify({urlSENT : URLstring}),
-		    contentType: "application/json",
-		    async: false,
-		    success: function successfulSessionStarted(data) {
-		      var result=data;
-		      document.getElementById("urlsuccess").innerHTML = data;
-		    }
-	    });*/
 	   window.open("http://localhost:8080/webservice/session.jsp?url="+URLstring,"_self");
  
     }
     
     
     function userSignUp(){
+    	console.log("userSignUp()");
     	if (document.getElementById("password").value != document.getElementById("reenterpassword").value){
     		document.getElementById("signupsuccess").innerHTML = "Passwords do not match!";
     	}
@@ -283,36 +282,7 @@ function guestRefresh(){
 	    	});
     	}
     }
-    
-    //callback handler for form submit
-    $("#ajaxform").submit(function(e)
-		{
-		    var postData = $(this).serializeArray();
-		    var formURL = $(this).attr("action");
-		    $.ajax(
-		    {
-		        url : formURL,
-		        type: "POST",
-		        dataType:"text",
-		        data : JSON.stringify(postData),
-		        contentType:"application/json",
-		        success:function(data) 
-		        {
-		            var result = data;
-		            document.getElementById("loginsuccess").innerHTML = data;
-		        },
-		        error: function(jqXHR, textStatus, errorThrown) 
-		        {
-		            //if fails      
-		        }
-		    });
-		    e.preventDefault(); //STOP default action
-		    e.unbind(); //unbind. to stop multiple form submit.
-		});
- 
-		$("#ajaxform").submit(); //Submit  the FORM
-    
- 
+
     
    </script>
 
