@@ -27,6 +27,8 @@ Clematis has been tested with the photo gallery application [Phormer](http://p.h
 ```
 To better utilize Clematis with Phormer, please add a few photos to the application before running our tool. 
 
+Clematis was also tested with a sample online survey application --url http://ece.ubc.ca/~saba/clematis/study_application.zip
+
 In order to test your own web-application using Clematis, deploy the application and provide its URL to Clematis in a similar fashion as shown above.
 
 ### Running the Tool 
